@@ -1,0 +1,241 @@
+{
+  "name": "oradew-vscode",
+  "displayName": "Oradew",
+  "description": "Oracle (PL/SQL) Development Workspace",
+  "version": "0.0.1",
+  "preview": true,
+  "publisher": "mp",
+  "engines": {
+    "vscode": "^1.21.0"
+  },
+  "categories": [
+    "Other",
+    "Extension Packs"
+  ],
+  "keywords": [
+    "plsql",
+    "oracle",
+    "workspace"
+  ],
+  "homepage": "https://github.com/mickeypearce/oradew-vscode",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mickeypearce/oradew-vscode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mickeypearce/oradew-vscode/issues"
+  },
+  "icon": "images/oradew_icon_128.png",
+  "activationEvents": [
+    "workspaceContains:oradewrc.json",
+    "onCommand:workbench.action.tasks.runTask",
+    "onCommand:oradew.initProjectTask"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "menus": {
+      "editor/title": [
+        {
+          "command": "oradew.compileFileTask",
+          "when": "resourceLangId == plsql",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "oradew.compileFileTask",
+          "when": "resourceLangId == plsql",
+          "group": "Oradew"
+        },
+        {
+          "command": "oradew.exportFileTask",
+          "when": "resourceLangId == plsql",
+          "group": "Oradew"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "oradew.initProjectTask",
+          "group": "Oradew",
+          "category": "Oradew"
+        },
+        {
+          "command": "oradew.exportTask",
+          "group": "Oradew",
+          "category": "Oradew"
+        },
+        {
+          "command": "oradew.compileTask",
+          "group": "Oradew",
+          "category": "Oradew"
+        },
+        {
+          "command": "oradew.packageTask",
+          "group": "Oradew",
+          "category": "Oradew"
+        }
+      ]
+    },
+    "problemMatchers": [
+      {
+        "name": "oracle-plsql",
+        "owner": "external",
+        "fileLocation": [
+          "absolute"
+        ],
+        "pattern": [
+          {
+            "regexp": "^.*@(.*)$",
+            "file": 1
+          },
+          {
+            "regexp": "^(\\d+)\\/(\\d+)\\s+(WARNING|ERROR|INFO)\\s+(.*)$",
+            "line": 1,
+            "column": 2,
+            "severity": 3,
+            "message": 4,
+            "loop": true
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "oradew.initProjectTask",
+        "title": "Initialize Workspace/Version",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.createProjectTask",
+        "title": "Create Source from DB Objects",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.compileTask",
+        "title": "Compile Changes to DB",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.compileAllTask",
+        "title": "Compile All Source to DB",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.compileFileTask",
+        "title": "Compile Current File",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.compileFileTaskTest",
+        "title": "TEST: Compile Current File",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.exportTask",
+        "title": "Import Changes from DB",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.exportFileTask",
+        "title": "Import Current File",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.exportFileTaskTest",
+        "title": "TEST: Import Current File",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.packageTask",
+        "title": "Package",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.deployTaskTest",
+        "title": "Deploy to TEST",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.deployTaskUat",
+        "title": "Deploy to UAT",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.deployTaskFile",
+        "title": "Run Current File As Script",
+        "category": "Oradew"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "oradew.deployTaskFile",
+        "key": "f5"
+      },
+      {
+        "command": "oradew.exportTask",
+        "key": "shift+f6"
+      },
+      {
+        "command": "oradew.compileTask",
+        "key": "f6"
+      },
+      {
+        "command": "oradew.packageTask",
+        "key": "f8"
+      }
+    ]
+  },
+  "extensionDependencies": [
+    "xyz.plsql-language",
+    "eamodio.gitlens",
+    "alefragnani.numbered-bookmarks"
+  ],
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm run copy:static && tsc -p ./",
+    "watch": "npm run copy:static && tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "build": "vsce package",
+    "copy:static": "xcopy .\\src\\config\\templates\\* .\\out\\config\\templates\\ /Y && xcopy .\\src\\gulp.cmd .\\out\\ /Y"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.37",
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^7.0.43",
+    "@types/oracledb": "^1.11.34",
+    "electron-rebuild": "^1.7.3",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.1",
+    "vsce": "^1.39.0",
+    "vscode": "^1.1.14"
+  },
+  "dependencies": {
+    "ansi-styles": "^2.2.1",
+    "del": "^2.2.2",
+    "fs-extra": "^2.1.2",
+    "glob": "^7.1.1",
+    "glob-base": "^0.3.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-convert-encoding": "^1.0.0",
+    "gulp-data": "^1.2.1",
+    "gulp-debug": "^3.2.0",
+    "gulp-git": "^1.9.0",
+    "gulp-insert": "^0.5.0",
+    "gulp-prompt": "^0.2.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-runner": "^1.1.0",
+    "gulp-template": "^4.0.0",
+    "gulp-todo": "^5.4.0",
+    "lodash": "^4.17.4",
+    "merge-stream": "^1.0.1",
+    "nedb": "^1.8.0",
+    "oracledb": "github:oracle/node-oracledb#v2.1.2",
+    "run-sequence": "^1.2.2",
+    "strip-json-comments": "^2.0.1",
+    "typescript": "^2.0.3",
+    "vinyl-map2": "^1.2.1",
+    "yargs": "^4.8.1"
+  }
+}

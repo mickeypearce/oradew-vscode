@@ -1,0 +1,30 @@
+// Dev Workflow settings
+{
+  // Glob pattern for packaging files into deploy script
+  // Preserving order, prefix with ! for excluding
+  "package.input": [
+    ".\\scripts\\initial*.sql",
+    ".\\src\\VIEWS\\*.sql",
+    ".\\src\\PACKAGES\\*.sql",
+    ".\\src\\PACKAGE_BODIES\\*.sql",
+    ".\\src\\FUNCTIONS\\*.sql",
+    ".\\src\\PROCEDURES\\*.sql",
+    ".\\scripts\\final*.sql",
+    "!.\\**\\*EXCLUDE*.sql"
+  ],
+  // Deploy package output file
+  "package.output": ".\\deploy\\Run.sql",
+  // Deploy file encoding (default "utf8")
+  "package.encoding": "utf8",
+  // Glob pattern for compile and export tasks
+  "source": [".\\src\\**\\*.sql"],
+  // Compilation Warning scopes:
+  // NONE, ALL, PERFORMANCE, INFORMATIONAL, SEVERE
+  "compile.warnings": "none",
+  // Version Info
+  "version.number": "develop",
+  "version.description": "develop",
+  "version.releaseDate": "1899-01-01",
+  // Glob pattern for tests
+  "test.input": [".\\test\\**\\*.test.sql"]
+}

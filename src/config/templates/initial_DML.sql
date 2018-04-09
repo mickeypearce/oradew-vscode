@@ -1,0 +1,3 @@
+-- DML Statements
+--INSERT INTO table_name (list_of_columns)
+--VALUES (list_of_values);

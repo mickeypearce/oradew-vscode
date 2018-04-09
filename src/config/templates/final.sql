@@ -1,0 +1,6 @@
+-- Config templating is performed during packaging task.
+-- ex.:
+-- begin
+--   p_bumpVersion(aVersionNumber => '${config["version.number"]}', aVersionDescription => '${config["version.description"]}');
+-- end;
+-- /

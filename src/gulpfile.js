@@ -100,11 +100,13 @@ SPOOL OFF
     }
   };
 
+  const templating = config.get("package.templating") || false;
+
   return (
     gulp
       .src(src)
       // Replace template variables, ex. config["config.variable"]
-      .pipe(template(templateObject))
+      .pipe(templating ? template(templateObject) : gutil.noop())
       // Adds object prompt to every file
       .pipe(map(addDBObjectPrompt))
       .pipe(concat(deployFile))
@@ -407,10 +409,14 @@ const cleanProject = () => {
 gulp.task("cleanProject", cleanProject);
 
 const initGit = async () => {
-  let isInitialized = await git.exec({
-    args: "rev-parse --is-inside-work-tree"
-  });
-  // console.log("a" + isInitialized);
+  let isInitialized;
+  try {
+    isInitialized = await git.exec({
+      args: "rev-parse --is-inside-work-tree"
+    });
+  } catch (error) {
+    isInitialized = false;
+  }
 
   if (isInitialized) {
     return gulp
@@ -422,7 +428,7 @@ const initGit = async () => {
     return gulp
       .src(config.file)
       .pipe(prompt.confirm(`Init git repo?`))
-      .on("data", () => git.init())
+      .on("data", () => git.exec({ args: "init" }))
       .on("end", () => console.log(chalk.magenta("Repo initialized.")));
   }
 };

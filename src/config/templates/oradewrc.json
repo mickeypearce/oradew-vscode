@@ -16,6 +16,8 @@
   "package.output": ".\\deploy\\Run.sql",
   // Deploy file encoding (default "utf8")
   "package.encoding": "utf8",
+  // Package templating of config variables
+  "package.templating": false,
   // Glob pattern for compile and export tasks
   "source": [".\\src\\**\\*.sql"],
   // Compilation Warning scopes:

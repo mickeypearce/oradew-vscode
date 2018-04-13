@@ -1,4 +1,4 @@
--- Config templating is performed during packaging task.
+-- Enable "package.templating" and use variables from config file in code. (even custom vars: ex. ${config["my.var"]})
 -- ex.:
 -- begin
 --   p_bumpVersion(aVersionNumber => '${config["version.number"]}', aVersionDescription => '${config["version.description"]}');

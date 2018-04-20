@@ -648,14 +648,7 @@ const extractTodos = () => {
   gulp
     .src(src, { base: "./" })
     .pipe(todo())
-    // Add link to line of TODO in file
-    .pipe(
-      todo.reporter("markdown", {
-        transformComment: (file, line, text, kind, ref) => {
-          return `| [${file}](${file}#${line}) | ${line} | ${text}`;
-        }
-      })
-    )
+    .pipe(todo.reporter("vscode"))
     .pipe(gulp.dest("./"));
   // .on('end', () => console.log('Todos created.'))
 };

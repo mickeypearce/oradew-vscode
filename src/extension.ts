@@ -170,6 +170,16 @@ export function activate(context: vscode.ExtensionContext) {
       )
     );
 
+    result.push(
+      new vscode.Task(
+        { type: "gulp", name: "runTest" },
+        "runTest",
+        "Oradew",
+        new vscode.ShellExecution(`${gulpShell}` + " runTest"),
+        "$oracle-plsql"
+      )
+    );
+
     return result;
   }
 
@@ -306,6 +316,12 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
+  let cmdTaskTest = vscode.commands.registerCommand("oradew.testTask", () => {
+    vscode.commands.executeCommand(
+      "workbench.action.tasks.runTask",
+      "Oradew: runTest"
+    );
+  });
 
   context.subscriptions.push(cmdTaskInitProject);
   context.subscriptions.push(cmdTaskCreateProject);
@@ -320,6 +336,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskDeployTest);
   context.subscriptions.push(cmdTaskDeployUat);
   context.subscriptions.push(cmdTaskDeployFile);
+  context.subscriptions.push(cmdTaskTest);
 }
 
 // this method is called when your extension is deactivated

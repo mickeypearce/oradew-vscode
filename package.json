@@ -6,17 +6,10 @@
   "preview": true,
   "publisher": "mp",
   "engines": {
-    "vscode": "^1.21.0"
+    "vscode": "^1.22.0"
   },
-  "categories": [
-    "Other",
-    "Extension Packs"
-  ],
-  "keywords": [
-    "plsql",
-    "oracle",
-    "workspace"
-  ],
+  "categories": ["Other", "Extension Packs"],
+  "keywords": ["plsql", "oracle", "workspace"],
   "homepage": "https://github.com/mickeypearce/oradew-vscode",
   "repository": {
     "type": "git",
@@ -70,6 +63,11 @@
           "category": "Oradew"
         },
         {
+          "command": "oradew.testTask",
+          "group": "Oradew",
+          "category": "Oradew"
+        },
+        {
           "command": "oradew.packageTask",
           "group": "Oradew",
           "category": "Oradew"
@@ -80,9 +78,7 @@
       {
         "name": "oracle-plsql",
         "owner": "external",
-        "fileLocation": [
-          "absolute"
-        ],
+        "fileLocation": ["absolute"],
         "pattern": [
           {
             "regexp": "^.*@(.*)$",
@@ -164,6 +160,11 @@
         "command": "oradew.deployTaskFile",
         "title": "Run Current File As Script",
         "category": "Oradew"
+      },
+      {
+        "command": "oradew.testTask",
+        "title": "Run Tests",
+        "category": "Oradew"
       }
     ],
     "keybindings": [
@@ -178,6 +179,10 @@
       {
         "command": "oradew.compileTask",
         "key": "f6"
+      },
+      {
+        "command": "oradew.testTask",
+        "key": "f7"
       },
       {
         "command": "oradew.packageTask",
@@ -197,7 +202,8 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "npm run compile && node ./node_modules/vscode/bin/test",
     "build": "vsce package",
-    "copy:static": "xcopy .\\src\\config\\templates\\* .\\out\\config\\templates\\ /Y && xcopy .\\src\\gulp.cmd .\\out\\ /Y"
+    "copy:static":
+      "xcopy .\\src\\config\\templates\\* .\\out\\config\\templates\\ /S /Y && xcopy .\\src\\gulp.cmd .\\out\\ /Y"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.37",
@@ -208,7 +214,7 @@
     "tslint": "^5.8.0",
     "typescript": "^2.6.1",
     "vsce": "^1.39.0",
-    "vscode": "^1.1.14"
+    "vscode": "^1.1.16"
   },
   "dependencies": {
     "ansi-styles": "^2.2.1",

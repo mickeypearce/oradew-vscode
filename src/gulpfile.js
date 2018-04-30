@@ -80,6 +80,7 @@ SPOOL deploy.log
 SET FEEDBACK ON
 SET ECHO ON
 SET VERIFY OFF
+SET DEFINE OFF
 `;
   const deployAppend = `
 COMMIT;
@@ -360,38 +361,29 @@ deployFilesToDb.flags = {
 
 gulp.task("deployFilesToDb", deployFilesToDb);
 
-// Remove '_clean' ext from template name
-const removeClean = path => {
-  path.basename = path.basename.slice(0, -6);
-};
-
 const createProjectFiles = () => {
-  // Start proj dirs
-  let scripts = gulp
-    .src([
-      path.join(__dirname, "/config/templates/initial*.sql"),
-      path.join(__dirname, "/config/templates/final*.sql")
-    ])
-    // .pipe(rename(removeClean))
-    .pipe(gulp.dest("./scripts"));
+  // Copy from /templates with folder structure
+  let src = [
+    path.join(__dirname, "/config/templates/oradewrc.json"),
+    path.join(__dirname, "/config/templates/scripts/initial*.sql"),
+    path.join(__dirname, "/config/templates/scripts/final*.sql")
+  ];
 
-  let configSrc = [path.join(__dirname, "/config/templates/oradewrc.json")];
-  // Dont overwrite
+  // Dont-overwrite files
   //   .pipe(gulp.dest(".", { overwrite: false })); gulp@4.0.0
   if (!fs.existsSync("./dbconfig.json"))
-    configSrc.push(path.join(__dirname, "/config/templates/dbconfig.json"));
-
+    src.push(path.join(__dirname, "/config/templates/dbconfig.json"));
   if (!fs.existsSync("./.gitignore"))
-    configSrc.push(path.join(__dirname, "/config/templates/.gitignore"));
+    src.push(path.join(__dirname, "/config/templates/.gitignore"));
+  if (!fs.existsSync("./test"))
+    src.push(path.join(__dirname, "/config/templates/test/*.test.sql"));
 
-  let config = gulp
-    .src(configSrc)
-    // .pipe(rename(removeClean))
-    .pipe(gulp.dest("."));
-
-  return merge(scripts, config).on("end", () => {
-    console.log(chalk.green("Project files created."));
-  });
+  return gulp
+    .src(src, { base: path.join(__dirname, "/config/templates/") })
+    .pipe(gulp.dest("."))
+    .on("end", () => {
+      console.log(chalk.green("Project files created."));
+    });
 };
 gulp.task("createProjectFiles", createProjectFiles);
 
@@ -496,7 +488,7 @@ const initConfigFile = () => {
         }
       )
     )
-    .on("data", () => console.log(chalk.magenta("Config updated.")));
+    .on("data", () => console.log(chalk.green("Configuration file updated.")));
 };
 gulp.task("initConfigFile", initConfigFile);
 
@@ -657,7 +649,7 @@ extractTodos.description = "Todos extraction.";
 gulp.task("todo", extractTodos);
 
 const runTest = () => {
-  compileFilesToDb({ file: config.object["test.input"], env: "DEV" });
+  compileFilesToDb({ file: config.get("test.input"), env: "DEV" });
 };
 runTest.description = "Simple unit testing.";
 gulp.task("runTest", runTest);

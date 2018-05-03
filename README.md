@@ -32,6 +32,15 @@ dbconfig.json           DB connection configuration
 
 ## Important
 
-Oracle driver architecture (ia32 or x64) must match Node architecture (x86 or x64), otherwise oracle drivers have to be rebuild:
+> `Oracle driver (node-oracledb) in extension is precompiled with "node-v51 (Node.js 7) - win32 - ia32 (32bit)" binary package.`
 
+Oracle client libraries (ia32 or x64) must match Node architecture (x86 or x64), otherwise node oracle drivers have to be rebuild.
+
+```bash
+## Go to extension folder using Powershell (as Admin)
+> cd $env:userprofile/.vscode/extensions/mp.oradew-vscode-0.0.3
+## Install Windows-Build -Tools:
+> npm --add-python-to-path install --global --production windows-build-tools
+## Rebuild Oracle drivers:
 > npm rebuild
+```

@@ -8,8 +8,15 @@
   "engines": {
     "vscode": "^1.22.0"
   },
-  "categories": ["Other", "Extension Packs"],
-  "keywords": ["plsql", "oracle", "workspace"],
+  "categories": [
+    "Other",
+    "Extension Packs"
+  ],
+  "keywords": [
+    "plsql",
+    "oracle",
+    "workspace"
+  ],
   "homepage": "https://github.com/mickeypearce/oradew-vscode",
   "repository": {
     "type": "git",
@@ -78,7 +85,9 @@
       {
         "name": "oracle-plsql",
         "owner": "external",
-        "fileLocation": ["absolute"],
+        "fileLocation": [
+          "absolute"
+        ],
         "pattern": [
           {
             "regexp": "^.*@(.*)$",
@@ -202,19 +211,18 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "npm run compile && node ./node_modules/vscode/bin/test",
     "build": "vsce package",
-    "copy:static":
-      "xcopy .\\src\\config\\templates\\* .\\out\\config\\templates\\ /S /Y && xcopy .\\src\\gulp.cmd .\\out\\ /Y"
+    "copy:static": "xcopy .\\src\\config\\templates\\* .\\out\\config\\templates\\ /S /Y && xcopy .\\src\\gulp.cmd .\\out\\ /Y"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.37",
+    "@types/lodash": "^4.14.108",
     "@types/mocha": "^2.2.42",
-    "@types/node": "^7.0.43",
+    "@types/node": "^7.0.62",
     "@types/oracledb": "^1.11.34",
     "electron-rebuild": "^1.7.3",
     "tslint": "^5.8.0",
-    "typescript": "^2.6.1",
-    "vsce": "^1.39.0",
-    "vscode": "^1.1.16"
+    "typescript": "^2.8.3",
+    "vsce": "^1.40.0",
+    "vscode": "^1.1.17"
   },
   "dependencies": {
     "ansi-styles": "^2.2.1",
@@ -234,13 +242,12 @@
     "gulp-runner": "^1.1.0",
     "gulp-template": "^4.0.0",
     "gulp-todo": "^5.5.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.10",
     "merge-stream": "^1.0.1",
     "nedb": "^1.8.0",
     "oracledb": "github:oracle/node-oracledb#v2.1.2",
     "run-sequence": "^1.2.2",
     "strip-json-comments": "^2.0.1",
-    "typescript": "^2.0.3",
     "vinyl-map2": "^1.2.1",
     "yargs": "^4.8.1"
   }

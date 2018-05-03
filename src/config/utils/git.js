@@ -4,7 +4,7 @@ let obj = {};
 
 obj.exec = ({ args }) =>
   new Promise((res, rej) => {
-    git.exec({ args }, (err, stdout) => {
+    git.exec({ args, quiet: true }, (err, stdout) => {
       if (err) rej(err);
       res(stdout);
     });

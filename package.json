@@ -235,7 +235,7 @@
     "gulp-convert-encoding": "^1.0.0",
     "gulp-data": "^1.2.1",
     "gulp-debug": "^3.2.0",
-    "gulp-git": "^1.9.0",
+    "gulp-git": "^2.5.2",
     "gulp-insert": "^0.5.0",
     "gulp-prompt": "^0.2.0",
     "gulp-rename": "^1.2.2",

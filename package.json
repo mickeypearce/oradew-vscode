@@ -188,6 +188,12 @@
         "command": "oradew.packageTask",
         "key": "f8"
       }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "oradewrc.json",
+        "url": "./resources/oradewrc-schema.json"
+      }
     ]
   },
   "extensionDependencies": [

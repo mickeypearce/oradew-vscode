@@ -23,6 +23,8 @@
   // Compilation Warning scopes:
   // NONE, ALL, PERFORMANCE, INFORMATIONAL, SEVERE
   "compile.warnings": "none",
+  // Detect conflict and auto merge local changes with DB
+  "compile.force": false,
   // Version Info
   "version.number": "develop",
   "version.description": "develop",

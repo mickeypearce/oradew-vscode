@@ -618,9 +618,10 @@ const compileAndMergeFilesToDb = async ({
   env = argv.env,
   changed = argv.changed
 }) => {
+  const force = config.get("compile.force");
   try {
     // Compile and get error results
-    const results = await compileFilesToDbAsync({ file, env, changed });
+    const results = await compileFilesToDbAsync({ file, env, changed, force });
     // Merge unstaged (if any dirty file)
     if (results.some(file => file.errors.hasDirt()))
       mergeLocalAndDbChanges({ file, env, changed });

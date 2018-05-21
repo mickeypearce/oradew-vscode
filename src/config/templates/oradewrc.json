@@ -6,6 +6,7 @@
     ".\\src\\PACKAGE_BODIES\\*.sql",
     ".\\src\\FUNCTIONS\\*.sql",
     ".\\src\\PROCEDURES\\*.sql",
+    ".\\src\\TRIGGERS\\*.sql",
     ".\\scripts\\final*.sql",
     "!.\\**\\*EXCLUDE*.sql"
   ],

@@ -83,7 +83,9 @@ obj.exportFile = async (code, file, env, ease = false, done) => {
           // Remove whitespaces
           _.trim,
           // Remove NUL chars that are added to large files ?!
-          _.replace(/\x00/g, "")
+          _.replace(/\x00/g, ""),
+          // Remove disable/enable line that is added at the end of the trigger
+          _.replace(/\nALTER TRIGGER+.*/g, "")
         )(lob);
         // Return a value async with callback
         done(null, lob);

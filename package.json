@@ -2,14 +2,14 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "preview": true,
   "publisher": "mp",
   "engines": {
     "vscode": "^1.22.0"
   },
   "categories": ["Other", "Extension Packs"],
-  "keywords": ["plsql", "oracle", "workspace"],
+  "keywords": ["plsql", "PL/SQL", "oracle", "workspace"],
   "homepage": "https://github.com/mickeypearce/oradew-vscode",
   "repository": {
     "type": "git",
@@ -188,6 +188,12 @@
         "command": "oradew.packageTask",
         "key": "f8"
       }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "oradewrc.json",
+        "url": "./resources/oradewrc-schema.json"
+      }
     ]
   },
   "extensionDependencies": [
@@ -202,6 +208,7 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "npm run compile && node ./node_modules/vscode/bin/test",
     "build": "vsce package",
+    "publish": "vsce publish",
     "copy:static":
       "xcopy .\\src\\config\\templates\\* .\\out\\config\\templates\\ /S /Y && xcopy .\\src\\gulp.cmd .\\out\\ /Y"
   },
@@ -237,7 +244,7 @@
     "lodash": "^4.17.10",
     "merge-stream": "^1.0.1",
     "nedb": "^1.8.0",
-    "oracledb": "github:oracle/node-oracledb#v2.1.2",
+    "oracledb": "^2.2.0",
     "run-sequence": "^1.2.2",
     "strip-json-comments": "^2.0.1",
     "vinyl-map2": "^1.2.1",

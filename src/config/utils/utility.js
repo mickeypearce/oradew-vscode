@@ -7,7 +7,8 @@ let mapDirToObjectType = {
   PROCEDURES: "PROCEDURE",
   FUNCTIONS: "FUNCTION",
   PACKAGE_BODIES: "PACKAGE BODY",
-  VIEWS: "VIEW"
+  VIEWS: "VIEW",
+  TRIGGERS: "TRIGGER"
 };
 
 let mapObjectTypeAlternative = {

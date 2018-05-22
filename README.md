@@ -8,7 +8,7 @@ PL/SQL development with a simple compile-package-deploy workflow. Compile with O
 oradewrc.json           Workspace configuration
 dbconfig.json           DB connection configuration
 ./scripts               Deployment scripts (DDL, DML, etc)
-./src                   Source with PL/SQL objects (FUNCTIONS, PACKAGES, PROCEDURES, VIEWS)
+./src                   Source with PL/SQL objects (FUNCTIONS, PACKAGES, PROCEDURES, VIEWS, TRIGGERS)
 ./deploy                Distribution package
 ```
 
@@ -32,15 +32,13 @@ dbconfig.json           DB connection configuration
 
 ## Important
 
-> `Oracle driver (node-oracledb) in extension is precompiled with "node-v51 (Node.js 7) - win32 - ia32 (32bit)" binary package.`
+> `Oracle driver (node-oracledb) in extension is precompiled with "node-v59 (Node.js 9) - win32 - x64 (64bit)" binary package.`
 
-Oracle client libraries (ia32 or x64) must match Node architecture (x86 or x64), otherwise node oracle drivers have to be rebuild.
+Oracle client library architecture (instantclient), Node.js version, OS and architecture must match precompiled configuration otherwise node-oracledb drivers have to be rebuild.
 
 ```bash
-## Go to extension folder using Powershell (as Admin)
-> cd $env:userprofile/.vscode/extensions/mp.oradew-vscode-0.0.3
-## Install Windows-Build -Tools:
-> npm --add-python-to-path install --global --production windows-build-tools
-## Rebuild Oracle drivers:
+## Rebuild Oracle drivers (in ext folder ~/.vscode/extensions/mp.oradew-vscode-...):
 > npm rebuild
 ```
+
+I hope you find it useful. Your feedback is highly appreciated.

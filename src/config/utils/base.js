@@ -173,4 +173,39 @@ obj.getObjectsInfoByType = async (env, objectTypes) => {
   return result;
 };
 
+obj.resolveObjectInfo = async (env, { name }) => {
+  let conn;
+  let result;
+  try {
+    let schema, part1;
+    conn = await db.getConnection(env);
+    // Resolve object name from string; context: 1 - PL/SQL
+    try {
+      ({ schema, part1 } = await db.getNameResolve(conn, {
+        name,
+        context: 1
+      }));
+    } catch (error) {
+      if (error.errorNum == "4047") {
+        error.message = "Object type not supported.";
+      }
+      throw error;
+    }
+
+    // Schemas not yet supported in workspace
+    if (schema !== db.getUser(env)) {
+      throw Error("Importing from other schemas not (yet) supported.");
+    }
+    result = await db.getObjectsInfo(conn, {
+      owner: schema,
+      objectName: part1
+    });
+  } catch (error) {
+    throw error;
+  } finally {
+    conn && conn.close();
+  }
+  return result;
+};
+
 module.exports = obj;

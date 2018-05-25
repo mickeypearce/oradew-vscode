@@ -654,3 +654,25 @@ const runTest = () => {
 };
 runTest.description = "Simple unit testing.";
 gulp.task("runTest", runTest);
+
+const importObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
+  try {
+    const source = globBase(config.get("source")[0]).base;
+    const name = object;
+    const objs = await base.resolveObjectInfo(env, { name });
+
+    // Create array of abs file paths
+    let files = objs.map(obj => {
+      const dir = utils.getDirFromObjectType(obj.OBJECT_TYPE);
+      const relativePath = `./${source}/${dir}/${obj.OBJECT_NAME}.sql`;
+      return path.resolve(relativePath);
+    });
+
+    // Import files
+    files.forEach(file => fs.outputFileSync(file, ""));
+    await exportFilesFromDbAsync({ file: files, env, quiet: false });
+  } catch (err) {
+    console.error(err.message);
+  }
+};
+gulp.task("importObjectFromDb", importObjectFromDb);

@@ -184,6 +184,39 @@ const getErrors = async (conn, obj) => {
   return errors(errsArray);
 };
 
+const getNameResolve = (connection, { name, context }) => {
+  return connection
+    .execute(
+      `begin
+    dbms_utility.name_resolve (
+    name          => :name,
+    context       => :context,
+    schema        => :schema,
+    part1         => :part1,
+    part2         => :part2,
+    dblink        => :dblink,
+    part1_type    => :part1_type,
+    object_number => :object_number
+    );
+    end;`,
+      {
+        name,
+        context,
+        schema: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 30 },
+        part1: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 30 },
+        part2: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 30 },
+        dblink: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 30 },
+        part1_type: {
+          dir: oracledb.BIND_OUT,
+          type: oracledb.STRING,
+          maxSize: 30
+        },
+        object_number: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+      }
+    )
+    .then(result => result.outBinds);
+};
+
 module.exports.getConnection = getConnection;
 module.exports.getObjectDdl = getObjectDdl;
 module.exports.getErrorsInfo = getErrorsInfo;
@@ -199,3 +232,4 @@ module.exports.errors = errors;
 module.exports.getErrorObjectChanged = getErrorObjectChanged;
 module.exports.getErrors = getErrors;
 module.exports.getErrorSystem = getErrorSystem;
+module.exports.getNameResolve = getNameResolve;

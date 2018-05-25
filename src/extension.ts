@@ -140,6 +140,20 @@ export function activate(context: vscode.ExtensionContext) {
 
     result.push(
       new vscode.Task(
+        { type: "gulp", name: "export--object" },
+        "export--object",
+        "Oradew",
+        new vscode.ShellExecution(
+          `${gulpShell}` +
+            ' importObjectFromDb --env "DEV" --object ${selectedText}',
+          shellOptions
+        ),
+        "$oracle-plsql"
+      )
+    );
+
+    result.push(
+      new vscode.Task(
         { type: "gulp", name: "package" },
         "package",
         "Oradew",
@@ -297,6 +311,15 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
+  let cmdTaskExportObject = vscode.commands.registerCommand(
+    "oradew.exportObjectTask",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "Oradew: export--object"
+      );
+    }
+  );
   let cmdTaskPackage = vscode.commands.registerCommand(
     "oradew.packageTask",
     () => {
@@ -349,6 +372,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskExport);
   context.subscriptions.push(cmdTaskExportFile);
   context.subscriptions.push(cmdTaskExportFileTest);
+  context.subscriptions.push(cmdTaskExportObject);
   context.subscriptions.push(cmdTaskPackage);
   context.subscriptions.push(cmdTaskDeployTest);
   context.subscriptions.push(cmdTaskDeployUat);

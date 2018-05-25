@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "preview": true,
   "publisher": "mp",
   "engines": {
@@ -42,6 +42,11 @@
         },
         {
           "command": "oradew.exportFileTask",
+          "when": "resourceLangId == plsql",
+          "group": "Oradew"
+        },
+        {
+          "command": "oradew.exportObjectTask",
           "when": "resourceLangId == plsql",
           "group": "Oradew"
         }
@@ -134,6 +139,11 @@
       {
         "command": "oradew.exportFileTask",
         "title": "Import Current File",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.exportObjectTask",
+        "title": "Import Selected Object",
         "category": "Oradew"
       },
       {

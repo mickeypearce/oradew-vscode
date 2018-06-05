@@ -60,22 +60,26 @@
         {
           "command": "oradew.exportTask",
           "group": "Oradew",
-          "category": "Oradew"
+          "category": "Oradew",
+          "when": "workspaceContains:oradewrc.json"
         },
         {
           "command": "oradew.compileTask",
           "group": "Oradew",
-          "category": "Oradew"
+          "category": "Oradew",
+          "when": "workspaceContains:oradewrc.json"
         },
         {
           "command": "oradew.testTask",
           "group": "Oradew",
-          "category": "Oradew"
+          "category": "Oradew",
+          "when": "workspaceContains:oradewrc.json"
         },
         {
           "command": "oradew.packageTask",
           "group": "Oradew",
-          "category": "Oradew"
+          "category": "Oradew",
+          "when": "workspaceContains:oradewrc.json"
         }
       ]
     },

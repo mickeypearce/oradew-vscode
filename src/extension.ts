@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 let taskProvider: vscode.Disposable | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
+  const isSilent = (process.env["silent"] || "true") === "true";
   const rootPath = vscode.workspace.rootPath || context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
 
@@ -13,8 +14,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     const gulpPath = context.asAbsolutePath("out\\gulp.cmd");
     const gulpFile = context.asAbsolutePath("out\\gulpfile.js");
-    const gulpShell = `${gulpPath} --cwd ${rootPath} --gulpfile ${gulpFile} --silent true --color true`;
-    // const gulpShell = `${gulpPath} --cwd ${rootPath} --gulpfile ${gulpFile}`;
+    let gulpShell = `${gulpPath} --cwd ${rootPath} --gulpfile ${gulpFile} --color true`;
+    if (isSilent) {
+      gulpShell = `${gulpShell} --silent true`;
+    }
 
     const shellOptions = { env: { storagePath } };
 

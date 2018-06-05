@@ -616,9 +616,10 @@ gulp.task("mergeLocalAndDbChanges", mergeLocalAndDbChanges);
 const compileAndMergeFilesToDb = async ({
   file = argv.file,
   env = argv.env,
-  changed = argv.changed
+  changed = argv.changed,
+  force = argv.force
 }) => {
-  const force = config.get("compile.force");
+  force = force || config.get("compile.force");
   try {
     // Compile and get error results
     const results = await compileFilesToDbAsync({ file, env, changed, force });

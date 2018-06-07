@@ -93,6 +93,7 @@ const getErrorsInfo = (connection, { owner, objectName, objectType }) => {
 };
 
 const getObjectsInfo = (connection, { owner, objectType, objectName }) => {
+  // Exclude types that are silently created when defined in packages (SYS_PLSQL)
   oracledb.outFormat = oracledb.OBJECT;
   return connection
     .execute(
@@ -101,6 +102,7 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }) => {
     where owner = :owner
     and object_type = nvl(:objectType, object_type)
     and object_name = nvl(:objectName, object_name)
+    and object_name not like 'SYS_PLSQL%'
     order by object_id`,
       {
         owner,

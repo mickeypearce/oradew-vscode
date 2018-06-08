@@ -8,12 +8,16 @@ let mapDirToObjectType = {
   FUNCTIONS: "FUNCTION",
   PACKAGE_BODIES: "PACKAGE BODY",
   VIEWS: "VIEW",
-  TRIGGERS: "TRIGGER"
+  TRIGGERS: "TRIGGER",
+  TYPES: "TYPE",
+  TYPE_BODIES: "TYPE BODY"
 };
 
 let mapObjectTypeAlternative = {
   PACKAGE: "PACKAGE_SPEC",
-  "PACKAGE BODY": "PACKAGE_BODY"
+  "PACKAGE BODY": "PACKAGE_BODY",
+  TYPE: "TYPE_SPEC",
+  "TYPE BODY": "TYPE_BODY"
 };
 
 // Simple invert object function

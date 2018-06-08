@@ -112,9 +112,12 @@ obj.compileFile = async (code, file, env, force = false, scope) => {
   const obj = utils.getDBObjectFromPath(file);
 
   // Trim empties and slash (/) from code if it exists
-  code = _.pipe(_.trim, _.trimCharsEnd("/"))(code);
+  code = _.pipe(
+    _.trim,
+    _.trimCharsEnd("/")
+  )(code);
 
-  let errors = {};
+  let errors;
   let result = {};
   let conn;
   try {
@@ -165,6 +168,45 @@ obj.getObjectsInfoByType = async (env, objectTypes) => {
       const objects = await db.getObjectsInfo(conn, { owner, objectType });
       result = result.concat(objects);
     }
+  } catch (error) {
+    throw error;
+  } finally {
+    conn && conn.close();
+  }
+  return result;
+};
+
+obj.resolveObjectInfo = async (env, { name }) => {
+  let conn;
+  let result;
+  try {
+    let schema, part1, part2;
+    let objectName;
+    conn = await db.getConnection(env);
+    // Try to resolve object name for every context [0..9] (obj type)
+    for (let context = 0; context < 10; context++) {
+      try {
+        ({ schema, part1, part2 } = await db.getNameResolve(conn, {
+          name,
+          context
+        }));
+      } catch (error) {
+        if (error.errorNum != "4047") {
+          throw error;
+        }
+      }
+      objectName = part1 || part2;
+      if (objectName) break;
+    }
+
+    // Schemas not yet supported in workspace
+    if (schema !== db.getUser(env)) {
+      throw Error("Importing from other schemas not (yet) supported.");
+    }
+    result = await db.getObjectsInfo(conn, {
+      owner: schema,
+      objectName
+    });
   } catch (error) {
     throw error;
   } finally {

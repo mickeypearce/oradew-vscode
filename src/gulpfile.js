@@ -231,6 +231,7 @@ const printResults = resp => {
 };
 
 const printErrors = resp => {
+  if (!resp.errors) return resp;
   // Concat errors to problem matcher format
   const errMsg = resp.errors.toString();
   // Generate status msg
@@ -244,6 +245,7 @@ const printErrors = resp => {
 
 // Stage file if no errors
 const addGit = async resp => {
+  if (!resp.errors) return resp;
   if (!resp.errors.hasErrors()) {
     await git.exec({ args: `add ${resp.file}` });
   }
@@ -616,9 +618,10 @@ gulp.task("mergeLocalAndDbChanges", mergeLocalAndDbChanges);
 const compileAndMergeFilesToDb = async ({
   file = argv.file,
   env = argv.env,
-  changed = argv.changed
+  changed = argv.changed,
+  force = argv.force
 }) => {
-  const force = config.get("compile.force");
+  force = force || config.get("compile.force");
   try {
     // Compile and get error results
     const results = await compileFilesToDbAsync({ file, env, changed, force });
@@ -654,3 +657,25 @@ const runTest = () => {
 };
 runTest.description = "Simple unit testing.";
 gulp.task("runTest", runTest);
+
+const importObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
+  try {
+    const source = globBase(config.get("source")[0]).base;
+    const name = object;
+    const objs = await base.resolveObjectInfo(env, { name });
+
+    // Create array of abs file paths
+    let files = objs.map(obj => {
+      const dir = utils.getDirFromObjectType(obj.OBJECT_TYPE);
+      const relativePath = `./${source}/${dir}/${obj.OBJECT_NAME}.sql`;
+      return path.resolve(relativePath);
+    });
+
+    // Import files
+    files.forEach(file => fs.outputFileSync(file, ""));
+    await exportFilesFromDbAsync({ file: files, env, quiet: false });
+  } catch (err) {
+    console.error(err.message);
+  }
+};
+gulp.task("importObjectFromDb", importObjectFromDb);

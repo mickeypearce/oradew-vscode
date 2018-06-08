@@ -1,20 +1,23 @@
 # Change Log
 
+## [0.0.5] - 2018-06-08
+
+- Added Types to object types [PR #7](https://github.com/mickeypearce/oradew-vscode/issues/7) (thanks, @chambery)
+- Added Import Selected Object [#4](https://github.com/mickeypearce/oradew-vscode/issues/4)
+
 ## [0.0.4] - 2018-05-22
 
-* !!! Upgraded node-oracledb binary to Node.js 9 - win32 - x64.
-* Add "compile.force" parameter
-* Add json schema to oradewrc.json config file
-* Add triggers to object types
+- !!! Upgraded node-oracledb binary to Node.js 9 - win32 - x64.
+- Added "compile.force" parameter
+- Added json schema to oradewrc.json config file
+- Added triggers to object types
 
 ## [0.0.3] - 2018-05-03
 
-* Add "DEFINE OFF" to generated package script
-* Add Run Test command
-* Preserve exported objects DB data (moved to storagePath)
-* bugs fixes
+- Added "DEFINE OFF" to generated package script
+- Added Run Test command
+- Preserve exported objects DB data (moved to storagePath)
 
 ## [0.0.2] - 2018-04-20
 
-* Add "package.template" parameter
-* bugs fixes
+- Added "package.template" parameter

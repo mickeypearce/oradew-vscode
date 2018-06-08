@@ -10,6 +10,7 @@ dbconfig.json           DB connection configuration
 ./scripts               Deployment scripts (DDL, DML, etc)
 ./src                   Source with PL/SQL objects (FUNCTIONS, PACKAGES, PROCEDURES, VIEWS, TRIGGERS, TYPES)
 ./deploy                Distribution package
+./test                  Unit tests
 ```
 
 ## Basic Workflow
@@ -29,6 +30,13 @@ dbconfig.json           DB connection configuration
 
 - `Package` (F8) - Generate distribution package script
 - `Deploy to TEST or UAT` - Deploy dist package script to TEST or UAT (with SQLPlus)
+
+## Additional Commands
+
+- `Import Changes from DB` (Shift + F6)
+- `Import Current File / Import Selected Object`
+- `Compile All Source to DB`
+- `Run tests` (F7)
 
 ## Important
 

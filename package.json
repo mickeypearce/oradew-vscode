@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.0.5-SNAPSHOT",
+  "version": "0.0.5",
   "preview": true,
   "publisher": "mp",
   "engines": {
@@ -55,7 +55,7 @@
         },
         {
           "command": "oradew.exportObjectTask",
-          "when": "resourceLangId == plsql",
+          "when": "resourceLangId == plsql && editorHasSelection",
           "group": "Oradew"
         }
       ],
@@ -68,26 +68,22 @@
         {
           "command": "oradew.exportTask",
           "group": "Oradew",
-          "category": "Oradew",
-          "when": "workspaceContains:oradewrc.json"
+          "category": "Oradew"
         },
         {
           "command": "oradew.compileTask",
           "group": "Oradew",
-          "category": "Oradew",
-          "when": "workspaceContains:oradewrc.json"
+          "category": "Oradew"
         },
         {
           "command": "oradew.testTask",
           "group": "Oradew",
-          "category": "Oradew",
-          "when": "workspaceContains:oradewrc.json"
+          "category": "Oradew"
         },
         {
           "command": "oradew.packageTask",
           "group": "Oradew",
-          "category": "Oradew",
-          "when": "workspaceContains:oradewrc.json"
+          "category": "Oradew"
         }
       ]
     },

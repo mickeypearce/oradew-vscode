@@ -231,6 +231,7 @@ const printResults = resp => {
 };
 
 const printErrors = resp => {
+  if (!resp.errors) return resp;
   // Concat errors to problem matcher format
   const errMsg = resp.errors.toString();
   // Generate status msg
@@ -244,6 +245,7 @@ const printErrors = resp => {
 
 // Stage file if no errors
 const addGit = async resp => {
+  if (!resp.errors) return resp;
   if (!resp.errors.hasErrors()) {
     await git.exec({ args: `add ${resp.file}` });
   }

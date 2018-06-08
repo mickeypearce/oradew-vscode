@@ -112,9 +112,12 @@ obj.compileFile = async (code, file, env, force = false, scope) => {
   const obj = utils.getDBObjectFromPath(file);
 
   // Trim empties and slash (/) from code if it exists
-  code = _.pipe(_.trim, _.trimCharsEnd("/"))(code);
+  code = _.pipe(
+    _.trim,
+    _.trimCharsEnd("/")
+  )(code);
 
-  let errors = {};
+  let errors;
   let result = {};
   let conn;
   try {

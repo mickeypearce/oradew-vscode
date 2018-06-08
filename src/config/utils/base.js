@@ -180,19 +180,23 @@ obj.resolveObjectInfo = async (env, { name }) => {
   let conn;
   let result;
   try {
-    let schema, part1;
+    let schema, part1, part2;
+    let objectName;
     conn = await db.getConnection(env);
-    // Resolve object name from string; context: 1 - PL/SQL
-    try {
-      ({ schema, part1 } = await db.getNameResolve(conn, {
-        name,
-        context: 1
-      }));
-    } catch (error) {
-      if (error.errorNum == "4047") {
-        error.message = "Object type not supported.";
+    // Try to resolve object name for every context [0..9] (obj type)
+    for (let context = 0; context < 10; context++) {
+      try {
+        ({ schema, part1, part2 } = await db.getNameResolve(conn, {
+          name,
+          context
+        }));
+      } catch (error) {
+        if (error.errorNum != "4047") {
+          throw error;
+        }
       }
-      throw error;
+      objectName = part1 || part2;
+      if (objectName) break;
     }
 
     // Schemas not yet supported in workspace
@@ -201,7 +205,7 @@ obj.resolveObjectInfo = async (env, { name }) => {
     }
     result = await db.getObjectsInfo(conn, {
       owner: schema,
-      objectName: part1
+      objectName
     });
   } catch (error) {
     throw error;

@@ -217,6 +217,10 @@
       {
         "fileMatch": "oradewrc.json",
         "url": "./resources/oradewrc-schema.json"
+      },
+      {
+        "fileMatch": "dbconfig.json",
+        "url": "./resources/dbconfig-schema.json"
       }
     ]
   },
@@ -260,6 +264,7 @@
     "gulp-debug": "^3.2.0",
     "gulp-git": "^2.5.2",
     "gulp-insert": "^0.5.0",
+    "gulp-multi-dest": "^1.3.7",
     "gulp-prompt": "^0.2.0",
     "gulp-rename": "^1.2.2",
     "gulp-template": "^4.0.0",

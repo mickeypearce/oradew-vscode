@@ -1,0 +1,32 @@
+{
+  "title": "JSON schema for dbconfig file",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "type": "array",
+  "items": {
+    "title": "Connection configuration",
+    "type": "object",
+    "properties": {
+      "env": {
+        "default": "DEV",
+        "description": "Environment type.",
+        "type": "string",
+        "enum": ["DEV", "TEST", "UAT"]
+      },
+      "user": {
+        "type": "string"
+      },
+      "password": {
+        "type": "string"
+      },
+      "connectString": {
+        "type": "string"
+      },
+      "default": {
+        "description":
+          "Default connection for environment. \nIf user can't be extracted from path, default connection is used. (ex. for deploy)",
+        "type": "boolean"
+      }
+    },
+    "required": ["user", "password", "connectString", "env"]
+  }
+}

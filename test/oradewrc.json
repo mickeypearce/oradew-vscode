@@ -2,26 +2,24 @@
   "package.input": [
     ".\\scripts\\initial*.sql",
     ".\\src\\VIEWS\\*.sql",
+    ".\\src\\TYPES\\*.sql",
+    ".\\src\\TYPE_BODIES\\*.sql",
+    ".\\src\\TRIGGERS\\*.sql",
     ".\\src\\PACKAGES\\*.sql",
     ".\\src\\PACKAGE_BODIES\\*.sql",
     ".\\src\\FUNCTIONS\\*.sql",
     ".\\src\\PROCEDURES\\*.sql",
-    ".\\src\\TRIGGERS\\*.sql",
     ".\\scripts\\final*.sql",
     "!.\\**\\*EXCLUDE*.sql"
   ],
   "package.output": ".\\deploy\\Run.sql",
   "package.encoding": "utf8",
   "package.templating": false,
-  "source": [
-    ".\\src\\**\\*.sql"
-  ],
+  "source": [".\\src\\**\\*.sql"],
   "compile.warnings": "NONE",
   "compile.force": false,
   "version.number": "develop",
   "version.description": "develop",
   "version.releaseDate": "1899-01-01",
-  "test.input": [
-    ".\\test\\**\\*.test.sql"
-  ]
+  "test.input": [".\\test\\**\\*.test.sql"]
 }

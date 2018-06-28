@@ -1,17 +1,27 @@
-{
-  "DEV": {
+[
+  {
+    "env": "DEV",
     "user": "hr",
     "password": "welcome",
     "connectString": "localhost/orclpdb"
   },
-  "TEST": {
-    "user": "hr",
-    "password": "welcome",
-    "connectString": "localhost/orclpdb"
+  {
+    "env": "DEV",
+    "user": "HR1",
+    "password": "welcome2",
+    "connectString": "localhost/orclpdb2",
+    "default": true
   },
-  "UAT": {
+  {
+    "env": "TEST",
     "user": "hr",
-    "password": "welcome",
-    "connectString": "localhost/orclpdb"
+    "password": "welcome1",
+    "connectString": "localhost/orclpdb1"
+  },
+  {
+    "env": "UAT",
+    "user": "hr2",
+    "password": "welcome3",
+    "connectString": "localhost/orclpdb3"
   }
-}
+]

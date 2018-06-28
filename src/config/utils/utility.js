@@ -1,6 +1,9 @@
+import { sep, parse, resolve } from "path";
+import { TextEditorCursorStyle } from "vscode";
+
 let utils = {};
 
-const owner = require("./db").getUser("DEV");
+// const owner = "NKAP"; //require("./db").getUser("DEV");
 
 let mapDirToObjectType = {
   PACKAGES: "PACKAGE",
@@ -35,43 +38,63 @@ utils.getObjectType1FromObjectType = type =>
   mapObjectTypeAlternative[type] || type;
 utils.getDirFromObjectType = type => invert(mapDirToObjectType)(type) || type;
 
-// Get object name from filepath
-utils.getObjectNameFromPath = path => {
-  return path
-    .split("\\")
-    .pop()
-    .split(".")
-    .shift();
-};
-
-utils.getDirFromPath = path => {
-  return path
-    .split("\\")
-    .slice(0, -1)
-    .pop();
-};
-
-// Not proud, @TODO refactor!
-utils.getRootFromPath = path => owner;
-
-// @TODO optimize!
 utils.getDBObjectFromPath = path => {
-  const owner = utils.getRootFromPath(path);
-  const objectName = utils.getObjectNameFromPath(path);
-  const dir = utils.getDirFromPath(path);
-  const objectType = utils.getObjectTypeFromDir(dir);
-  const objectType1 = utils.getObjectType1FromObjectType(objectType);
+  path = resolve(path);
+  const pathSplit = path.split(sep);
+
+  let owner, objectName, dir, objectType, objectType1;
+  // Object name is always from file name
+  objectName = parse(path).name;
+
+  let isScript, isSource;
+  // Problem if db user=scripts, but glob matching is too costy...
+  isScript = pathSplit[pathSplit.length - 3].toLowerCase() === "scripts";
+  isSource = pathSplit[pathSplit.length - 4].toLowerCase() === "src";
+
+  // console.log("path=" + path);
+  // console.log("pathSplit=" + pathSplit);
+  // console.log("isscript=" + isScript);
+  // console.log("issource=" + isSource);
+
+  // We determine owner from path in Source and Scripts folder
+  // Null otherwise
+  if (isScript) {
+    // `./${scripts}/${owner}/${name}.sql`,
+    // Owner is important
+    // unfortunately is on different position than in Source
+    owner = pathSplit[pathSplit.length - 2];
+    dir = "SCRIPTS"; //non existent but no problem
+  } else if (isSource) {
+    // `./${source}/${owner}/${dir}/${name}.sql`,
+    owner = pathSplit[pathSplit.length - 3];
+    dir = pathSplit[pathSplit.length - 2];
+  } else {
+    // `./${deploy}/${name}.sql`,
+    // No owner here
+    // will go for default when looking for conn conf
+    owner = null;
+    dir = pathSplit[pathSplit.length - 2];
+  }
+
+  objectType = utils.getObjectTypeFromDir(dir);
+  objectType1 = utils.getObjectType1FromObjectType(objectType);
+
+  // console.log("owner=" + owner);
+  // console.log("objectName=" + objectName);
+  // console.log("objectType=" + objectType);
+
   return {
     owner,
     objectName,
     objectType,
-    objectType1
+    objectType1,
+    isScript,
+    isSource
   };
 };
 
-module.exports.getDBObjectFromPath = utils.getDBObjectFromPath;
-module.exports.getObjectTypeFromDir = utils.getObjectTypeFromDir;
-module.exports.getDirFromObjectType = utils.getDirFromObjectType;
-module.exports.getObjectTypes = utils.getObjectTypes;
-module.exports.getRootFromPath = utils.getRootFromPath;
-module.exports.getDirTypes = utils.getDirTypes;
+export const getDBObjectFromPath = utils.getDBObjectFromPath;
+export const getObjectTypeFromDir = utils.getObjectTypeFromDir;
+export const getDirFromObjectType = utils.getDirFromObjectType;
+export const getObjectTypes = utils.getObjectTypes;
+export const getDirTypes = utils.getDirTypes;

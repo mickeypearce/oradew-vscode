@@ -18,10 +18,12 @@ const chalk = require("chalk");
 const prompt = require("gulp-prompt");
 const globBase = require("glob-base");
 const merge = require("merge-stream");
+const multiDest = require("gulp-multi-dest");
 
 const utils = require("./config/utils/utility");
 const git = require("./config/utils/git");
 const base = require("./config/utils/base");
+const db = require("./config/utils/db");
 
 let config = base.config;
 
@@ -34,22 +36,30 @@ const generateChangeLog = function(paths) {
     return Object.assign({}, obj, { exclude });
   });
 
-  // Group by objecttype
-  // { objecttype: [objectname1, objectname2, ...] }
-  let o = {};
-  dbo.forEach(val => {
-    o[val.objectType] = o[val.objectType] || [];
-    o[val.objectType].push((val.exclude ? "exclude " : "") + val.objectName);
-  });
+  // Group to structure:
+  // { "owner": { "objectType": [ 'objectName' ] }}
+  let o = _.pipe(
+    _.groupBy("owner"),
+    _.mapValues(
+      _.pipe(
+        _.groupBy("objectType"),
+        _.mapValues(_.map("objectName"))
+      )
+    )
+  )(dbo);
 
   // Build changelog
   let c = "";
-  for (let objectType in o) {
-    c = `${c}### ${objectType}\n`;
-    o[objectType].forEach(val => {
-      c = `${c}- ${val}\n`;
-    });
-    c = `${c}\n`;
+  for (let owner in o) {
+    c = `${c}### ${owner}\n`;
+    for (let i_objectType in o[owner]) {
+      let objectType = o[owner][i_objectType];
+      c = `${c}#### ${i_objectType}\n`;
+      objectType.forEach(val => {
+        c = `${c}- ${val}\n`;
+      });
+      c = `${c}\n`;
+    }
   }
 
   return c;
@@ -60,16 +70,15 @@ const timestampHeader = `-- File created: ${new Date()}
 
 const addDBObjectPrompt = (code, file, done) => {
   const obj = utils.getDBObjectFromPath(file);
-  const isFileSource = base.isSourceFile(file);
 
   const prompt = `
 PROMPT ***********************************************************
-PROMPT {${obj.objectType}} ${obj.objectName}
+PROMPT ${obj.owner}: {${obj.objectType}} ${obj.objectName}
 PROMPT ***********************************************************
 `;
 
   // Append slash char (/) to execute block in sqlplus to Source files
-  const ending = isFileSource ? "\n/" : "";
+  const ending = obj.isSource ? "\n/" : "";
 
   done(null, prompt + code + ending);
 };
@@ -196,9 +205,14 @@ const exportFilesFromDb = async ({
     file || (changed ? await getOnlyChangedFiles() : config.get("source"));
 
   const processFile = async (code, file, done) => {
-    let res = await base.exportFile(code, file, env, ease, done);
-    if (!quiet && res.exported)
-      console.log(`${chalk.green("Imported")} <= ${env}@${file}`);
+    let res;
+    try {
+      res = await base.exportFile(code, file, env, ease, done);
+      if (!quiet && res.exported)
+        console.log(`${chalk.green("Imported")} <= ${env}@${file}`);
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
   return gulp
@@ -294,7 +308,7 @@ const compileFilesToDb = async ({
       // Stage file if no errors
       if (!force) await addGit(resp);
     } catch (error) {
-      console.error(error);
+      console.error(error.message);
     } finally {
       // Return compiled resp object
       done(null, resp);
@@ -364,12 +378,18 @@ deployFilesToDb.flags = {
 gulp.task("deployFilesToDb", deployFilesToDb);
 
 const createProjectFiles = () => {
+  // Create scripts dir for every user
+  // Array of scripts dirs
+  const scriptsDirs = db.getUsers().map(v => `./scripts/${v}`);
+  gulp
+    .src([
+      path.join(__dirname, "/config/templates/scripts/initial*.sql"),
+      path.join(__dirname, "/config/templates/scripts/final*.sql")
+    ])
+    .pipe(multiDest(scriptsDirs));
+
   // Copy from /templates with folder structure
-  let src = [
-    path.join(__dirname, "/config/templates/oradewrc.json"),
-    path.join(__dirname, "/config/templates/scripts/initial*.sql"),
-    path.join(__dirname, "/config/templates/scripts/final*.sql")
-  ];
+  let src = [path.join(__dirname, "/config/templates/oradewrc.json")];
 
   // Dont-overwrite files
   //   .pipe(gulp.dest(".", { overwrite: false })); gulp@4.0.0
@@ -537,9 +557,12 @@ gulp.task("compileEverywhereOnSave", function() {
 const createSrcEmpty = () => {
   try {
     const source = globBase(config.get("source")[0]).base;
+    const users = db.getUsers();
     const dirs = utils.getDirTypes();
-    for (const dir of dirs) {
-      fs.ensureDirSync(`./${source}/${dir}`);
+    for (const user of users) {
+      for (const dir of dirs) {
+        fs.ensureDirSync(`./${source}/${user}/${dir}`);
+      }
     }
     // console.log(chalk.green("Src empty structure created."));
   } catch (err) {
@@ -550,18 +573,24 @@ const createSrcEmpty = () => {
 gulp.task("createSrcEmpty", createSrcEmpty);
 
 const createSrcFromDbObjects = async ({ env = argv.env }) => {
+  // TODO source is array, taking first element
+  const source = globBase(config.get("source")[0]).base;
+  const users = db.getUsers();
+  const objectTypes = utils.getObjectTypes();
   try {
-    // @TODO source is array, taking first element
-    const source = globBase(config.get("source")[0]).base;
-    const objectTypes = utils.getObjectTypes();
-    const objs = await base.getObjectsInfoByType(env, objectTypes);
-    for (const obj of objs) {
-      const dir = utils.getDirFromObjectType(obj.OBJECT_TYPE);
-      fs.outputFileSync(`./${source}/${dir}/${obj.OBJECT_NAME}.sql`, "");
+    for (const owner of users) {
+      const objs = await base.getObjectsInfoByType(env, owner, objectTypes);
+      for (const obj of objs) {
+        const type = utils.getDirFromObjectType(obj.OBJECT_TYPE);
+        // Create empty sql file
+        fs.outputFileSync(
+          `./${source}/${owner}/${type}/${obj.OBJECT_NAME}.sql`,
+          ""
+        );
+      }
     }
-    // console.log(chalk.green("Src structure created."));
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error.message);
   }
 };
 
@@ -626,7 +655,7 @@ const compileAndMergeFilesToDb = async ({
     // Compile and get error results
     const results = await compileFilesToDbAsync({ file, env, changed, force });
     // Merge unstaged (if any dirty file)
-    if (results.some(file => file.errors.hasDirt()))
+    if (results.some(file => file.errors && file.errors.hasDirt()))
       mergeLocalAndDbChanges({ file, env, changed });
     // Update todo.md
     // extractTodos();
@@ -661,13 +690,14 @@ gulp.task("runTest", runTest);
 const importObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
   try {
     const source = globBase(config.get("source")[0]).base;
-    const name = object;
-    const objs = await base.resolveObjectInfo(env, { name });
+    const objs = await base.resolveObjectInfo(env, { name: object });
 
     // Create array of abs file paths
     let files = objs.map(obj => {
-      const dir = utils.getDirFromObjectType(obj.OBJECT_TYPE);
-      const relativePath = `./${source}/${dir}/${obj.OBJECT_NAME}.sql`;
+      const owner = obj.OWNER;
+      const type = utils.getDirFromObjectType(obj.OBJECT_TYPE);
+      const name = obj.OBJECT_NAME;
+      const relativePath = `./${source}/${owner}/${type}/${name}.sql`;
       return path.resolve(relativePath);
     });
 

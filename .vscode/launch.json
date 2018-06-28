@@ -39,10 +39,10 @@
       "args": [
         "--cwd=${workspaceFolder}/test",
         "--gulpfile=${workspaceFolder}/out/gulpfile.js",
-        "importObjectFromDb",
+        "compileFilesToDb",
         "--env=DEV",
-        // "--file=${workspaceFolder}/test/src/FUNCTIONS/FUNC_TEST.sql"
-        "--object=FUNC_TEST1"
+        "--file=${workspaceFolder}/test/src/FUNCTIONS/FUNC_TEST.sql"
+        // "--object=FUNC_TEST1"
       ],
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "showAsyncStacks": true,

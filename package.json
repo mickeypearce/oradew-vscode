@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.0.6-SNAPSHOT",
+  "version": "0.1.0-SNAPSHOT",
   "preview": true,
   "publisher": "mp",
   "engines": {
@@ -96,7 +96,7 @@
         ],
         "pattern": [
           {
-            "regexp": "^.*@(.*)$",
+            "regexp": "^.*\\$(.*)$",
             "file": 1
           },
           {

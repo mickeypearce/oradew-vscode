@@ -1,9 +1,6 @@
-import { sep, parse, resolve } from "path";
-import { TextEditorCursorStyle } from "vscode";
+import { sep, parse, resolve, relative } from "path";
 
 let utils = {};
-
-// const owner = "NKAP"; //require("./db").getUser("DEV");
 
 let mapDirToObjectType = {
   PACKAGES: "PACKAGE",
@@ -39,17 +36,21 @@ utils.getObjectType1FromObjectType = type =>
 utils.getDirFromObjectType = type => invert(mapDirToObjectType)(type) || type;
 
 utils.getDBObjectFromPath = path => {
-  path = resolve(path);
-  const pathSplit = path.split(sep);
+  // Path can be relative or absolute
+  // tasks ${file} is absolute for ex
+  const absPath = resolve(path);
+  const base = resolve("./");
+  const relPath = relative(base, absPath);
+  const pathSplit = relPath.split(sep);
 
   let owner, objectName, dir, objectType, objectType1;
   // Object name is always from file name
-  objectName = parse(path).name;
+  objectName = parse(absPath).name;
 
   let isScript, isSource;
-  // Problem if db user=scripts, but glob matching is too costy...
-  isScript = pathSplit[pathSplit.length - 3].toLowerCase() === "scripts";
-  isSource = pathSplit[pathSplit.length - 4].toLowerCase() === "src";
+  // Glob matching is too costy...
+  isScript = pathSplit[0].toLowerCase() === "scripts";
+  isSource = pathSplit[0].toLowerCase() === "src";
 
   // console.log("path=" + path);
   // console.log("pathSplit=" + pathSplit);
@@ -62,10 +63,13 @@ utils.getDBObjectFromPath = path => {
     // `./${scripts}/${owner}/${name}.sql`,
     // Owner is important
     // unfortunately is on different position than in Source
-    owner = pathSplit[pathSplit.length - 2];
-    dir = "SCRIPTS"; //non existent but no problem
+    owner = pathSplit[1];
+    dir = "SCRIPTS"; //non existent type but no problem
   } else if (isSource) {
     // `./${source}/${owner}/${dir}/${name}.sql`,
+    // owner = pathSplit[1];
+    // dir = pathSplit[2];
+    // More resilient if we go backwards
     owner = pathSplit[pathSplit.length - 3];
     dir = pathSplit[pathSplit.length - 2];
   } else {
@@ -73,7 +77,8 @@ utils.getDBObjectFromPath = path => {
     // No owner here
     // will go for default when looking for conn conf
     owner = null;
-    dir = pathSplit[pathSplit.length - 2];
+    // dir = pathSplit[0];
+    dir = "FILE";
   }
 
   objectType = utils.getObjectTypeFromDir(dir);

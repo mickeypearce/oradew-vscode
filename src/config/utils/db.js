@@ -1,9 +1,6 @@
-// process.env["PATH"] = "C:\\oracle\\instantclient" + ";" + process.env["PATH"];
-// import { join } from "path";
 const oracledb = require("oracledb");
 const _ = require("lodash/fp");
-
-import { readJsonSync } from "fs-extra";
+const { readJsonSync } = require("fs-extra");
 
 const dbLoc = require("./nedb");
 
@@ -28,6 +25,7 @@ _pool.UAT = {};
 
 /**
  ** Get connection configuration from dbConfig.
+ * It gets default config for user if it cannot be determined, for ex. if is non existent or null
  * @param {string} env
  * @param {?string} user
  * @returns {ConnectionConfig} Connection config
@@ -35,14 +33,19 @@ _pool.UAT = {};
 const getConfiguration = (env, user) => {
   if (!env) throw Error(`No env.`);
 
+  // Head of flattened object that we return
+  const head = { env, connectString: dbConfig[env].connectString };
+
   // First filter by env, if only one config return
-  let byEnv = _.filter({ env })(dbConfig);
+  let byEnv = dbConfig[env].users;
+
+  if (!byEnv) throw Error("dbconfig.json: Invalid structure.");
 
   if (byEnv.length === 0) {
     throw Error(`dbconfig.json: No user for "${env}" env.`);
   }
   if (byEnv.length === 1) {
-    return byEnv[0];
+    return { ...head, ...byEnv[0] };
   }
 
   // If user exist filter env by user, if only one return
@@ -51,7 +54,7 @@ const getConfiguration = (env, user) => {
     : byEnv;
 
   if (byUser.length === 1) {
-    return byUser[0];
+    return { ...head, ...byUser[0] };
   }
   // non existing user -> go for default
   // if (byUser.length === 0) {
@@ -62,41 +65,12 @@ const getConfiguration = (env, user) => {
   let byDefault = _.filter({ default: true })(byEnv);
 
   if (byDefault.length === 1) {
-    return byDefault[0];
+    return { ...head, ...byDefault[0] };
   } else {
     throw Error(
       `dbconfig.json: No default connection configuration for "${env}" env.`
     );
   }
-
-  // let res = byUser;
-  // if (res.length > 1) {
-  //   res = _.filter({ default: true })(res);
-  //   if (res.length == 0) {
-  //     res = byUser;
-  //   }
-  // }
-
-  // // filter by env and user
-  // let res = _.pipe(
-  //   _.filter({ env }),
-  //   _.filter(v => v.user.toUpperCase() === user)
-  // )(dbConfig);
-
-  // // If not succesfull filter by default
-  // if (res.length !== 1) {
-  //   res = _.pipe(
-  //     _.filter({ env }),
-  //     _.filter({ default: true })
-  //   )(dbConfig);
-  // }
-
-  // if (res.length !== 1)
-  //   throw Error(
-  //     `dbconfig.json: No connection (default) config for user ${user} (${env} environment).`
-  //   );
-  // console.log(res[0]);
-  // return res[0];
 };
 
 /**
@@ -128,12 +102,10 @@ const getConnectionString = connCfg => {
   return `${connCfg.user}/${connCfg.password}@${connCfg.connectString}`;
 };
 
-// TODO default maybe
-const getUser = env => dbConfig[env].user.toUpperCase();
-
 const getUsers = (env = "DEV") => {
   return _.pipe(
-    _.filter({ env }),
+    _.get(env),
+    _.get("users"),
     _.map(v => v.user.toUpperCase()),
     _.uniq
   )(dbConfig);
@@ -327,11 +299,10 @@ module.exports.syncDdlTime = syncDdlTime;
 module.exports.getConnectionString = getConnectionString;
 module.exports.isDifferentDdlTime = isDifferentDdlTime;
 module.exports.compile = compile;
-module.exports.getUser = getUser;
+module.exports.getUsers = getUsers;
 module.exports.error = error;
 module.exports.errors = errors;
 module.exports.getErrorObjectChanged = getErrorObjectChanged;
 module.exports.getErrors = getErrors;
 module.exports.getErrorSystem = getErrorSystem;
 module.exports.getNameResolve = getNameResolve;
-module.exports.getUsers = getUsers;

@@ -56,8 +56,9 @@ obj.fromGlobsToFilesArray = globArray => {
 
 obj.exportFile = async (code, file, env, ease = false, done) => {
   const obj = utils.getDBObjectFromPath(file);
-  const owner = obj.owner;
-  const connCfg = db.getConfiguration(env, owner);
+  const connCfg = db.getConfiguration(env, obj.owner);
+  // Owner can change to default user
+  obj.owner = connCfg.user.toUpperCase();
 
   let exported = null;
   let conn;
@@ -93,13 +94,13 @@ obj.exportFile = async (code, file, env, ease = false, done) => {
   } finally {
     conn && conn.close();
   }
-  return { exported };
+  return { obj, exported };
 };
 
 obj.compileFile = async (code, file, env, force = false, scope) => {
   const obj = utils.getDBObjectFromPath(file);
-  const owner = obj.owner;
-  const connCfg = db.getConfiguration(env, owner);
+  const connCfg = db.getConfiguration(env, obj.owner);
+  obj.owner = connCfg.user.toUpperCase();
 
   // Trim empties and slash (/) from code if it exists
   code = _.pipe(
@@ -135,6 +136,7 @@ obj.compileFile = async (code, file, env, force = false, scope) => {
   }
   // Return results, errors array, file and env params
   return {
+    obj,
     file,
     env,
     errors,
@@ -174,7 +176,7 @@ obj.getObjectsInfoByType = async (env, owner, objectTypes) => {
 };
 
 obj.resolveObjectInfo = async (env, { name }) => {
-  const connCfg = db.getConfiguration(env);
+  let connCfg = db.getConfiguration(env);
   let conn;
   let result;
   try {

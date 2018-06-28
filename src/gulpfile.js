@@ -209,7 +209,9 @@ const exportFilesFromDb = async ({
     try {
       res = await base.exportFile(code, file, env, ease, done);
       if (!quiet && res.exported)
-        console.log(`${chalk.green("Imported")} <= ${env}@${file}`);
+        console.log(
+          `${chalk.green("Imported")} <= ${res.obj.owner}@${env} $${file}`
+        );
     } catch (error) {
       console.error(error.message);
     }
@@ -252,7 +254,7 @@ const printErrors = resp => {
   const status = resp.errors.hasErrors()
     ? chalk.bgRed("Failure")
     : chalk.green("Compiled");
-  console.log(`${status} => ${resp.env}@${resp.file}`);
+  console.log(`${status} => ${resp.obj.owner}@${resp.env} $${resp.file}`);
   if (errMsg) console.log(`${errMsg}`);
   return resp;
 };

@@ -35,12 +35,9 @@ class Config {
 }
 obj.config = new Config();
 
-// ////////
 // Get array of files from output stream string
 obj.fromStdoutToFilesArray = stdout =>
   _.pipe(
-    // Git returns posix style path separators, replace..
-    _.replace(/[/]/g, "\\"),
     // Generate array from lines
     _.split("\n"),
     // Remove empty items and duplicates
@@ -48,33 +45,25 @@ obj.fromStdoutToFilesArray = stdout =>
     _.uniq,
     // Scripts first
     _.sortBy(_.identity),
-    // Add .\\ to path
-    _.map(val => `.\\${val}`)
+    // Add ./ to path
+    _.map(val => `./${val}`)
   )(stdout);
 
 // Get array of files matched by glob patterns array
 obj.fromGlobsToFilesArray = globArray => {
-  return globArray
-    .reduce((acc, path) => acc.concat(glob.sync(path)), [])
-    .map(_.replace(/[/]/g, "\\"));
+  return globArray.reduce((acc, path) => acc.concat(glob.sync(path)), []);
 };
-
-// Check if file is matched by source glob array
-obj.isSourceFile = file => {
-  const srcArray = obj.fromGlobsToFilesArray(obj.config.get("source"));
-  // Resolve to absolute paths of files
-  return srcArray.map(srcFile => resolve(srcFile)).includes(resolve(file));
-};
-
-// ////////
 
 obj.exportFile = async (code, file, env, ease = false, done) => {
   const obj = utils.getDBObjectFromPath(file);
+  const connCfg = db.getConfiguration(env, obj.owner);
+  // Owner can change to default user
+  obj.owner = connCfg.user.toUpperCase();
 
   let exported = null;
   let conn;
   try {
-    conn = await db.getConnection(env);
+    conn = await db.getConnection(connCfg);
     try {
       if (!ease || (await db.isDifferentDdlTime(conn, obj))) {
         // Get Db object code as string
@@ -105,11 +94,13 @@ obj.exportFile = async (code, file, env, ease = false, done) => {
   } finally {
     conn && conn.close();
   }
-  return { exported };
+  return { obj, exported };
 };
 
 obj.compileFile = async (code, file, env, force = false, scope) => {
   const obj = utils.getDBObjectFromPath(file);
+  const connCfg = db.getConfiguration(env, obj.owner);
+  obj.owner = connCfg.user.toUpperCase();
 
   // Trim empties and slash (/) from code if it exists
   code = _.pipe(
@@ -121,7 +112,7 @@ obj.compileFile = async (code, file, env, force = false, scope) => {
   let result = {};
   let conn;
   try {
-    conn = await db.getConnection(env);
+    conn = await db.getConnection(connCfg);
     try {
       // Generate error if we havent the latest obj version
       // and we arent forcing compile
@@ -145,6 +136,7 @@ obj.compileFile = async (code, file, env, force = false, scope) => {
   }
   // Return results, errors array, file and env params
   return {
+    obj,
     file,
     env,
     errors,
@@ -153,17 +145,24 @@ obj.compileFile = async (code, file, env, force = false, scope) => {
 };
 
 obj.deployFile = (file, env, done) => {
-  const connString = db.getConnectionString(env);
-  const cmd = `(echo connect ${connString} & echo start ${file} & echo show errors) | sqlplus -S /nolog`;
-  exec(cmd, done);
+  const obj = utils.getDBObjectFromPath(file);
+  const owner = obj.owner;
+  try {
+    const connCfg = db.getConfiguration(env, owner);
+    const connString = db.getConnectionString(connCfg);
+    const cmd = `(echo connect ${connString} & echo start ${file} & echo show errors) | sqlplus -S /nolog`;
+    exec(cmd, done);
+  } catch (error) {
+    console.error(error.message);
+  }
 };
 
-obj.getObjectsInfoByType = async (env, objectTypes) => {
+obj.getObjectsInfoByType = async (env, owner, objectTypes) => {
+  const connCfg = db.getConfiguration(env, owner);
   let conn;
   let result = [];
-  const owner = db.getUser(env);
   try {
-    conn = await db.getConnection(env);
+    conn = await db.getConnection(connCfg);
     for (let objectType of objectTypes) {
       const objects = await db.getObjectsInfo(conn, { owner, objectType });
       result = result.concat(objects);
@@ -177,12 +176,13 @@ obj.getObjectsInfoByType = async (env, objectTypes) => {
 };
 
 obj.resolveObjectInfo = async (env, { name }) => {
+  let connCfg = db.getConfiguration(env);
   let conn;
   let result;
   try {
     let schema, part1, part2;
     let objectName;
-    conn = await db.getConnection(env);
+    conn = await db.getConnection(connCfg);
     // Try to resolve object name for every context [0..9] (obj type)
     for (let context = 0; context < 10; context++) {
       try {
@@ -199,10 +199,10 @@ obj.resolveObjectInfo = async (env, { name }) => {
       if (objectName) break;
     }
 
-    // Schemas not yet supported in workspace
-    if (schema !== db.getUser(env)) {
-      throw Error("Importing from other schemas not (yet) supported.");
-    }
+    await conn.close();
+    // Get connection to object schema
+    connCfg = db.getConfiguration(env, schema);
+    conn = await db.getConnection(connCfg);
     result = await db.getObjectsInfo(conn, {
       owner: schema,
       objectName

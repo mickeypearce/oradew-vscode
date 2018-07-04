@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.0] - 2018-07-04
+
+- Added multi-schema support [PR #8](https://github.com/mickeypearce/oradew-vscode/issues/8)
+
 ## [0.0.5] - 2018-06-08
 
 - Added Types to object types [PR #7](https://github.com/mickeypearce/oradew-vscode/issues/7) (thanks, @chambery)

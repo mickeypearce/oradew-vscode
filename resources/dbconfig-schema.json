@@ -1,0 +1,79 @@
+{
+  "title": "JSON schema for Oradew dbconfig file",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "type": "object",
+  "properties": {
+    "DEV": {
+      "type": "object",
+      "$ref": "#/definitions/ConnectionConfig"
+    },
+    "TEST": {
+      "type": "object",
+      "$ref": "#/definitions/ConnectionConfig"
+    },
+    "UAT": {
+      "type": "object",
+      "$ref": "#/definitions/ConnectionConfig"
+    }
+  },
+  "definitions": {
+    "ConnectionConfig": {
+      "type": "object",
+      "properties": {
+        "connectString": {
+          "type": "string"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "string"
+              },
+              "password": {
+                "type": "string"
+              },
+              "default": {
+                "description":
+                  "Default connection for environment. \nIf user can't be extracted from path, default connection is used. (ex. for deploy)",
+                "type": "boolean"
+              }
+            },
+            "required": ["user", "password"]
+          }
+        }
+      },
+      "required": ["connectString", "users"]
+    }
+  },
+  "default": {
+    "DEV": {
+      "connectString": "localhost/orclpdb",
+      "users": [
+        {
+          "user": "hr",
+          "password": "welcome"
+        }
+      ]
+    },
+    "TEST": {
+      "connectString": "localhost/orclpdb",
+      "users": [
+        {
+          "user": "hr",
+          "password": "welcome"
+        }
+      ]
+    },
+    "UAT": {
+      "connectString": "localhost/orclpdb",
+      "users": [
+        {
+          "user": "hr",
+          "password": "welcome"
+        }
+      ]
+    }
+  }
+}

@@ -1,9 +1,13 @@
-// process.env["PATH"] = "C:\\oracle\\instantclient" + ";" + process.env["PATH"];
-// import { join } from "path";
 const oracledb = require("oracledb");
+const _ = require("lodash/fp");
+const { readJsonSync } = require("fs-extra");
 
-// const fs = require("fs-extra");
-import { readJsonSync } from "fs-extra";
+const dbLoc = require("./nedb");
+
+/**
+ * Connection config object from dbConfig.json
+ * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean}} ConnectionConfig
+ */
 
 var dbConfig;
 try {
@@ -13,33 +17,99 @@ try {
   dbConfig = require("../templates/dbconfig.json");
 }
 
-const dbLoc = require("./nedb");
-
-// Each env has its own pool
+// Each env has its own pool with users
 let _pool = {};
+_pool.DEV = {};
+_pool.TEST = {};
+_pool.UAT = {};
 
-const getConnection = env => {
-  if (_pool[env]) {
-    return _pool[env].getConnection();
+/**
+ ** Get connection configuration from dbConfig.
+ * It gets default config for user if it cannot be determined, for ex. if is non existent or null
+ * @param {string} env
+ * @param {?string} user
+ * @returns {ConnectionConfig} Connection config
+ */
+const getConfiguration = (env, user) => {
+  if (!env) throw Error(`No env.`);
+
+  // Head of flattened object that we return
+  const head = { env, connectString: dbConfig[env].connectString };
+
+  // First filter by env, if only one config return
+  let byEnv = dbConfig[env].users;
+
+  if (!byEnv) throw Error("dbconfig.json: Invalid structure.");
+
+  if (byEnv.length === 0) {
+    throw Error(`dbconfig.json: No user for "${env}" env.`);
+  }
+  if (byEnv.length === 1) {
+    return { ...head, ...byEnv[0] };
+  }
+
+  // If user exist filter env by user, if only one return
+  let byUser = user
+    ? _.filter(v => v.user.toUpperCase() === user)(byEnv)
+    : byEnv;
+
+  if (byUser.length === 1) {
+    return { ...head, ...byUser[0] };
+  }
+  // non existing user -> go for default
+  // if (byUser.length === 0) {
+  //   byUser = byEnv;
+  // }
+
+  // We couldn't match by user so go for default for env
+  let byDefault = _.filter({ default: true })(byEnv);
+
+  if (byDefault.length === 1) {
+    return { ...head, ...byDefault[0] };
+  } else {
+    throw Error(
+      `dbconfig.json: No default connection configuration for "${env}" env.`
+    );
+  }
+};
+
+/**
+ ** Return existing connection from pool or creates a new one.
+ * @param {ConnectionConfig} connCfg
+ */
+const getConnection = connCfg => {
+  let { env, user, password, connectString } = connCfg;
+  if (_pool[env][user]) {
+    return _pool[env][user].getConnection();
   }
   return oracledb
     .createPool({
-      user: dbConfig[env].user,
-      password: dbConfig[env].password,
-      connectString: dbConfig[env].connectString
+      user,
+      password,
+      connectString
     })
     .then(newPool => {
-      _pool[env] = newPool;
-      return _pool[env].getConnection();
+      _pool[env][user] = newPool;
+      return _pool[env][user].getConnection();
     });
 };
 
-const getConnectionString = env => {
-  const dbEnv = dbConfig[env];
-  return `${dbEnv.user}/${dbEnv.password}@${dbEnv.connectString}`;
+/**
+ ** Return connection string.
+ * @param {ConnectionConfig} connCfg
+ */
+const getConnectionString = connCfg => {
+  return `${connCfg.user}/${connCfg.password}@${connCfg.connectString}`;
 };
 
-const getUser = env => dbConfig[env].user.toUpperCase();
+const getUsers = (env = "DEV") => {
+  return _.pipe(
+    _.get(env),
+    _.get("users"),
+    _.map(v => v.user.toUpperCase()),
+    _.uniq
+  )(dbConfig);
+};
 
 const compile = (connection, code, warningScope = "NONE") => {
   oracledb.outFormat = oracledb.ARRAY;
@@ -97,7 +167,7 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }) => {
   oracledb.outFormat = oracledb.OBJECT;
   return connection
     .execute(
-      `select object_id, object_name, object_type, last_ddl_time, status
+      `select owner, object_id, object_name, object_type, last_ddl_time, status
     from all_objects
     where owner = :owner
     and object_type = nvl(:objectType, object_type)
@@ -219,6 +289,7 @@ const getNameResolve = (connection, { name, context }) => {
     .then(result => result.outBinds);
 };
 
+module.exports.getConfiguration = getConfiguration;
 module.exports.getConnection = getConnection;
 module.exports.getObjectDdl = getObjectDdl;
 module.exports.getErrorsInfo = getErrorsInfo;
@@ -228,7 +299,7 @@ module.exports.syncDdlTime = syncDdlTime;
 module.exports.getConnectionString = getConnectionString;
 module.exports.isDifferentDdlTime = isDifferentDdlTime;
 module.exports.compile = compile;
-module.exports.getUser = getUser;
+module.exports.getUsers = getUsers;
 module.exports.error = error;
 module.exports.errors = errors;
 module.exports.getErrorObjectChanged = getErrorObjectChanged;

@@ -1,5 +1,5 @@
 const Datastore = require("nedb");
-import { join } from "path";
+const { join } = require("path");
 
 const filename = join(process.env.storagePath || __dirname, "exported.db");
 

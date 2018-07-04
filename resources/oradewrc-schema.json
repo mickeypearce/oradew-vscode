@@ -5,24 +5,24 @@
   "properties": {
     "package.input": {
       "default": [
-        ".\\scripts\\initial*.sql",
-        ".\\src\\VIEWS\\*.sql",
-        ".\\src\\TYPES\\*.sql",
-        ".\\src\\TYPE_BODIES\\*.sql",
-        ".\\src\\TRIGGERS\\*.sql",
-        ".\\src\\PACKAGES\\*.sql",
-        ".\\src\\PACKAGE_BODIES\\*.sql",
-        ".\\src\\FUNCTIONS\\*.sql",
-        ".\\src\\PROCEDURES\\*.sql",
-        ".\\scripts\\final*.sql",
-        "!.\\**\\*EXCLUDE*.sql"
+        "./scripts/**/initial*.sql",
+        "./src/**/VIEWS/*.sql",
+        "./src/**/TYPES/*.sql",
+        "./src/**/TYPE_BODIES/*.sql",
+        "./src/**/TRIGGERS/*.sql",
+        "./src/**/PACKAGES/*.sql",
+        "./src/**/PACKAGE_BODIES/*.sql",
+        "./src/**/FUNCTIONS/*.sql",
+        "./src/**/PROCEDURES/*.sql",
+        "./scripts/**/final*.sql",
+        "!./**/*EXCLUDE*.sql"
       ],
       "description":
         "Glob pattern for packaging files into deploy script file. \nPreserving order, prefix with ! for excluding.",
       "type": "array"
     },
     "package.output": {
-      "default": ".\\deploy\\Run.sql",
+      "default": "./deploy/Run.sql",
       "description": "Deploy package output file.",
       "type": "string"
     },
@@ -38,7 +38,7 @@
       "type": "boolean"
     },
     "source": {
-      "default": [".\\src\\**\\*.sql"],
+      "default": ["./src/**/*.sql"],
       "description": "Glob pattern for source files.",
       "type": "array"
     },
@@ -71,7 +71,7 @@
       "format": "date-time"
     },
     "test.input": {
-      "default": [".\\test\\**\\*.test.sql"],
+      "default": ["./test/**/*.test.sql"],
       "description": "Glob pattern for tests.",
       "type": "array"
     }

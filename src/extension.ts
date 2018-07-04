@@ -220,7 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
   /* ***********/
 
   let tasks: vscode.Task[] = [];
-  taskProvider = vscode.workspace.registerTaskProvider("gulp", {
+  taskProvider = vscode.tasks.registerTaskProvider("gulp", {
     provideTasks: () => {
       if (tasks.length === 0) {
         tasks = getTasks();

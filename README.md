@@ -1,6 +1,8 @@
 # Oradew for VS Code
 
-PL/SQL development with a simple compile-package-deploy workflow. Compile with ORA errors and warnings problem matching, conflict detection with auto-merging (git), distribution script packaging and deployment.
+PL/SQL development with a simple compile-package-deploy workflow.
+
+Compile with ORA errors (warnings) problem matching and conflict detection with auto-merge; package code in distributable script and deploy.
 
 ## Structure
 

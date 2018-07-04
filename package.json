@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.1.0-SNAPSHOT",
+  "version": "0.1.0",
   "preview": true,
   "publisher": "mp",
   "engines": {
@@ -225,9 +225,7 @@
     ]
   },
   "extensionDependencies": [
-    "xyz.plsql-language",
-    "eamodio.gitlens",
-    "alefragnani.numbered-bookmarks"
+    "xyz.plsql-language"
   ],
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -235,6 +233,7 @@
     "watch": "npm run copy:static && tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "utest": "node ./node_modules/mocha/bin/mocha src/test/*test.js",
     "build": "vsce package",
     "publish": "vsce publish",
     "copy:static": "xcopy .\\src\\config\\templates\\* .\\out\\config\\templates\\ /S /Y && xcopy .\\src\\gulp.cmd .\\out\\ /Y"
@@ -246,6 +245,7 @@
     "@types/oracledb": "^1.11.34",
     "electron-rebuild": "^1.7.3",
     "gulp-runner": "^1.1.0",
+    "mocha": "^5.2.0",
     "tslint": "^5.8.0",
     "typescript": "^2.8.3",
     "vsce": "^1.40.0",

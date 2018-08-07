@@ -263,7 +263,7 @@ const printErrors = resp => {
 const addGit = async resp => {
   if (!resp.errors) return resp;
   if (!resp.errors.hasErrors()) {
-    await git.exec({ args: `add ${resp.file}` });
+    await git.exec({ args: `add "${resp.file}"` });
   }
   return resp;
 };

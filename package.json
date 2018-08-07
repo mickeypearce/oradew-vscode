@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "preview": true,
   "publisher": "mp",
   "engines": {
@@ -225,7 +225,8 @@
     ]
   },
   "extensionDependencies": [
-    "xyz.plsql-language"
+    "xyz.plsql-language",
+    "mp.vscode-oracle-format"
   ],
   "scripts": {
     "vscode:prepublish": "npm run compile",

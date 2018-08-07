@@ -42,6 +42,11 @@ dbconfig.json           DB connection configuration
 
 ## Important
 
+### Prerequisites
+
+- Node.js
+- Git
+
 > `Oracle driver (node-oracledb) in extension is precompiled with "node-v59 (Node.js 9) - win32 - x64 (64bit)" binary package.`
 
 Oracle client library architecture (instantclient), Node.js version, OS and architecture must match precompiled configuration otherwise node-oracledb drivers have to be rebuild.

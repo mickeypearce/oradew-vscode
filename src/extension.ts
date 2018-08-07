@@ -6,14 +6,21 @@ let taskProvider: vscode.Disposable | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
   const isSilent = (process.env["silent"] || "true") === "true";
-  const rootPath = vscode.workspace.rootPath || context.extensionPath;
+
+  let rootPath =
+    vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
+  if (rootPath.includes(" ")) {
+    // Why it doesnt work with " on powershell as default terminal?
+    rootPath = `"${rootPath}"`;
+  }
+
   const storagePath = context.storagePath || context.extensionPath;
 
   function getTasks(): vscode.Task[] {
     let result: vscode.Task[] = [];
 
-    const gulpPath = context.asAbsolutePath("out\\gulp.cmd");
-    const gulpFile = context.asAbsolutePath("out\\gulpfile.js");
+    const gulpPath = context.asAbsolutePath("out/gulp.cmd");
+    const gulpFile = context.asAbsolutePath("out/gulpfile.js");
     let gulpShell = `${gulpPath} --cwd ${rootPath} --gulpfile ${gulpFile} --color true`;
     if (isSilent) {
       gulpShell = `${gulpShell} --silent true`;
@@ -68,7 +75,7 @@ export function activate(context: vscode.ExtensionContext) {
         "Oradew",
         new vscode.ShellExecution(
           `${gulpShell}` +
-            ' compileAndMergeFilesToDb --env "DEV" --file ${file}',
+            ' compileAndMergeFilesToDb --env "DEV" --file "${file}"',
           shellOptions
         ),
         "$oracle-plsql"
@@ -82,7 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
         "Oradew",
         new vscode.ShellExecution(
           `${gulpShell}` +
-            ' compileAndMergeFilesToDb --env "TEST" --file ${file} --force true',
+            ' compileAndMergeFilesToDb --env "TEST" --file "${file}" --force true',
           shellOptions
         ),
         "$oracle-plsql"
@@ -121,7 +128,7 @@ export function activate(context: vscode.ExtensionContext) {
         "export--file",
         "Oradew",
         new vscode.ShellExecution(
-          `${gulpShell}` + ' exportFilesFromDb --env "DEV" --file ${file}',
+          `${gulpShell}` + ' exportFilesFromDb --env "DEV" --file "${file}"',
           shellOptions
         ),
         "$oracle-plsql"
@@ -134,7 +141,7 @@ export function activate(context: vscode.ExtensionContext) {
         "export--file:TEST",
         "Oradew",
         new vscode.ShellExecution(
-          `${gulpShell}` + ' exportFilesFromDb --env "TEST" --file ${file}',
+          `${gulpShell}` + ' exportFilesFromDb --env "TEST" --file "${file}"',
           shellOptions
         ),
         "$oracle-plsql"
@@ -148,7 +155,7 @@ export function activate(context: vscode.ExtensionContext) {
         "Oradew",
         new vscode.ShellExecution(
           `${gulpShell}` +
-            ' importObjectFromDb --env "DEV" --object ${selectedText}',
+            ' importObjectFromDb --env "DEV" --object "${selectedText}"',
           shellOptions
         ),
         "$oracle-plsql"
@@ -197,7 +204,7 @@ export function activate(context: vscode.ExtensionContext) {
         "deploy--file",
         "Oradew",
         new vscode.ShellExecution(
-          `${gulpShell}` + ' deployFilesToDb --env "DEV" --file ${file}',
+          `${gulpShell}` + ' deployFilesToDb --env "DEV" --file "${file}"',
           shellOptions
         ),
         "$oracle-plsql"

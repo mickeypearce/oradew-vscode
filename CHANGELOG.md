@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.1] - 2018-08-07
+
+- Fix spaces in workspace folder path [#5](https://github.com/mickeypearce/oradew-vscode/issues/5)
+
 ## [0.1.0] - 2018-07-04
 
 - Added multi-schema support [PR #8](https://github.com/mickeypearce/oradew-vscode/issues/8)

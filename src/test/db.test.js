@@ -10,7 +10,7 @@ describe("#db", function() {
   it("should return default cfg", function() {
     let cfg = {
       env: "DEV",
-      connectString: "localhost/orclpdb2",
+      connectString: "localhost/orclpdb",
       user: "hr1",
       password: "welcome1",
       default: true

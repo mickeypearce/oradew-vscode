@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.1.1",
+  "version": "0.1.2-SNAPSHOT",
   "preview": true,
   "publisher": "mp",
   "engines": {
@@ -171,6 +171,11 @@
         "category": "Oradew"
       },
       {
+        "command": "oradew.packageFromChangesTask",
+        "title": "Package Version Changes",
+        "category": "Oradew"
+      },
+      {
         "command": "oradew.deployTaskTest",
         "title": "Deploy to TEST",
         "category": "Oradew"
@@ -211,6 +216,10 @@
       {
         "command": "oradew.packageTask",
         "key": "f8"
+      },
+      {
+        "command": "oradew.packageFromChangesTask",
+        "key": "shift+f8"
       }
     ],
     "jsonValidation": [
@@ -274,7 +283,7 @@
     "merge-stream": "^1.0.1",
     "nedb": "^1.8.0",
     "oracledb": "^2.2.0",
-    "run-sequence": "^1.2.2",
+    "run-sequence": "^2.2.1",
     "strip-json-comments": "^2.0.1",
     "vinyl-map2": "^1.2.1",
     "yargs": "^4.8.1"

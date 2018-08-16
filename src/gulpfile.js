@@ -96,7 +96,7 @@ COMMIT;
 SPOOL OFF
 `;
 
-  const deployFile = path.win32.basename(config.get("package.output"));
+  const deployFile = path.basename(config.get("package.output"));
   const deployDir = path.dirname(config.get("package.output"));
 
   const src = config.get("package.input");
@@ -134,19 +134,29 @@ packageSrcFromFile.flags = {};
 gulp.task("packageSrcFromFile", packageSrcFromFile);
 
 gulp.task("createDeployInputFromGit", async () => {
-  // Supply a branch to include changes from with argument "-b <branch>"
-  // "-b master" - For hotfix versions and "-b develop" - Standard versions (default)
-  const initBranch = argv.b || "develop";
+  // Get changes file paths from git history
+  let firstCommit = await git.getFirstCommitOnBranch();
+  const stdout = await git.getCommitedFilesSincePoint(firstCommit.trim());
+  const newInput = base.fromStdoutToFilesArray(stdout).sort();
 
-  const stdout = await git.getCommitedFilesSinceBranch(initBranch);
-  // Create files array from stdout
-  const deployInput = base.fromStdoutToFilesArray(stdout);
+  if (newInput.length === 0) {
+    console.log(`No changed files found.`);
+    return;
+  }
 
-  // Assign files to config obj
-  config.set("package.input", deployInput);
-  // Save to config file
+  // Get saved package input from config file
+  config.load();
+  let savedInput = _.clone(config.get("package.input") || []).sort();
+
+  if (_.isEqual(savedInput, newInput)) {
+    console.log(`No new file paths added to package input.`);
+    return;
+  }
+
+  // Save new input to config
+  config.set("package.input", newInput);
   config.save();
-  console.log(`Files changed: ${deployInput}`);
+  console.log(`Found changed file paths: ${newInput} saved to package input.`);
 });
 
 /*
@@ -185,6 +195,14 @@ gulp.task("makeChangeLog", () => {
 });
 
 gulp.task("packageSrc", function() {
+  // runSequence.options.ignoreUndefinedTasks = true;
+  // const changesOnly = config.get("package.changesOnly") || false;
+  // runSequence(
+  //   changesOnly ? "createDeployInputFromGit" : null,
+  //   "packageSrcFromFile",
+  //   "makeChangeLog",
+  //   "todo"
+  // );
   runSequence("packageSrcFromFile", "makeChangeLog", "todo");
 });
 

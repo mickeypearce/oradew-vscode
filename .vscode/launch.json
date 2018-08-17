@@ -15,7 +15,7 @@
       "preLaunchTask": "npm: watch",
       "sourceMaps": true,
       "env": {
-        "silent": "false"
+        "silent": "true"
       }
     },
     {

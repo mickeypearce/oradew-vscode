@@ -17,7 +17,7 @@ const template = require("gulp-template");
 const chalk = require("chalk");
 const prompt = require("gulp-prompt");
 const globBase = require("glob-base");
-const merge = require("merge-stream");
+const inquirer = require("inquirer");
 const multiDest = require("gulp-multi-dest");
 
 const utils = require("./config/utils/utility");
@@ -397,9 +397,9 @@ deployFilesToDb.flags = {
 
 gulp.task("deployFilesToDb", deployFilesToDb);
 
-const createProjectFiles = () => {
+const createProjectFiles = async () => {
   // Create scripts dir for every user
-  // Array of scripts dirs
+  // and copy scripts templates
   const scriptsDirs = db.getUsers().map(v => `./scripts/${v}`);
   gulp
     .src([
@@ -408,11 +408,12 @@ const createProjectFiles = () => {
     ])
     .pipe(multiDest(scriptsDirs));
 
-  // Copy from /templates with folder structure
-  let src = [path.join(__dirname, "/config/templates/oradewrc.json")];
+  let src = [];
 
   // Dont-overwrite files
   //   .pipe(gulp.dest(".", { overwrite: false })); gulp@4.0.0
+  if (!fs.existsSync("./oradewrc.json"))
+    src.push(path.join(__dirname, "/config/templates/oradewrc.json"));
   if (!fs.existsSync("./dbconfig.json"))
     src.push(path.join(__dirname, "/config/templates/dbconfig.json"));
   if (!fs.existsSync("./.gitignore"))
@@ -420,22 +421,34 @@ const createProjectFiles = () => {
   if (!fs.existsSync("./test"))
     src.push(path.join(__dirname, "/config/templates/test/*.test.sql"));
 
+  // Overwrite config file on request
+  let res = await inquirer.prompt([
+    {
+      type: "confirm",
+      name: "defaultConfig",
+      message: `Use default config file (vs keep existing one)?`
+    }
+  ]);
+  // console.log("defaultConfig" + res.defaultConfig);
+  if (res.defaultConfig)
+    src.push(path.join(__dirname, "/config/templates/oradewrc.json"));
+
   return gulp
     .src(src, { base: path.join(__dirname, "/config/templates/") })
-    .pipe(gulp.dest("."))
-    .on("end", () => {
-      console.log(chalk.green("Project files created."));
-    });
+    .pipe(gulp.dest("."));
+  // .on("end", () => {
+  //   console.log(chalk.green("Project files created."));
+  // })
 };
 gulp.task("createProjectFiles", createProjectFiles);
 
 const cleanProject = () => {
   // Delete temp directories
   let rDel = del.sync([
-    ".\\scripts\\*",
-    ".\\deploy\\*",
-    ".\\**\\*.log",
-    ".\\**\\changelog.md"
+    "./scripts/*",
+    "./deploy/*",
+    "./**/*.log",
+    "./**/changelog.md"
   ]);
   rDel.length != 0 && console.log(chalk.magenta("Project cleaned."));
   return rDel;
@@ -489,18 +502,19 @@ const initConfigFile = () => {
             type: "input",
             name: "releaseDate",
             message: "Version release date [YYYY-MM-DD]?"
-          },
-          {
-            type: "input",
-            name: "encoding",
-            message: "Package encoding? (utf8)"
-          },
-          {
-            type: "list",
-            name: "warnings",
-            message: "Compiler warning scope?",
-            choices: ["NONE", "ALL", "PERFORMANCE", "INFORMATIONAL", "SEVERE"]
           }
+          // ,
+          // {
+          //   type: "input",
+          //   name: "encoding",
+          //   message: "Package encoding? (utf8)"
+          // },
+          // {
+          //   type: "list",
+          //   name: "warnings",
+          //   message: "Compiler warning scope?",
+          //   choices: ["NONE", "ALL", "PERFORMANCE", "INFORMATIONAL", "SEVERE"]
+          // }
         ],
         res => {
           // Reload config obj
@@ -518,14 +532,14 @@ const initConfigFile = () => {
             "version.releaseDate",
             res.releaseDate || config.get("version.releaseDate")
           );
-          config.set(
-            "package.encoding",
-            res.encoding || config.get("package.encoding")
-          );
-          config.set(
-            "compile.warnings",
-            res.warnings || config.get("compile.warnings")
-          );
+          // config.set(
+          //   "package.encoding",
+          //   res.encoding || config.get("package.encoding")
+          // );
+          // config.set(
+          //   "compile.warnings",
+          //   res.warnings || config.get("compile.warnings")
+          // );
           config.save();
         }
       )

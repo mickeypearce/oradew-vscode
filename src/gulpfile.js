@@ -6,7 +6,6 @@ const concat = require("gulp-concat");
 const insert = require("gulp-insert");
 const rename = require("gulp-rename");
 const argv = require("yargs").argv;
-const runSequence = require("run-sequence");
 const map = require("vinyl-map2");
 const del = require("del");
 const _ = require("lodash/fp");
@@ -128,12 +127,7 @@ SPOOL OFF
   );
 };
 
-packageSrcFromFile.description = "Package files to deploy script.";
-packageSrcFromFile.flags = {};
-
-gulp.task("packageSrcFromFile", packageSrcFromFile);
-
-gulp.task("createDeployInputFromGit", async () => {
+const createDeployInputFromGit = async () => {
   // Get changes file paths from git history
   let firstCommit = await git.getFirstCommitOnBranch();
   const stdout = await git.getCommitedFilesSincePoint(firstCommit.trim());
@@ -157,22 +151,22 @@ gulp.task("createDeployInputFromGit", async () => {
   config.set("package.input", newInput);
   config.save();
   console.log(`Found changed file paths: ${newInput} saved to package input.`);
-});
+};
 
 /*
  * Merge task (-t) from branch (-b) to current branch.
  * Usage ex. -t XXXX-5123 -b version-5.1.0
  **/
-gulp.task("cherryPickFromJiraTask", async () => {
+const cherryPickFromJiraTask = async () => {
   const branch = argv.b || "develop";
   const task = argv.t;
   if (task == null) throw Error("Task cannot be empty. ex. -t XXXX-1234");
 
   const stdout = await git.cherryPickByGrepAndBranch(task, branch);
   console.log(`Files changed: ${stdout}`);
-});
+};
 
-gulp.task("makeChangeLog", () => {
+const makeChangeLog = () => {
   const file = path.join(__dirname, "/config/templates/changelog*.md");
   // Generate change log from deploy input array
   const all = base.fromGlobsToFilesArray(config.get("package.input"));
@@ -192,25 +186,7 @@ gulp.task("makeChangeLog", () => {
     .pipe(insert.prepend("<!---\n" + timestampHeader + "-->\n"))
     .pipe(rename("changelog.md"))
     .pipe(gulp.dest("./"));
-});
-
-gulp.task("packageSrc", function() {
-  // runSequence.options.ignoreUndefinedTasks = true;
-  // const changesOnly = config.get("package.changesOnly") || false;
-  // runSequence(
-  //   changesOnly ? "createDeployInputFromGit" : null,
-  //   "packageSrcFromFile",
-  //   "makeChangeLog",
-  //   "todo"
-  // );
-  runSequence("packageSrcFromFile", "makeChangeLog", "todo");
-});
-
-gulp.task("packageFromChanges", function() {
-  runSequence("createDeployInputFromGit", "packageSrc");
-});
-
-gulp.task("default", ["packageSrc"]);
+};
 
 const exportFilesFromDb = async ({
   file = argv.file,
@@ -241,17 +217,6 @@ const exportFilesFromDb = async ({
     .pipe(gulp.dest("."));
   // .on('end', () => ((!quiet) && console.log('Done.')))
 };
-
-exportFilesFromDb.description = "Export files from DB.";
-exportFilesFromDb.flags = {
-  "--env": "DB Environment. [DEV, TEST, UAT]",
-  "--file": "(optional) Absolute path of file",
-  "--changed": "(optional) Only changed files (in working tree)",
-  "--ease": "(optional) Export only if DB object changed",
-  "--quiet": "(optional) Suppress console output"
-};
-
-gulp.task("exportFilesFromDb", exportFilesFromDb);
 
 const printResults = resp => {
   // Print column names
@@ -296,8 +261,6 @@ const getOnlyChangedFiles = async () => {
   const inter = _.intersection(all)(changed);
   return inter;
 };
-
-gulp.task("getOnlyChangedFiles", getOnlyChangedFiles);
 
 const compileFilesToDb = async ({
   file = argv.file,
@@ -346,16 +309,6 @@ const compileFilesToDb = async ({
   );
 };
 
-compileFilesToDb.description = "Compile files to DB.";
-compileFilesToDb.flags = {
-  "--env": "DB Environment. [DEV, TEST, UAT]",
-  "--file": "(optional) Absolute path of file",
-  "--changed": "(optional) Only changed files (in working tree)",
-  "--force": "(optional) Overwrite DB changes"
-};
-
-gulp.task("compileFilesToDb", compileFilesToDb);
-
 const saveLogFile = ({ env = argv.env }) => {
   const deployDir = path.dirname(config.get("package.output"));
   const addEnvToName = path => {
@@ -366,7 +319,6 @@ const saveLogFile = ({ env = argv.env }) => {
     .pipe(rename(addEnvToName))
     .pipe(gulp.dest(deployDir));
 };
-gulp.task("saveLogFile", saveLogFile);
 
 const deployFilesToDb = ({ file = argv.file, env = argv.env }) => {
   const src = file || config.get("package.output");
@@ -386,18 +338,10 @@ const deployFilesToDb = ({ file = argv.file, env = argv.env }) => {
     console.log(colorize(stdout));
     console.log(`${stderr}`);
   };
-  base.deployFile(src, env, processFile);
+  return base.deployFile(src, env, processFile);
 };
 
-deployFilesToDb.description = "Deploy files to DB with SqlPlus.";
-deployFilesToDb.flags = {
-  "--env": "DB Environment. [DEV, TEST, UAT]",
-  "--file": "(optional) Absolute path of file"
-};
-
-gulp.task("deployFilesToDb", deployFilesToDb);
-
-const createProjectFiles = async () => {
+const createProjectFiles = done => {
   // Create scripts dir for every user
   // and copy scripts templates
   const scriptsDirs = db.getUsers().map(v => `./scripts/${v}`);
@@ -422,38 +366,44 @@ const createProjectFiles = async () => {
     src.push(path.join(__dirname, "/config/templates/test/*.test.sql"));
 
   // Overwrite config file on request
-  let res = await inquirer.prompt([
-    {
-      type: "confirm",
-      name: "defaultConfig",
-      message: `Use default config file (vs keep existing one)?`
-    }
-  ]);
-  // console.log("defaultConfig" + res.defaultConfig);
-  if (res.defaultConfig)
-    src.push(path.join(__dirname, "/config/templates/oradewrc.json"));
+  inquirer
+    .prompt([
+      {
+        type: "confirm",
+        name: "defaultConfig",
+        message: `Use default config file (vs keep existing one)?`
+      }
+    ])
+    .then(res => {
+      // console.log("defaultConfig" + res.defaultConfig);
+      if (res.defaultConfig)
+        src.push(path.join(__dirname, "/config/templates/oradewrc.json"));
 
-  return gulp
-    .src(src, { base: path.join(__dirname, "/config/templates/") })
-    .pipe(gulp.dest("."));
-  // .on("end", () => {
-  //   console.log(chalk.green("Project files created."));
-  // })
+      gulp
+        .src(src, { base: path.join(__dirname, "/config/templates/") })
+        .pipe(gulp.dest("."))
+        .on("end", () => {
+          console.log(chalk.green("Project files created."));
+          done();
+        });
+    })
+    // Catch empty src error
+    .catch(() => {
+      done();
+    });
 };
-gulp.task("createProjectFiles", createProjectFiles);
 
 const cleanProject = () => {
   // Delete temp directories
-  let rDel = del.sync([
+  return del([
     "./scripts/*",
     "./deploy/*",
     "./**/*.log",
     "./**/changelog.md"
-  ]);
-  rDel.length != 0 && console.log(chalk.magenta("Project cleaned."));
-  return rDel;
+  ]).then(rDel => {
+    rDel.length != 0 && console.log(chalk.magenta("Project cleaned."));
+  });
 };
-gulp.task("cleanProject", cleanProject);
 
 const initGit = async () => {
   let isInitialized;
@@ -479,7 +429,6 @@ const initGit = async () => {
       .on("end", () => console.log(chalk.magenta("Repo initialized.")));
   }
 };
-gulp.task("initGit", initGit);
 
 const initConfigFile = () => {
   // Copy config file template
@@ -546,17 +495,6 @@ const initConfigFile = () => {
     )
     .on("data", () => console.log(chalk.green("Configuration file updated.")));
 };
-gulp.task("initConfigFile", initConfigFile);
-
-gulp.task("initProject", function() {
-  runSequence(
-    "cleanProject",
-    "createProjectFiles",
-    "createSrcEmpty",
-    "initConfigFile",
-    "initGit"
-  );
-});
 
 const compileEverywhere = async ({ file = argv.file }) => {
   if (!file) throw Error("File cannot be empty.");
@@ -588,7 +526,7 @@ gulp.task("compileEverywhereOnSave", function() {
   });
 });
 
-const createSrcEmpty = () => {
+const createSrcEmpty = done => {
   try {
     const source = globBase(config.get("source")[0]).base;
     const users = db.getUsers();
@@ -598,13 +536,12 @@ const createSrcEmpty = () => {
         fs.ensureDirSync(`./${source}/${user}/${dir}`);
       }
     }
+    done();
     // console.log(chalk.green("Src empty structure created."));
   } catch (err) {
     console.error(err);
   }
 };
-
-gulp.task("createSrcEmpty", createSrcEmpty);
 
 const createSrcFromDbObjects = async ({ env = argv.env }) => {
   // TODO source is array, taking first element
@@ -628,19 +565,9 @@ const createSrcFromDbObjects = async ({ env = argv.env }) => {
   }
 };
 
-createSrcFromDbObjects.description = "Create Src structure from Db Objects.";
-createSrcFromDbObjects.flags = {
-  "--env": "DB Environment. [DEV, TEST, UAT]"
-};
-gulp.task("createSrcFromDbObjects", createSrcFromDbObjects);
-
-gulp.task("createProject", function() {
-  runSequence("createSrcFromDbObjects", "exportFilesFromDb");
-});
-
-const exportFilesFromDbAsync = async ({ file, env, changed, quiet }) =>
+const exportFilesFromDbAsync = async ({ file, env, changed, ease, quiet }) =>
   new Promise(async (res, rej) => {
-    const p = await exportFilesFromDb({ file, env, changed, quiet });
+    const p = await exportFilesFromDb({ file, env, changed, ease, quiet });
     p.on("end", res);
     p.on("error", rej);
   });
@@ -676,7 +603,6 @@ const mergeLocalAndDbChanges = async ({
     }
   }
 };
-gulp.task("mergeLocalAndDbChanges", mergeLocalAndDbChanges);
 
 const compileAndMergeFilesToDb = async ({
   file = argv.file,
@@ -698,13 +624,10 @@ const compileAndMergeFilesToDb = async ({
   }
 };
 
-compileAndMergeFilesToDb.description = "Compile with merge.";
-gulp.task("compileAndMergeFilesToDb", compileAndMergeFilesToDb);
-
 const extractTodos = () => {
   const src = config.get("source");
 
-  gulp
+  return gulp
     .src(src, { base: "./" })
     .pipe(todo())
     .pipe(todo.reporter("vscode"))
@@ -712,14 +635,9 @@ const extractTodos = () => {
   // .on('end', () => console.log('Todos created.'))
 };
 
-extractTodos.description = "Todos extraction.";
-gulp.task("todo", extractTodos);
-
 const runTest = () => {
-  compileFilesToDb({ file: config.get("test.input"), env: "DEV" });
+  return compileFilesToDbAsync({ file: config.get("test.input"), env: "DEV" });
 };
-runTest.description = "Simple unit testing.";
-gulp.task("runTest", runTest);
 
 const importObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
   try {
@@ -742,4 +660,65 @@ const importObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
     console.error(err.message);
   }
 };
+
+gulp.task(
+  "initProject",
+  gulp.series(
+    cleanProject,
+    createProjectFiles,
+    createSrcEmpty,
+    initConfigFile,
+    initGit
+  )
+);
+
+gulp.task(
+  "createProject",
+  gulp.series(createSrcFromDbObjects, exportFilesFromDbAsync)
+);
+
+compileFilesToDbAsync.description = "Compile files to DB.";
+compileFilesToDbAsync.flags = {
+  "--env": "DB Environment. [DEV, TEST, UAT]",
+  "--file": "(optional) Absolute path of file",
+  "--changed": "(optional) Only changed files (in working tree)",
+  "--force": "(optional) Overwrite DB changes"
+};
+gulp.task("compileFilesToDbAsync", compileFilesToDbAsync);
+
+compileAndMergeFilesToDb.description = "Compile with merge.";
+gulp.task("compileAndMergeFilesToDb", compileAndMergeFilesToDb);
+
+exportFilesFromDb.description = "Export files from DB.";
+exportFilesFromDb.flags = {
+  "--env": "DB Environment. [DEV, TEST, UAT]",
+  "--file": "(optional) Absolute path of file",
+  "--changed": "(optional) Only changed files (in working tree)",
+  "--ease": "(optional) Export only if DB object changed",
+  "--quiet": "(optional) Suppress console output"
+};
+gulp.task("exportFilesFromDb", exportFilesFromDbAsync);
+
 gulp.task("importObjectFromDb", importObjectFromDb);
+
+gulp.task(
+  "packageSrc",
+  gulp.series(packageSrcFromFile, makeChangeLog, extractTodos)
+);
+
+gulp.task(
+  "packageFromChanges",
+  gulp.series(createDeployInputFromGit, "packageSrc")
+);
+
+deployFilesToDb.description = "Deploy files to DB with SqlPlus.";
+deployFilesToDb.flags = {
+  "--env": "DB Environment. [DEV, TEST, UAT]",
+  "--file": "(optional) Absolute path of file"
+};
+gulp.task("deployFilesToDb", deployFilesToDb);
+
+runTest.description = "Simple unit testing.";
+gulp.task("runTest", runTest);
+
+// gulp.task("default", "packageSrc");

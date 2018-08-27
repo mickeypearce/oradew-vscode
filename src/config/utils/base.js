@@ -151,7 +151,7 @@ obj.deployFile = (file, env, done) => {
     const connCfg = db.getConfiguration(env, owner);
     const connString = db.getConnectionString(connCfg);
     const cmd = `(echo connect ${connString} & echo start ${file} & echo show errors) | sqlplus -S /nolog`;
-    exec(cmd, done);
+    return exec(cmd, done);
   } catch (error) {
     console.error(error.message);
   }

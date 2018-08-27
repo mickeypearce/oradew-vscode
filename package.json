@@ -266,7 +266,7 @@
     "fs-extra": "^2.1.2",
     "glob": "^7.1.1",
     "glob-base": "^0.3.0",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-convert-encoding": "^1.0.0",
     "gulp-data": "^1.2.1",
@@ -280,8 +280,7 @@
     "inquirer": "^6.1.0",
     "lodash": "^4.17.10",
     "nedb": "^1.8.0",
-    "oracledb": "^2.2.0",
-    "run-sequence": "^2.2.1",
+    "oracledb": "2.2.0",
     "strip-json-comments": "^2.0.1",
     "vinyl-map2": "^1.2.1",
     "yargs": "^4.8.1"

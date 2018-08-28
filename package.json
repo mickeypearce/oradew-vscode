@@ -66,11 +66,6 @@
           "category": "Oradew"
         },
         {
-          "command": "oradew.exportTask",
-          "group": "Oradew",
-          "category": "Oradew"
-        },
-        {
           "command": "oradew.compileTask",
           "group": "Oradew",
           "category": "Oradew"
@@ -171,8 +166,8 @@
         "category": "Oradew"
       },
       {
-        "command": "oradew.packageFromChangesTask",
-        "title": "Package Version Changes",
+        "command": "oradew.populateChangesTask",
+        "title": "Populate Package Input",
         "category": "Oradew"
       },
       {
@@ -218,7 +213,7 @@
         "key": "f8"
       },
       {
-        "command": "oradew.packageFromChangesTask",
+        "command": "oradew.populateChangesTask",
         "key": "shift+f8"
       }
     ],

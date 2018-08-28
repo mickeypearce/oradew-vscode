@@ -39,6 +39,7 @@ dbconfig.json           DB connection configuration
 - `Import Current File / Import Selected Object`
 - `Compile All Source to DB`
 - `Run tests` (F7)
+- `Populate Package Input` - with changed files from Git history using latest tagged commit as a starting point. (Shift + F8)
 
 ## Important
 

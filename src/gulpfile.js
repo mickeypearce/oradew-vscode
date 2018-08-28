@@ -128,29 +128,37 @@ SPOOL OFF
 };
 
 const createDeployInputFromGit = async () => {
-  // Get changes file paths from git history
-  let firstCommit = await git.getFirstCommitOnBranch();
-  const stdout = await git.getCommitedFilesSincePoint(firstCommit.trim());
-  const newInput = base.fromStdoutToFilesArray(stdout).sort();
+  try {
+    // Get changes file paths from git history
+    let firstCommit = await git.getFirstCommitOnBranch();
+    const stdout = await git.getCommitedFilesSincePoint(firstCommit.trim());
+    const newInput = base.fromStdoutToFilesArray(stdout).sort();
 
-  if (newInput.length === 0) {
-    console.log(`No changed files found.`);
-    return;
+    if (newInput.length === 0) {
+      console.log(`No changed files found or no tagged commit to start from.`);
+      return;
+    }
+
+    // Get saved package input from config file
+    config.load();
+    let savedInput = _.clone(config.get("package.input") || []).sort();
+
+    if (_.isEqual(savedInput, newInput)) {
+      console.log(`No new file paths added to package input.`);
+      return;
+    }
+
+    // Save new input to config
+    config.set("package.input", newInput);
+    config.save();
+    console.log(
+      `${chalk.green("Changed file paths:")} ${newInput} ${chalk.green(
+        "saved to package input."
+      )}`
+    );
+  } catch (error) {
+    console.error(error.message);
   }
-
-  // Get saved package input from config file
-  config.load();
-  let savedInput = _.clone(config.get("package.input") || []).sort();
-
-  if (_.isEqual(savedInput, newInput)) {
-    console.log(`No new file paths added to package input.`);
-    return;
-  }
-
-  // Save new input to config
-  config.set("package.input", newInput);
-  config.save();
-  console.log(`Found changed file paths: ${newInput} saved to package input.`);
 };
 
 /*
@@ -371,7 +379,7 @@ const createProjectFiles = done => {
       {
         type: "confirm",
         name: "defaultConfig",
-        message: `Use default config file (vs keep existing one)?`
+        message: `Use default configuration?`
       }
     ])
     .then(res => {
@@ -707,8 +715,9 @@ gulp.task(
 );
 
 gulp.task(
-  "packageFromChanges",
-  gulp.series(createDeployInputFromGit, "packageSrc")
+  "createDeployInputFromGit",
+  // gulp.series(createDeployInputFromGit, "packageSrc")
+  createDeployInputFromGit
 );
 
 deployFilesToDb.description = "Deploy files to DB with SqlPlus.";

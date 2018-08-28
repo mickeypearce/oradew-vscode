@@ -24,11 +24,13 @@ obj.getCommitedFilesSincePoint = from =>
     args: `log --diff-filter=ACMR --name-only --pretty="" ${from}..head ./src ./scripts`
   });
 
-// Get first commit on the current branch - or better:
-// First commit that is "reffered by some branch or tag"
+// Get first commit on the current branch
 obj.getFirstCommitOnBranch = () =>
   obj.exec({
-    args: `rev-list --simplify-by-decoration -1 head --skip=1`
+    // First commit that is "reffered by some branch or tag"
+    // args: `rev-list --simplify-by-decoration -1 head --skip=1`
+    // Get latest commit that is tagged
+    args: `rev-list -1 --tags`
   });
 
 obj.cherryPickByGrepAndBranch = (grep, branch) =>

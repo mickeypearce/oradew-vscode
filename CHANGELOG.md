@@ -1,8 +1,13 @@
 # Change Log
 
+## [0.1.2] - 2018-09-06
+
+- Added "Populate Package Input" command
+- Added "Edit db configuration" and "Use default workspace configuration" option to Initialize command
+
 ## [0.1.1] - 2018-08-07
 
-- Fix spaces in workspace folder path [#5](https://github.com/mickeypearce/oradew-vscode/issues/5)
+- Fixed spaces in workspace folder path [#5](https://github.com/mickeypearce/oradew-vscode/issues/5)
 
 ## [0.1.0] - 2018-07-04
 

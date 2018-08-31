@@ -349,9 +349,27 @@ const deployFilesToDb = ({ file = argv.file, env = argv.env }) => {
   return base.deployFile(src, env, processFile);
 };
 
+const createDbConfigFile = async done => {
+  if (!fs.existsSync("./dbconfig.json")) {
+    fs.copySync(
+      path.join(__dirname, "/config/templates/dbconfig.json"),
+      "./dbconfig.json"
+    );
+    await inquirer.prompt([
+      {
+        type: "input",
+        name: "defaultDbConfig",
+        message: `Zdravo! Please edit DB configuration (dbconfig.json). Then press <enter> to continue.`
+      }
+    ]);
+  }
+  done();
+};
+
 const createProjectFiles = done => {
   // Create scripts dir for every user
   // and copy scripts templates
+  db.loadDbConfig();
   const scriptsDirs = db.getUsers().map(v => `./scripts/${v}`);
   gulp
     .src([
@@ -366,8 +384,8 @@ const createProjectFiles = done => {
   //   .pipe(gulp.dest(".", { overwrite: false })); gulp@4.0.0
   if (!fs.existsSync("./oradewrc.json"))
     src.push(path.join(__dirname, "/config/templates/oradewrc.json"));
-  if (!fs.existsSync("./dbconfig.json"))
-    src.push(path.join(__dirname, "/config/templates/dbconfig.json"));
+  // if (!fs.existsSync("./dbconfig.json"))
+  //   src.push(path.join(__dirname, "/config/templates/dbconfig.json"));
   if (!fs.existsSync("./.gitignore"))
     src.push(path.join(__dirname, "/config/templates/.gitignore"));
   if (!fs.existsSync("./test"))
@@ -379,7 +397,7 @@ const createProjectFiles = done => {
       {
         type: "confirm",
         name: "defaultConfig",
-        message: `Use default configuration?`
+        message: `Use default workspace configuration (oradewrc.json)?`
       }
     ])
     .then(res => {
@@ -391,7 +409,6 @@ const createProjectFiles = done => {
         .src(src, { base: path.join(__dirname, "/config/templates/") })
         .pipe(gulp.dest("."))
         .on("end", () => {
-          console.log(chalk.green("Project files created."));
           done();
         });
     })
@@ -409,7 +426,7 @@ const cleanProject = () => {
     "./**/*.log",
     "./**/changelog.md"
   ]).then(rDel => {
-    rDel.length != 0 && console.log(chalk.magenta("Project cleaned."));
+    rDel.length != 0 && console.log(chalk.magenta("Workspace cleaned."));
   });
 };
 
@@ -426,20 +443,25 @@ const initGit = async () => {
   if (isInitialized) {
     return gulp
       .src(config.file)
-      .pipe(prompt.confirm(`Create new version branch?`))
+      .pipe(
+        prompt.confirm({ message: `Create new version branch?`, default: true })
+      )
       .on("data", () => git.branch(`version-${config.get("version.number")}`))
       .on("end", () => console.log(chalk.magenta("Branch created.")));
   } else {
     return gulp
       .src(config.file)
-      .pipe(prompt.confirm(`Init git repo?`))
+      .pipe(
+        prompt.confirm({ message: `Initialize git repository?`, default: true })
+      )
       .on("data", () => git.exec({ args: "init" }))
-      .on("end", () => console.log(chalk.magenta("Repo initialized.")));
+      .on("end", () => console.log(chalk.magenta("Repository initialized.")));
   }
 };
 
 const initConfigFile = () => {
   // Copy config file template
+  console.log("Let's fill out version details...");
   return gulp
     .src(config.file)
     .pipe(
@@ -672,6 +694,7 @@ const importObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
 gulp.task(
   "initProject",
   gulp.series(
+    createDbConfigFile,
     cleanProject,
     createProjectFiles,
     createSrcEmpty,

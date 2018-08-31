@@ -9,13 +9,16 @@ const dbLoc = require("./nedb");
  * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean}} ConnectionConfig
  */
 
-var dbConfig;
-try {
-  dbConfig = readJsonSync("./dbconfig.json");
-} catch (e) {
-  // Require scope is in ext folder
-  dbConfig = require("../templates/dbconfig.json");
-}
+let dbConfig;
+const loadDbConfig = () => {
+  try {
+    dbConfig = readJsonSync("./dbconfig.json");
+  } catch (e) {
+    // Require scope is in ext folder
+    dbConfig = require("../templates/dbconfig.json");
+  }
+};
+loadDbConfig();
 
 // Each env has its own pool with users
 let _pool = {};
@@ -306,3 +309,4 @@ module.exports.getErrorObjectChanged = getErrorObjectChanged;
 module.exports.getErrors = getErrors;
 module.exports.getErrorSystem = getErrorSystem;
 module.exports.getNameResolve = getNameResolve;
+module.exports.loadDbConfig = loadDbConfig;

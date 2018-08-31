@@ -19,7 +19,7 @@ dbconfig.json           DB connection configuration
 
 ### **Setup**
 
-- `Initialize Workspace/Version` - Clean and initialize workspace configuration
+- `Initialize Workspace/Version` - Initialize/clean workspace structure and configuration
 - `Create Source from DB Objects` - Create Source structure from DEV DB objects
 
 ### **Build**
@@ -57,4 +57,14 @@ Oracle client library architecture (instantclient), Node.js version, OS and arch
 > npm rebuild
 ```
 
-I hope you find it useful. Your feedback is highly appreciated.
+### Included extensions:
+
+- Language PL/SQL
+- oracle-format
+
+### Recommended extensions:
+
+- GitLens
+- Numbered bookmarks
+- Better comments
+- Multiple clipboards

@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.1.2-SNAPSHOT",
+  "version": "0.1.2",
   "preview": true,
   "publisher": "mp",
   "engines": {
@@ -29,7 +29,6 @@
   "icon": "images/oradew_icon_128.png",
   "activationEvents": [
     "workspaceContains:oradewrc.json",
-    "onCommand:workbench.action.tasks.runTask",
     "onCommand:oradew.initProjectTask"
   ],
   "main": "./out/extension",
@@ -117,6 +116,11 @@
         "category": "Oradew"
       },
       {
+        "command": "oradew.deployTaskFile",
+        "title": "Run Current File As Script",
+        "category": "Oradew"
+      },
+      {
         "command": "oradew.compileTask",
         "title": "Compile Changes to DB",
         "category": "Oradew"
@@ -161,6 +165,11 @@
         "category": "Oradew"
       },
       {
+        "command": "oradew.testTask",
+        "title": "Run Tests",
+        "category": "Oradew"
+      },
+      {
         "command": "oradew.packageTask",
         "title": "Package",
         "category": "Oradew"
@@ -178,16 +187,6 @@
       {
         "command": "oradew.deployTaskUat",
         "title": "Deploy to UAT",
-        "category": "Oradew"
-      },
-      {
-        "command": "oradew.deployTaskFile",
-        "title": "Run Current File As Script",
-        "category": "Oradew"
-      },
-      {
-        "command": "oradew.testTask",
-        "title": "Run Tests",
         "category": "Oradew"
       }
     ],

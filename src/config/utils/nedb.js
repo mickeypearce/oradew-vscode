@@ -31,7 +31,7 @@ const getDdlTime = ({ owner, objectName, objectType }) =>
   new Promise((res, rej) => {
     db.find({ owner, objectName, objectType }, (err, findObj) => {
       if (err) rej(err);
-      res(findObj.length !== 0 ? findObj[0].lastDdlTime : 0);
+      res(findObj.length !== 0 ? findObj[0].lastDdlTime : null);
     });
   });
 

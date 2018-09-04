@@ -188,13 +188,17 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }) => {
 
 const getLastDdlTime = async (conn, obj) => {
   let all = await getObjectsInfo(conn, obj);
-  return all.length !== 0 ? all[0].LAST_DDL_TIME : 0;
+  return all.length !== 0 ? all[0].LAST_DDL_TIME : null;
 };
 
 const isDifferentDdlTime = async (conn, obj) => {
   let timeOracle = await getLastDdlTime(conn, obj);
   let timeLocal = await dbLoc.getDdlTime(obj);
-  return timeLocal.toLocaleString() !== timeOracle.toLocaleString();
+  return (
+    timeOracle &&
+    timeLocal &&
+    timeLocal.toLocaleString() !== timeOracle.toLocaleString()
+  );
 };
 
 const syncDdlTime = async (conn, obj) => {

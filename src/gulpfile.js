@@ -691,6 +691,21 @@ const importObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
   }
 };
 
+const compileObjectToDb = async ({
+  file = argv.file,
+  env = argv.env,
+  object = argv.object,
+  line = argv.line
+}) => {
+  console.log(object);
+  // const scope = config.get("compile.warnings");
+  let resp = await base.compileSelection(object, file, env, line);
+  // Print errors to output
+  printErrors(resp);
+  // Print query results if any
+  printResults(resp);
+};
+
 gulp.task(
   "initProject",
   gulp.series(
@@ -719,6 +734,8 @@ gulp.task("compileFilesToDbAsync", compileFilesToDbAsync);
 
 compileAndMergeFilesToDb.description = "Compile with merge.";
 gulp.task("compileAndMergeFilesToDb", compileAndMergeFilesToDb);
+
+gulp.task("compileObjectToDb", compileObjectToDb);
 
 exportFilesFromDb.description = "Export files from DB.";
 exportFilesFromDb.flags = {

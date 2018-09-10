@@ -56,6 +56,11 @@
           "command": "oradew.exportObjectTask",
           "when": "resourceLangId == plsql && editorHasSelection",
           "group": "Oradew"
+        },
+        {
+          "command": "oradew.compileObjectTask",
+          "when": "resourceLangId == plsql && editorHasSelection",
+          "group": "Oradew"
         }
       ],
       "explorer/context": [
@@ -138,6 +143,11 @@
           "light": "images/compile_icon.png",
           "dark": "images/compile_icon_alt.png"
         }
+      },
+      {
+        "command": "oradew.compileObjectTask",
+        "title": "Compile Selected Object",
+        "category": "Oradew"
       },
       {
         "command": "oradew.compileFileTaskTest",

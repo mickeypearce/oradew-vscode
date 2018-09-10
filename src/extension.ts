@@ -20,11 +20,22 @@ export function activate(context: vscode.ExtensionContext) {
     let result: vscode.Task[] = [];
 
     const gulpPath = context.asAbsolutePath("out/gulp.cmd");
+    const gulpPathJs = context.asAbsolutePath("node_modules/gulp/bin/gulp.js");
     const gulpFile = context.asAbsolutePath("out/gulpfile.js");
     let gulpShell = `${gulpPath} --cwd ${rootPath} --gulpfile ${gulpFile} --color true`;
     if (isSilent) {
       gulpShell = `${gulpShell} --silent true`;
     }
+    let gulpParams = [
+      `${gulpPathJs}`,
+      "--cwd",
+      `${rootPath}`,
+      "--gulpfile",
+      `${gulpFile}`,
+      "--color",
+      "true",
+      ...(isSilent ? ["--silent", "true"] : [])
+    ];
 
     const shellOptions = { env: { storagePath } };
 
@@ -104,6 +115,67 @@ export function activate(context: vscode.ExtensionContext) {
         new vscode.ShellExecution(
           `${gulpShell}` + ' compileAndMergeFilesToDb --env "DEV"',
           shellOptions
+        ),
+        "$oracle-plsql"
+      )
+    );
+
+    // new vscode.ShellExecution(
+    //   `${gulpShell}` +
+    //     ' compileObjectToDb --env "DEV" --file "${file}" --line ${lineNumber}',
+    //   // ' compileObjectToDb --env "DEV" --file "${file}" --object="${selectedText}" --line ${lineNumber}',
+    //   { shellArgs: ["--object", "${selectedText}"] }
+    // ),
+
+    result.push(
+      new vscode.Task(
+        { type: "gulp", name: "compile--object" },
+        "compile--object",
+        "Oradew",
+        new vscode.ShellExecution(
+          // `${gulpPath}`,
+          "node",
+          [
+            // `${gulpPathJs}`,
+            // "--cwd",
+            // `${rootPath}`,
+            // "--gulpfile",
+            // `${gulpFile}`,
+            // "--color",
+            // "true",
+            ...gulpParams,
+            "compileObjectToDb",
+            "--env",
+            "DEV",
+            "--file",
+            "${file}",
+            "--object",
+            // "${selectedText}",
+            {
+              value: "${selectedText}",
+              //               value: `COMMENT ON COLUMN nkap.pkp_informativni_izracun.vodilniUkrepRestrukturiranja IS
+              // \`'Šifra vodilni ukrep restrukturiranja izbran iz šifranta ukrepov\`'`,
+              quoting: 1
+            },
+            "--line",
+            "${lineNumber}"
+          ],
+          // ' compileObjectToDb --env "DEV" --file "${file}" --line ${lineNumber}',
+          // `${gulpShell}` +
+          //   ' compileObjectToDb --env "DEV" --file "${file}" --object="${selectedText}" --line ${lineNumber}',
+          {
+            //   // shellArgs: [
+            //   //   "--object",
+            //   //   `select 1 sifra_ukrepa, NAZIV_UKREPA, status\n from sifranti.SFRV_RSTRUKREPI`
+            // ],
+            shellQuoting: {
+              escape: { charsToEscape: " \n\r", escapeChar: "`" },
+              // escape: "a",
+              // escape: { escapeChar: "a", charsToEscape: `\r\n` }
+              strong: "b",
+              weak: "c"
+            }
+          }
         ),
         "$oracle-plsql"
       )
@@ -307,6 +379,15 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
+  let cmdTaskCompileObject = vscode.commands.registerCommand(
+    "oradew.compileObjectTask",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "Oradew: compile--object"
+      );
+    }
+  );
   let cmdTaskExport = vscode.commands.registerCommand(
     "oradew.exportTask",
     () => {
@@ -401,6 +482,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskCompileAll);
   context.subscriptions.push(cmdTaskCompileFile);
   context.subscriptions.push(cmdTaskCompileFileTest);
+  context.subscriptions.push(cmdTaskCompileObject);
   context.subscriptions.push(cmdTaskExport);
   context.subscriptions.push(cmdTaskExportFile);
   context.subscriptions.push(cmdTaskExportFileTest);

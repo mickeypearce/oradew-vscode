@@ -144,6 +144,42 @@ obj.compileFile = async (code, file, env, force = false, scope) => {
   };
 };
 
+obj.compileSelection = async (code, file, env, line) => {
+  const obj = utils.getDBObjectFromPath(file);
+  const connCfg = db.getConfiguration(env);
+  obj.owner = connCfg.user.toUpperCase();
+
+  // Trim empties and slash (/) from code if it exists
+  code = _.pipe(
+    _.trim,
+    _.trimCharsEnd("/")
+  )(code);
+
+  let errors;
+  let result = {};
+  let conn;
+  try {
+    conn = await db.getConnection(connCfg);
+    try {
+      result = await db.compile(conn, code.toString());
+    } catch (error) {
+      errors = db.getErrorSystem(error.message, line);
+    }
+  } catch (error) {
+    console.error(error.message);
+  } finally {
+    conn && conn.close();
+  }
+  // Return results, errors array, file and env params
+  return {
+    obj,
+    file,
+    env,
+    errors,
+    result
+  };
+};
+
 obj.deployFile = (file, env, done) => {
   const obj = utils.getDBObjectFromPath(file);
   const owner = obj.owner;

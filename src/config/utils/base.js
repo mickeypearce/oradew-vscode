@@ -108,6 +108,7 @@ obj.compileFile = async (code, file, env, force = false, scope) => {
     _.trimCharsEnd("/")
   )(code);
 
+  // console.log(code);
   let errors;
   let result = {};
   let conn;
@@ -144,10 +145,21 @@ obj.compileFile = async (code, file, env, force = false, scope) => {
   };
 };
 
-obj.compileSelection = async (code, file, env, line) => {
+const getLineAndPosition = (code, offset) => {
+  let lines = code.substring(0, offset).split(/\r\n|\r|\n/);
+  let line = lines.length;
+  let position = lines.pop().length + 1;
+  // console.log(columns);
+  // console.log(position);
+  return { line, position };
+};
+
+obj.compileSelection = async (code, file, env, line, scope) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.getConfiguration(env);
   obj.owner = connCfg.user.toUpperCase();
+
+  // console.log(/END(\s\w*)*;$/gim.test(code));
 
   // Trim empties and slash (/) from code if it exists
   code = _.pipe(
@@ -155,15 +167,30 @@ obj.compileSelection = async (code, file, env, line) => {
     _.trimCharsEnd("/")
   )(code);
 
-  let errors;
+  // Trim empties and semicolon (;) from code if it doesn't end with "END;" or "END <name>; etc"
+  if (!/END(\\s\\w*)*;$/gim.test(code)) {
+    code = _.pipe(
+      _.trim,
+      _.trimCharsEnd(";")
+    )(code);
+  }
+
+  let errors = db.errors();
   let result = {};
   let conn;
   try {
     conn = await db.getConnection(connCfg);
     try {
-      result = await db.compile(conn, code.toString());
+      result = await db.compile(conn, code.toString(), scope);
     } catch (error) {
-      errors = db.getErrorSystem(error.message, line);
+      // Oracle returns character offset of error
+      let lp = getLineAndPosition(code, error.offset);
+      // console.log(lp);
+      errors = db.getErrorSystem(
+        error.message,
+        line + lp.line - 1,
+        lp.position
+      );
     }
   } catch (error) {
     console.error(error.message);

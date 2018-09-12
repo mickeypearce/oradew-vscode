@@ -233,11 +233,11 @@ const errors = (arr = []) => {
   return obj;
 };
 
-const getErrorSystem = (msg, line = 1) => {
+const getErrorSystem = (msg, line = 1, position = 1) => {
   return errors([
     {
       LINE: line,
-      POSITION: 1,
+      POSITION: position,
       TEXT: msg,
       ATTRIBUTE: "ERROR",
       _ID: "0002"

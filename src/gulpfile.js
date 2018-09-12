@@ -306,9 +306,12 @@ const compileFilesToDb = async ({
     }
   };
 
+  // gulp4 rejects empty src
+  src.length === 0 && src.push("nonvalidfile");
+
   return (
     gulp
-      .src(src)
+      .src(src, { allowEmpty: true })
       // Compile file and emmit response
       .pipe(data(processFile))
       // End stream as there is no destination
@@ -697,9 +700,9 @@ const compileObjectToDb = async ({
   object = argv.object,
   line = argv.line
 }) => {
-  console.log(object);
-  // const scope = config.get("compile.warnings");
-  let resp = await base.compileSelection(object, file, env, line);
+  // console.log(object);
+  const scope = config.get("compile.warnings");
+  let resp = await base.compileSelection(object, file, env, line, scope);
   // Print errors to output
   printErrors(resp);
   // Print query results if any

@@ -36,20 +36,26 @@
     "menus": {
       "editor/title": [
         {
+          "command": "oradew.compileObjectTask",
+          "when": "resourceLangId == plsql && editorHasSelection",
+          "group": "navigation"
+        },
+        {
           "command": "oradew.compileFileTask",
           "when": "resourceLangId == plsql",
-          "group": "navigation"
+          "group": "navigation",
+          "alt": "oradew.compileObjectTask"
         }
       ],
       "editor/context": [
         {
           "command": "oradew.compileFileTask",
-          "when": "resourceLangId == plsql",
+          "when": "resourceLangId == plsql && !editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.exportFileTask",
-          "when": "resourceLangId == plsql",
+          "when": "resourceLangId == plsql && !editorHasSelection",
           "group": "Oradew"
         },
         {

@@ -172,6 +172,11 @@
         "category": "Oradew"
       },
       {
+        "command": "oradew.compileObjectTaskTest",
+        "title": "TEST: Compile Selected Object",
+        "category": "Oradew"
+      },
+      {
         "command": "oradew.exportTask",
         "title": "Import Changes from DB",
         "category": "Oradew"

@@ -137,6 +137,23 @@ export function activate(context: vscode.ExtensionContext) {
 
     result.push(
       createOradewTask({
+        name: "compile--object:TEST",
+        params: [
+          "compileObjectToDb",
+          "--env",
+          "TEST",
+          "--file",
+          "${file}",
+          "--object",
+          "${selectedText}",
+          "--line",
+          "${lineNumber}"
+        ]
+      })
+    );
+
+    result.push(
+      createOradewTask({
         name: "export",
         params: ["exportFilesFromDb", "--env", "DEV", "--ease", "true"]
       })
@@ -293,6 +310,15 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
+  let cmdTaskCompileObjectTest = vscode.commands.registerCommand(
+    "oradew.compileObjectTaskTest",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "Oradew: compile--object:TEST"
+      );
+    }
+  );
   let cmdTaskExport = vscode.commands.registerCommand(
     "oradew.exportTask",
     () => {
@@ -388,6 +414,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskCompileFile);
   context.subscriptions.push(cmdTaskCompileFileTest);
   context.subscriptions.push(cmdTaskCompileObject);
+  context.subscriptions.push(cmdTaskCompileObjectTest);
   context.subscriptions.push(cmdTaskExport);
   context.subscriptions.push(cmdTaskExportFile);
   context.subscriptions.push(cmdTaskExportFileTest);

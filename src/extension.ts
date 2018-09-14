@@ -12,6 +12,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   const storagePath = context.storagePath || context.extensionPath;
 
+  const getDdlProcedure: string =
+    vscode.workspace.getConfiguration("oradew").get("getDdlProcedure") || "";
+
+  // console.log("getDdlProcedure: " + getDdlProcedure);
+
   function getTasks(): vscode.Task[] {
     let result: vscode.Task[] = [];
 
@@ -29,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
       ...(isSilent ? ["--silent", "true"] : [])
     ];
 
-    const shellOptions = { env: { storagePath } };
+    const shellOptions = { env: { storagePath, getDdlProcedure } };
 
     const createOradewTask = ({
       name,

@@ -126,14 +126,15 @@ const compile = (connection, code, warningScope = "NONE") => {
     .then(() => connection.execute(code));
 };
 
+// Default getDdlProcedure = "dbms_metadata.get_ddl"
+const getDdlProcedure = process.env.getDdlProcedure;
+
 const getObjectDdl = (connection, { owner, objectName, objectType1 }) => {
   oracledb.fetchAsString = [oracledb.CLOB];
   oracledb.outFormat = oracledb.ARRAY;
   return connection
     .execute(
-      `select
-      dbms_metadata.get_ddl(:objectType1, :objectName, :owner)
-      from dual`,
+      `select ${getDdlProcedure}(:objectType1, :objectName, :owner) from dual`,
       {
         owner,
         objectName,

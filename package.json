@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.1.2",
+  "version": "0.1.3-SNAPSHOT",
   "preview": true,
   "publisher": "mp",
   "engines": {
@@ -33,6 +33,18 @@
   ],
   "main": "./out/extension",
   "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Oradew Settings",
+      "properties": {
+        "oradew.getDdlProcedure": {
+          "type": "string",
+          "default": "dbms_metadata.get_ddl",
+          "required": false,
+          "description": "Procedure get_ddl"
+        }
+      }
+    },
     "menus": {
       "editor/title": [
         {

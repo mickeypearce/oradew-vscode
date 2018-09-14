@@ -672,7 +672,7 @@ const runTest = () => {
   return compileFilesToDbAsync({ file: config.get("test.input"), env: "DEV" });
 };
 
-const importObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
+const exportObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
   try {
     const source = globBase(config.get("source")[0]).base;
     const objs = await base.resolveObjectInfo(env, { name: object });
@@ -750,7 +750,7 @@ exportFilesFromDb.flags = {
 };
 gulp.task("exportFilesFromDb", exportFilesFromDbAsync);
 
-gulp.task("importObjectFromDb", importObjectFromDb);
+gulp.task("exportObjectFromDb", exportObjectFromDb);
 
 gulp.task(
   "packageSrc",

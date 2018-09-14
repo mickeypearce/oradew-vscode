@@ -149,8 +149,6 @@ const getLineAndPosition = (code, offset) => {
   let lines = code.substring(0, offset).split(/\r\n|\r|\n/);
   let line = lines.length;
   let position = lines.pop().length + 1;
-  // console.log(columns);
-  // console.log(position);
   return { line, position };
 };
 

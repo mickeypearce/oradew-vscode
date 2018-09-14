@@ -9,23 +9,15 @@ export function activate(context: vscode.ExtensionContext) {
 
   let rootPath =
     vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
-  if (rootPath.includes(" ")) {
-    // Why it doesnt work with " on powershell as default terminal?
-    rootPath = `"${rootPath}"`;
-  }
 
   const storagePath = context.storagePath || context.extensionPath;
 
   function getTasks(): vscode.Task[] {
     let result: vscode.Task[] = [];
 
-    const gulpPath = context.asAbsolutePath("out/gulp.cmd");
     const gulpPathJs = context.asAbsolutePath("node_modules/gulp/bin/gulp.js");
     const gulpFile = context.asAbsolutePath("out/gulpfile.js");
-    let gulpShell = `${gulpPath} --cwd ${rootPath} --gulpfile ${gulpFile} --color true`;
-    if (isSilent) {
-      gulpShell = `${gulpShell} --silent true`;
-    }
+
     let gulpParams = [
       `${gulpPathJs}`,
       "--cwd",
@@ -39,271 +31,179 @@ export function activate(context: vscode.ExtensionContext) {
 
     const shellOptions = { env: { storagePath } };
 
-    result.push(
-      new vscode.Task(
-        { type: "gulp", name: "init" },
-        "init",
+    const createOradewTask = ({
+      name,
+      params
+    }: {
+      name: string;
+      params: Array<string>;
+    }) => {
+      return new vscode.Task(
+        { type: "gulp", name },
+        name,
         "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` + " initProject",
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
-    );
-
-    result.push(
-      new vscode.Task(
-        { type: "gulp", name: "create" },
-        "create",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` + ' createProject --env "DEV"',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
-    );
-
-    result.push(
-      new vscode.Task(
-        { type: "gulp", name: "compile" },
-        "compile",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` +
-            ' compileAndMergeFilesToDb --env "DEV" --changed true',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
-    );
-
-    result.push(
-      new vscode.Task(
-        { type: "gulp", name: "compile--file" },
-        "compile--file",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` +
-            ' compileAndMergeFilesToDb --env "DEV" --file "${file}"',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
-    );
-
-    result.push(
-      new vscode.Task(
-        { type: "gulp", name: "compile--file:TEST" },
-        "compile--file:TEST",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` +
-            ' compileAndMergeFilesToDb --env "TEST" --file "${file}" --force true',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
-    );
-
-    result.push(
-      new vscode.Task(
-        { type: "gulp", name: "compile--all" },
-        "compile--all",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` + ' compileAndMergeFilesToDb --env "DEV"',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
-    );
-
-    // new vscode.ShellExecution(
-    //   `${gulpShell}` +
-    //     ' compileObjectToDb --env "DEV" --file "${file}" --line ${lineNumber}',
-    //   // ' compileObjectToDb --env "DEV" --file "${file}" --object="${selectedText}" --line ${lineNumber}',
-    //   { shellArgs: ["--object", "${selectedText}"] }
-    // ),
-
-    result.push(
-      new vscode.Task(
-        { type: "gulp", name: "compile--object" },
-        "compile--object",
-        "Oradew",
-        new vscode.ShellExecution(
-          // `${gulpPath}`,
+        new vscode.ProcessExecution(
           "node",
-          [
-            // `${gulpPathJs}`,
-            // "--cwd",
-            // `${rootPath}`,
-            // "--gulpfile",
-            // `${gulpFile}`,
-            // "--color",
-            // "true",
-            ...gulpParams,
-            "compileObjectToDb",
-            "--env",
-            "DEV",
-            "--file",
-            "${file}",
-            "--object",
-            // "${selectedText}",
-            {
-              value: "${selectedText}",
-              //               value: `COMMENT ON COLUMN nkap.pkp_informativni_izracun.vodilniUkrepRestrukturiranja IS
-              // \`'Šifra vodilni ukrep restrukturiranja izbran iz šifranta ukrepov\`'`,
-              quoting: 1
-            },
-            "--line",
-            "${lineNumber}"
-          ],
-          // ' compileObjectToDb --env "DEV" --file "${file}" --line ${lineNumber}',
-          // `${gulpShell}` +
-          //   ' compileObjectToDb --env "DEV" --file "${file}" --object="${selectedText}" --line ${lineNumber}',
-          {
-            //   // shellArgs: [
-            //   //   "--object",
-            //   //   `select 1 sifra_ukrepa, NAZIV_UKREPA, status\n from sifranti.SFRV_RSTRUKREPI`
-            // ],
-            shellQuoting: {
-              escape: { charsToEscape: " \n\r", escapeChar: "`" },
-              // escape: "a",
-              // escape: { escapeChar: "a", charsToEscape: `\r\n` }
-              strong: "b",
-              weak: "c"
-            }
-          }
-        ),
-        "$oracle-plsql"
-      )
-    );
-
-    result.push(
-      new vscode.Task(
-        { type: "gulp", name: "export" },
-        "export",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` + ' exportFilesFromDb --env "DEV" --ease true',
+          [...gulpParams, ...params],
           shellOptions
         ),
         "$oracle-plsql"
-      )
+      );
+    };
+
+    result.push(
+      createOradewTask({
+        name: "init",
+        params: ["initProject"]
+      })
     );
 
     result.push(
-      new vscode.Task(
-        { type: "gulp", name: "export--file" },
-        "export--file",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` + ' exportFilesFromDb --env "DEV" --file "${file}"',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
+      createOradewTask({
+        name: "create",
+        params: ["createProject", "--env", "DEV"]
+      })
     );
 
     result.push(
-      new vscode.Task(
-        { type: "gulp", name: "export--file:TEST" },
-        "export--file:TEST",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` + ' exportFilesFromDb --env "TEST" --file "${file}"',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
+      createOradewTask({
+        name: "compile",
+        params: [
+          "compileAndMergeFilesToDb",
+          "--env",
+          "DEV",
+          "--changed",
+          "true"
+        ]
+      })
     );
 
     result.push(
-      new vscode.Task(
-        { type: "gulp", name: "export--object" },
-        "export--object",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` +
-            ' importObjectFromDb --env "DEV" --object "${selectedText}"',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
+      createOradewTask({
+        name: "compile--file",
+        params: [
+          "compileAndMergeFilesToDb",
+          "--env",
+          "DEV",
+          "--file",
+          "${file}"
+        ]
+      })
     );
 
     result.push(
-      new vscode.Task(
-        { type: "gulp", name: "package" },
-        "package",
-        "Oradew",
-        new vscode.ShellExecution(`${gulpShell} packageSrc`, shellOptions),
-        "$oracle-plsql"
-      )
+      createOradewTask({
+        name: "compile--file:TEST",
+        params: [
+          "compileAndMergeFilesToDb",
+          "--env",
+          "TEST",
+          "--file",
+          "${file}",
+          "--force",
+          "true"
+        ]
+      })
     );
 
     result.push(
-      new vscode.Task(
-        { type: "gulp", name: "populateChanges" },
-        "populateChanges",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell} createDeployInputFromGit`,
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
+      createOradewTask({
+        name: "compile--all",
+        params: ["compileAndMergeFilesToDb", "--env", "DEV"]
+      })
     );
 
     result.push(
-      new vscode.Task(
-        { type: "gulp", name: "deploy:TEST" },
-        "deploy:TEST",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` + ' deployFilesToDb --env "TEST"',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
+      createOradewTask({
+        name: "compile--object",
+        params: [
+          "compileObjectToDb",
+          "--env",
+          "DEV",
+          "--file",
+          "${file}",
+          "--object",
+          "${selectedText}",
+          "--line",
+          "${lineNumber}"
+        ]
+      })
     );
 
     result.push(
-      new vscode.Task(
-        { type: "gulp", name: "deploy:UAT" },
-        "deploy:UAT",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` + ' deployFilesToDb --env "UAT"',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
+      createOradewTask({
+        name: "export",
+        params: ["exportFilesFromDb", "--env", "DEV", "--ease", "true"]
+      })
     );
 
     result.push(
-      new vscode.Task(
-        { type: "gulp", name: "deploy--file" },
-        "deploy--file",
-        "Oradew",
-        new vscode.ShellExecution(
-          `${gulpShell}` + ' deployFilesToDb --env "DEV" --file "${file}"',
-          shellOptions
-        ),
-        "$oracle-plsql"
-      )
+      createOradewTask({
+        name: "export--file",
+        params: ["exportFilesFromDb", "--env", "DEV", "--file", "${file}"]
+      })
     );
 
     result.push(
-      new vscode.Task(
-        { type: "gulp", name: "runTest" },
-        "runTest",
-        "Oradew",
-        new vscode.ShellExecution(`${gulpShell}` + " runTest", shellOptions),
-        "$oracle-plsql"
-      )
+      createOradewTask({
+        name: "export--file:TEST",
+        params: ["exportFilesFromDb", "--env", "TEST", "--file", "${file}"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "export--object",
+        params: [
+          "exportObjectFromDb",
+          "--env",
+          "DEV",
+          "--object",
+          "${selectedText}"
+        ]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "package",
+        params: ["packageSrc"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "populateChanges",
+        params: ["createDeployInputFromGit"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "deploy:TEST",
+        params: ["deployFilesToDb", "--env", "TEST"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "deploy:UAT",
+        params: ["deployFilesToDb", "--env", "UAT"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "deploy--file",
+        params: ["deployFilesToDb", "--env", "DEV", "--file", "${file}"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "runTest",
+        params: ["runTest"]
+      })
     );
 
     return result;

@@ -36,11 +36,6 @@
     "menus": {
       "editor/title": [
         {
-          "command": "oradew.compileObjectTask",
-          "when": "resourceLangId == plsql && editorHasSelection",
-          "group": "navigation"
-        },
-        {
           "command": "oradew.compileFileTask",
           "when": "resourceLangId == plsql",
           "group": "navigation",
@@ -153,7 +148,11 @@
       {
         "command": "oradew.compileObjectTask",
         "title": "Compile Selected Object",
-        "category": "Oradew"
+        "category": "Oradew",
+        "icon": {
+          "light": "images/compile_icon_alt.png",
+          "dark": "images/compile_icon.png"
+        }
       },
       {
         "command": "oradew.compileFileTaskTest",

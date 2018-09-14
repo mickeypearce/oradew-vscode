@@ -37,11 +37,11 @@
       "type": "object",
       "title": "Oradew Settings",
       "properties": {
-        "oradew.getDdlProcedure": {
+        "oradew.importDdlFunction": {
           "type": "string",
           "default": "dbms_metadata.get_ddl",
           "required": false,
-          "description": "Procedure get_ddl"
+          "description": "Function name to import DDL of DB objects."
         }
       }
     },

@@ -33,18 +33,6 @@
   ],
   "main": "./out/extension",
   "contributes": {
-    "configuration": {
-      "type": "object",
-      "title": "Oradew Settings",
-      "properties": {
-        "oradew.importDdlFunction": {
-          "type": "string",
-          "default": "dbms_metadata.get_ddl",
-          "required": false,
-          "description": "Function name to import DDL of DB objects."
-        }
-      }
-    },
     "menus": {
       "editor/title": [
         {
@@ -159,7 +147,7 @@
       },
       {
         "command": "oradew.compileObjectTask",
-        "title": "Compile Selected Object",
+        "title": "Run Selected Statement",
         "category": "Oradew",
         "icon": {
           "light": "images/compile_icon_alt.png",
@@ -173,7 +161,7 @@
       },
       {
         "command": "oradew.compileObjectTaskTest",
-        "title": "TEST: Compile Selected Object",
+        "title": "TEST: Run Selected Statement",
         "category": "Oradew"
       },
       {
@@ -223,6 +211,10 @@
       }
     ],
     "keybindings": [
+      {
+        "command": "oradew.compileObjectTask",
+        "key": "ctrl+enter"
+      },
       {
         "command": "oradew.deployTaskFile",
         "key": "f5"

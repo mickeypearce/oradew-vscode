@@ -17,8 +17,7 @@
         "./scripts/**/final*.sql",
         "!./**/*EXCLUDE*.sql"
       ],
-      "description":
-        "Glob pattern for packaging files into deploy script file. \nPreserving order, prefix with ! for excluding.",
+      "description": "Glob pattern for packaging files into deploy script file. \nPreserving order, prefix with ! for excluding.",
       "type": "array"
     },
     "package.output": {
@@ -33,8 +32,7 @@
     },
     "package.templating": {
       "default": false,
-      "description":
-        "Package templating of config variables in sql files. \nex.usage in sql code: '${config[\"version.number\"]}'",
+      "description": "Package templating of config variables in sql files. \nex.usage in sql code: '${config[\"version.number\"]}'",
       "type": "boolean"
     },
     "source": {
@@ -50,8 +48,7 @@
     },
     "compile.force": {
       "default": false,
-      "description":
-        "Ignore conflict detection and auto-merge of local file changes with DB object when compiling to DEV environment. \nCompilation on other env's is always done with force.",
+      "description": "Ignore conflict detection and auto-merge of local file changes with DB object when compiling to DEV environment. \nCompilation on other env's is always done with force.",
       "type": "boolean"
     },
     "version.number": {
@@ -74,6 +71,11 @@
       "default": ["./test/**/*.test.sql"],
       "description": "Glob pattern for tests.",
       "type": "array"
+    },
+    "import.getDdlFunction": {
+      "default": "dbms_metadata.get_ddl",
+      "description": "DB function to export objects.",
+      "type": "string"
     }
   }
 }

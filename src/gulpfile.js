@@ -24,7 +24,7 @@ const git = require("./config/utils/git");
 const base = require("./config/utils/base");
 const db = require("./config/utils/db");
 
-let config = base.config;
+let config = utils.config;
 
 const generateChangeLog = function(paths) {
   // Create Db objects from paths array
@@ -227,14 +227,22 @@ const exportFilesFromDb = async ({
 };
 
 const printResults = resp => {
-  // Print column names
-  resp.result.metaData &&
+  // Print column names and rows data
+  if (resp.result.metaData) {
+    console.log("Query result:");
     console.log(
-      chalk.bgYellow(resp.result.metaData.map(col => col.name).join("\t"))
+      chalk.bgCyan(resp.result.metaData.map(col => col.name).join("\t"))
     );
-  // Print rows data
+  }
   resp.result.rows &&
     console.log(resp.result.rows.map(row => row.join("\t")).join("\n"));
+
+  resp.result.rowsAffected &&
+    console.log(
+      `${resp.result.rowsAffected} ${
+        resp.result.rowsAffected === 1 ? "row" : "rows"
+      } affected.`
+    );
 };
 
 const printErrors = resp => {

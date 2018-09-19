@@ -3,6 +3,7 @@ const _ = require("lodash/fp");
 const { readJsonSync } = require("fs-extra");
 
 const dbLoc = require("./nedb");
+const config = require("./utility").config;
 
 /**
  * Connection config object from dbConfig.json
@@ -116,6 +117,7 @@ const getUsers = (env = "DEV") => {
 
 const compile = (connection, code, warningScope = "NONE") => {
   oracledb.outFormat = oracledb.ARRAY;
+  oracledb.autoCommit = true;
   if (warningScope.toUpperCase() === "NONE") {
     return connection.execute(code);
   }
@@ -127,7 +129,10 @@ const compile = (connection, code, warningScope = "NONE") => {
 };
 
 // Default importDdlFunction = "dbms_metadata.get_ddl"
-const importDdlFunction = process.env.importDdlFunction;
+const importDdlFunction =
+  config.get("import.getDdlFunction") || "dbms_metadata.get_ddl"; //process.env.importDdlFunction;
+
+// console.log("imp" + importDdlFunction);
 
 const getObjectDdl = (connection, { owner, objectName, objectType1 }) => {
   oracledb.fetchAsString = [oracledb.CLOB];

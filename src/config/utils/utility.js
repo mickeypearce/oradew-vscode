@@ -1,4 +1,6 @@
 import { sep, parse, resolve, relative } from "path";
+import { readFileSync, outputJsonSync } from "fs-extra";
+const stripJson = require("strip-json-comments");
 
 let utils = {};
 
@@ -98,8 +100,32 @@ utils.getDBObjectFromPath = path => {
   };
 };
 
+class Config {
+  constructor(file) {
+    this.file = file || "./oradewrc.json";
+    this.object = null;
+    // @TODO error handling when ther is no config file
+    // this.load();
+  }
+
+  load() {
+    this.object = JSON.parse(stripJson(readFileSync(this.file, "utf8")));
+  }
+  save() {
+    return outputJsonSync(this.file, this.object);
+  }
+  get(field) {
+    if (!this.object) this.load();
+    return field ? this.object[field] : this.object;
+  }
+  set(field, value) {
+    this.object[field] = value;
+  }
+}
+
 export const getDBObjectFromPath = utils.getDBObjectFromPath;
 export const getObjectTypeFromDir = utils.getObjectTypeFromDir;
 export const getDirFromObjectType = utils.getDirFromObjectType;
 export const getObjectTypes = utils.getObjectTypes;
 export const getDirTypes = utils.getDirTypes;
+export const config = new Config();

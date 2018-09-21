@@ -5,11 +5,14 @@ const { readJsonSync } = require("fs-extra");
 const dbLoc = require("./nedb");
 const config = require("./utility").config;
 
+const warningScope = config.get("compile.warnings") || "NONE";
+const importDdlFunction =
+  config.get("import.getDdlFunction") || "dbms_metadata.get_ddl";
+
 /**
  * Connection config object from dbConfig.json
  * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean}} ConnectionConfig
  */
-
 let dbConfig;
 const loadDbConfig = () => {
   try {
@@ -115,24 +118,18 @@ const getUsers = (env = "DEV") => {
   )(dbConfig);
 };
 
-const compile = (connection, code, warningScope = "NONE") => {
+const compile = async (connection, code) => {
   oracledb.outFormat = oracledb.ARRAY;
   oracledb.autoCommit = true;
-  if (warningScope.toUpperCase() === "NONE") {
-    return connection.execute(code);
-  }
-  return connection
-    .execute(
+
+  if (warningScope.toUpperCase() !== "NONE") {
+    await connection.execute(
       `call dbms_warning.set_warning_setting_string ('ENABLE:${warningScope}', 'SESSION')`
-    )
-    .then(() => connection.execute(code));
+    );
+  }
+
+  return connection.execute(code);
 };
-
-// Default importDdlFunction = "dbms_metadata.get_ddl"
-const importDdlFunction =
-  config.get("import.getDdlFunction") || "dbms_metadata.get_ddl"; //process.env.importDdlFunction;
-
-// console.log("imp" + importDdlFunction);
 
 const getObjectDdl = (connection, { owner, objectName, objectType1 }) => {
   oracledb.fetchAsString = [oracledb.CLOB];
@@ -302,6 +299,28 @@ const getNameResolve = (connection, { name, context }) => {
     .then(result => result.outBinds);
 };
 
+const getDbmsOutputLine = connection => {
+  return connection
+    .execute("begin dbms_output.get_line(:line, :status); end;", {
+      line: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 32767 },
+      status: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+    })
+    .then(result => result.outBinds);
+};
+
+const getDbmsOutput = async connection => {
+  let line,
+    status = 0,
+    lines = [];
+
+  while (status === 0) {
+    ({ line, status } = await getDbmsOutputLine(connection));
+    line && lines.push(line);
+  }
+
+  return lines;
+};
+
 module.exports.getConfiguration = getConfiguration;
 module.exports.getConnection = getConnection;
 module.exports.getObjectDdl = getObjectDdl;
@@ -320,3 +339,4 @@ module.exports.getErrors = getErrors;
 module.exports.getErrorSystem = getErrorSystem;
 module.exports.getNameResolve = getNameResolve;
 module.exports.loadDbConfig = loadDbConfig;
+module.exports.getDbmsOutput = getDbmsOutput;

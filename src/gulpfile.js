@@ -227,44 +227,39 @@ const exportFilesFromDb = async ({
 };
 
 const printResults = resp => {
-  // Print column names and rows data
-  if (resp.result.metaData) {
-    console.log("Query result:");
-    console.log(
-      chalk.bgCyan(resp.result.metaData.map(col => col.name).join("\t"))
-    );
-  }
-  resp.result.rows &&
-    console.log(resp.result.rows.map(row => row.join("\t")).join("\n"));
-
-  resp.result.rowsAffected &&
-    console.log(
-      `${resp.result.rowsAffected} ${
-        resp.result.rowsAffected === 1 ? "row" : "rows"
-      } affected.`
-    );
-};
-
-const printErrors = resp => {
-  if (!resp.errors) return resp;
-  // Concat errors to problem matcher format
-  const errMsg = resp.errors.toString();
+  // if (resp.errors) {
   // Generate status msg
   const status = resp.errors.hasErrors()
     ? chalk.bgRed("Failure")
     : chalk.green("Compiled");
   console.log(`${status} => ${resp.obj.owner}@${resp.env} $${resp.file}`);
+  // Concat errors to problem matcher format
+  const errMsg = resp.errors.toString();
   if (errMsg) console.log(`${errMsg}`);
-  return resp;
-};
-
-// Stage file if no errors
-const addGit = async resp => {
-  if (!resp.errors) return resp;
-  if (!resp.errors.hasErrors()) {
-    await git.exec({ args: `add "${resp.file}"` });
+  // }
+  // Print column names
+  if (resp.result.metaData) {
+    // console.log("Query result:");
+    console.log(
+      chalk.bgCyan(resp.result.metaData.map(col => col.name).join("\t"))
+    );
   }
-  return resp;
+  // Print rows data
+  if (resp.result.rows) {
+    console.log(resp.result.rows.map(row => row.join("\t")).join("\n"));
+  }
+  if (resp.result.rowsAffected) {
+    console.log(
+      `${resp.result.rowsAffected} ${
+        resp.result.rowsAffected === 1 ? "row" : "rows"
+      } affected.`
+    );
+  }
+  // Print dbms output
+  if (resp.lines && resp.lines.length !== 0) {
+    // console.log(chalk.red("Dbms Output: "));
+    console.log(resp.lines.join("\n"));
+  }
 };
 
 const getOnlyChangedFiles = async () => {
@@ -287,25 +282,16 @@ const compileFilesToDb = async ({
   const src =
     file || (changed ? await getOnlyChangedFiles() : config.get("source"));
 
-  const scope = config.get("compile.warnings");
-
   const processFile = async (file, done) => {
     let resp;
     try {
       // Compile file and get errors
-      resp = await base.compileFile(
-        file.contents,
-        file.path,
-        env,
-        force,
-        scope
-      );
-      // Print errors to output
-      printErrors(resp);
-      // Print query results if any
+      resp = await base.compileFile(file.contents, file.path, env, force);
       printResults(resp);
       // Stage file if no errors
-      if (!force) await addGit(resp);
+      if (!force && !resp.errors.hasErrors()) {
+        await git.exec({ args: `add "${resp.file}"` });
+      }
     } catch (error) {
       console.error(error.message);
     } finally {
@@ -709,11 +695,7 @@ const compileObjectToDb = async ({
   line = argv.line
 }) => {
   // console.log(object);
-  const scope = config.get("compile.warnings");
-  let resp = await base.compileSelection(object, file, env, line, scope);
-  // Print errors to output
-  printErrors(resp);
-  // Print query results if any
+  let resp = await base.compileSelection(object, file, env, line);
   printResults(resp);
 };
 

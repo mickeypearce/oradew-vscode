@@ -74,57 +74,6 @@ obj.exportFile = async (code, file, env, ease = false, done) => {
   return { obj, exported };
 };
 
-obj.compileFile = async (code, file, env, force = false, scope) => {
-  const obj = utils.getDBObjectFromPath(file);
-  const connCfg = db.getConfiguration(env, obj.owner);
-  obj.owner = connCfg.user.toUpperCase();
-
-  code = simpleParse(code);
-
-  // console.log(code);
-  let errors;
-  let result = {};
-  let conn;
-  try {
-    conn = await db.getConnection(connCfg);
-    // try {
-    // Generate error if we havent the latest obj version
-    // and we arent forcing compile
-    if ((await db.isDifferentDdlTime(conn, obj)) && !force) {
-      errors = db.getErrorObjectChanged();
-    } else {
-      // Otherwise compile object to Db with warning scope
-      result = await db.compile(conn, code.toString(), scope);
-      // Mark object as exported as we have the latest version
-      if (!force) await db.syncDdlTime(conn, obj);
-      // Getting errors for this object from Db
-      errors = await db.getErrors(conn, obj);
-    }
-  } catch (error) {
-    errors = db.getErrorSystem(error.message);
-    // }
-    // } catch (error) {
-    //   console.error(error.message);
-  } finally {
-    conn && conn.close();
-  }
-  // Return results, errors array, file and env params
-  return {
-    obj,
-    file,
-    env,
-    errors,
-    result
-  };
-};
-
-function getLineAndPosition(code, offset) {
-  let lines = code.substring(0, offset).split(/\r\n|\r|\n/);
-  let line = lines.length;
-  let position = lines.pop().length + 1;
-  return { line, position };
-}
-
 function simpleParse(code) {
   // Trim empties and slash (/) from code if it exists
   code = _.pipe(
@@ -140,37 +89,35 @@ function simpleParse(code) {
   return code;
 }
 
-obj.compileSelection = async (code, file, env, line, scope) => {
+obj.compileFile = async (code, file, env, force = false) => {
   const obj = utils.getDBObjectFromPath(file);
-  const connCfg = db.getConfiguration(env);
+  const connCfg = db.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();
 
   code = simpleParse(code);
-  // console.log(code);
 
-  let errors = db.errors();
+  // console.log(code);
+  let errors;
+  let lines = [];
   let result = {};
   let conn;
   try {
     conn = await db.getConnection(connCfg);
-    // try {
-    result = await db.compile(conn, code.toString(), scope);
-    // errors = await db.getErrors(conn, obj);
-    // } catch (error) {
-    //   // Oracle returns character offset of error
-    //   let lp = getLineAndPosition(code, error.offset);
-    //   // console.log(lp);
-    //   errors = db.getErrorSystem(
-    //     error.message,
-    //     line + lp.line - 1,
-    //     lp.position
-    //   );
-    // }
+    // Generate error if we havent the latest obj version
+    // and we arent forcing compile
+    if ((await db.isDifferentDdlTime(conn, obj)) && !force) {
+      errors = db.getErrorObjectChanged();
+    } else {
+      // Otherwise compile object to Db with warning scope
+      result = await db.compile(conn, code.toString());
+      // Mark object as exported as we have the latest version
+      if (!force) await db.syncDdlTime(conn, obj);
+      // Getting errors for this object from Db
+      errors = await db.getErrors(conn, obj);
+      lines = await db.getDbmsOutput(conn);
+    }
   } catch (error) {
-    // Oracle returns character offset of error
-    let lp = getLineAndPosition(code, error.offset);
-    // console.log(lp);
-    errors = db.getErrorSystem(error.message, line + lp.line - 1, lp.position);
+    errors = db.getErrorSystem(error.message);
   } finally {
     conn && conn.close();
   }
@@ -180,7 +127,52 @@ obj.compileSelection = async (code, file, env, line, scope) => {
     file,
     env,
     errors,
-    result
+    result,
+    lines
+  };
+};
+
+function getLineAndPosition(code, offset) {
+  let lines = code.substring(0, offset).split(/\r\n|\r|\n/);
+  let line = lines.length;
+  let position = lines.pop().length + 1;
+  return { line, position };
+}
+
+obj.compileSelection = async (code, file, env, line) => {
+  const obj = utils.getDBObjectFromPath(file);
+  const connCfg = db.getConfiguration(env);
+  obj.owner = connCfg.user.toUpperCase();
+
+  code = simpleParse(code);
+  // console.log(code);
+
+  let errors;
+  let lines = [];
+  let result = {};
+  let conn;
+  try {
+    conn = await db.getConnection(connCfg);
+    result = await db.compile(conn, code.toString());
+    errors = db.errors();
+    lines = await db.getDbmsOutput(conn);
+  } catch (error) {
+    // Oracle returns character offset of error
+    let lp = getLineAndPosition(code, error.offset);
+    // console.log(lp);
+    errors = db.getErrorSystem(error.message, line + lp.line - 1, lp.position);
+  } finally {
+    conn && conn.close();
+  }
+  // Return results, errors array, file and env params
+  // dbmsoutput lines
+  return {
+    obj,
+    file,
+    env,
+    errors,
+    result,
+    lines
   };
 };
 

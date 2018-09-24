@@ -121,13 +121,12 @@ const getUsers = (env = "DEV") => {
 const compile = async (connection, code) => {
   oracledb.outFormat = oracledb.ARRAY;
   oracledb.autoCommit = true;
-
   if (warningScope.toUpperCase() !== "NONE") {
     await connection.execute(
       `call dbms_warning.set_warning_setting_string ('ENABLE:${warningScope}', 'SESSION')`
     );
   }
-
+  await connection.execute(`call dbms_output.enable(null)`);
   return connection.execute(code);
 };
 

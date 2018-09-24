@@ -12,7 +12,8 @@ let mapDirToObjectType = {
   VIEWS: "VIEW",
   TRIGGERS: "TRIGGER",
   TYPES: "TYPE",
-  TYPE_BODIES: "TYPE BODY"
+  TYPE_BODIES: "TYPE BODY",
+  TABLES: "TABLE"
 };
 
 let mapObjectTypeAlternative = {

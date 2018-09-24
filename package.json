@@ -280,6 +280,7 @@
     "vscode": "^1.1.18"
   },
   "dependencies": {
+    "cli-table": "^0.3.1",
     "del": "^2.2.2",
     "fs-extra": "^2.1.2",
     "glob": "^7.1.1",

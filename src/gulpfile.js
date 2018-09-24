@@ -18,6 +18,7 @@ const prompt = require("gulp-prompt");
 const globBase = require("glob-base");
 const inquirer = require("inquirer");
 const multiDest = require("gulp-multi-dest");
+const Table = require("cli-table");
 
 const utils = require("./config/utils/utility");
 const git = require("./config/utils/git");
@@ -227,27 +228,16 @@ const exportFilesFromDb = async ({
 };
 
 const printResults = resp => {
-  // if (resp.errors) {
-  // Generate status msg
-  const status = resp.errors.hasErrors()
-    ? chalk.bgRed("Failure")
-    : chalk.green("Compiled");
-  console.log(`${status} => ${resp.obj.owner}@${resp.env} $${resp.file}`);
-  // Concat errors to problem matcher format
-  const errMsg = resp.errors.toString();
-  if (errMsg) console.log(`${errMsg}`);
-  // }
-  // Print column names
-  if (resp.result.metaData) {
-    // console.log("Query result:");
-    console.log(
-      chalk.bgCyan(resp.result.metaData.map(col => col.name).join("\t"))
-    );
-  }
-  // Print rows data
+  // Print column names and rows data
   if (resp.result.rows) {
-    console.log(resp.result.rows.map(row => row.join("\t")).join("\n"));
+    const table = new Table({
+      head: resp.result.metaData.map(col => col.name),
+      style: { head: ["cyan"] }
+    });
+    table.push(...resp.result.rows);
+    console.log(table.toString());
   }
+  // Print affected rows
   if (resp.result.rowsAffected) {
     console.log(
       `${resp.result.rowsAffected} ${
@@ -260,6 +250,15 @@ const printResults = resp => {
     // console.log(chalk.red("Dbms Output: "));
     console.log(resp.lines.join("\n"));
   }
+
+  // Generate status msg
+  const status = resp.errors.hasErrors()
+    ? chalk.bgRed("Failure")
+    : chalk.green("Compiled");
+  console.log(`${status} => ${resp.obj.owner}@${resp.env} $${resp.file}`);
+  // Concat errors to problem matcher format
+  const errMsg = resp.errors.toString();
+  if (errMsg) console.log(`${errMsg}`);
 };
 
 const getOnlyChangedFiles = async () => {

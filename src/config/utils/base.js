@@ -89,6 +89,13 @@ function simpleParse(code) {
   return code;
 }
 
+function getLineAndPosition(code, offset) {
+  let lines = code.substring(0, offset).split(/\r\n|\r|\n/);
+  let line = lines.length;
+  let position = lines.pop().length + 1;
+  return { line, position };
+}
+
 obj.compileFile = async (code, file, env, force = false) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.getConfiguration(env, obj.owner);
@@ -117,7 +124,8 @@ obj.compileFile = async (code, file, env, force = false) => {
       lines = await db.getDbmsOutput(conn);
     }
   } catch (error) {
-    errors = db.getErrorSystem(error.message);
+    let lp = getLineAndPosition(code, error.offset);
+    errors = db.getErrorSystem(error.message, lp.line, lp.position);
   } finally {
     conn && conn.close();
   }
@@ -131,13 +139,6 @@ obj.compileFile = async (code, file, env, force = false) => {
     lines
   };
 };
-
-function getLineAndPosition(code, offset) {
-  let lines = code.substring(0, offset).split(/\r\n|\r|\n/);
-  let line = lines.length;
-  let position = lines.pop().length + 1;
-  return { line, position };
-}
 
 obj.compileSelection = async (code, file, env, line) => {
   const obj = utils.getDBObjectFromPath(file);

@@ -89,6 +89,10 @@ function simpleParse(code) {
   return code;
 }
 
+function removeNewlines(string) {
+  return string.replace(/\r\n|\r|\n/, " ");
+}
+
 function getLineAndPosition(code, offset) {
   let lines = code.substring(0, offset).split(/\r\n|\r|\n/);
   let line = lines.length;
@@ -124,8 +128,9 @@ obj.compileFile = async (code, file, env, force = false) => {
       lines = await db.getDbmsOutput(conn);
     }
   } catch (error) {
-    let lp = getLineAndPosition(code, error.offset);
-    errors = db.getErrorSystem(error.message, lp.line, lp.position);
+    const { line, position } = getLineAndPosition(code, error.offset);
+    const msg = removeNewlines(error.message);
+    errors = db.getErrorSystem(msg, line, position);
   } finally {
     conn && conn.close();
   }
@@ -140,7 +145,7 @@ obj.compileFile = async (code, file, env, force = false) => {
   };
 };
 
-obj.compileSelection = async (code, file, env, line) => {
+obj.compileSelection = async (code, file, env, lineOffset) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.getConfiguration(env);
   obj.owner = connCfg.user.toUpperCase();
@@ -159,9 +164,9 @@ obj.compileSelection = async (code, file, env, line) => {
     lines = await db.getDbmsOutput(conn);
   } catch (error) {
     // Oracle returns character offset of error
-    let lp = getLineAndPosition(code, error.offset);
-    // console.log(lp);
-    errors = db.getErrorSystem(error.message, line + lp.line - 1, lp.position);
+    const { line, position } = getLineAndPosition(code, error.offset);
+    const msg = removeNewlines(error.message);
+    errors = db.getErrorSystem(msg, lineOffset + line - 1, position);
   } finally {
     conn && conn.close();
   }

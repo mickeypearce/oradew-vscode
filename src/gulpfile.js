@@ -240,21 +240,22 @@ const printResults = resp => {
   // Print affected rows
   if (resp.result.rowsAffected) {
     console.log(
+      // chalk.magenta(
       `${resp.result.rowsAffected} ${
         resp.result.rowsAffected === 1 ? "row" : "rows"
       } affected.`
+      // )
     );
   }
   // Print dbms output
   if (resp.lines && resp.lines.length !== 0) {
-    // console.log(chalk.red("Dbms Output: "));
-    console.log(resp.lines.join("\n"));
+    console.log(chalk.blue(resp.lines.join("\n")));
   }
 
   // Generate status msg
   const status = resp.errors.hasErrors()
-    ? chalk.bgRed("Failure")
-    : chalk.green("Compiled");
+    ? chalk.bgRed("Failed")
+    : chalk.green("Completed");
   console.log(`${status} => ${resp.obj.owner}@${resp.env} $${resp.file}`);
   // Concat errors to problem matcher format
   const errMsg = resp.errors.toString();

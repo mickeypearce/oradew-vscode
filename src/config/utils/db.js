@@ -235,16 +235,38 @@ const errors = (arr = []) => {
   return obj;
 };
 
-const getErrorSystem = (msg, line = 1, position = 1) => {
-  return errors([
-    {
-      LINE: line,
-      POSITION: position,
-      TEXT: msg,
-      ATTRIBUTE: "ERROR",
-      _ID: "0002"
-    }
-  ]);
+const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
+  let reg = /.*:\sline\s(\d*),\scolumn\s(\d*):\n(.*)/g;
+  let s;
+
+  // console.log(msg);
+  let err = errors();
+  while ((s = reg.exec(msg)) !== null) {
+    // console.log(`${s[1]} ${s[2]}`);
+    // console.log(lineOffset);
+    err.add(
+      error({
+        LINE: lineOffset + parseInt(s[1]) - 1,
+        POSITION: s[2],
+        TEXT: s[3],
+        ATTRIBUTE: "ERROR"
+      })
+    );
+  }
+
+  if (err.get().length === 0) {
+    err.add(
+      error({
+        LINE: lineOffset + line - 1,
+        POSITION: position,
+        TEXT: msg,
+        ATTRIBUTE: "ERROR",
+        _ID: "0002"
+      })
+    );
+  }
+
+  return err;
 };
 
 const getErrorObjectChanged = () => {

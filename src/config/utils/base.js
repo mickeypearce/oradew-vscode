@@ -179,7 +179,7 @@ obj.compileSelection = async (code, file, env, lineOffset) => {
   try {
     conn = await db.getConnection(connCfg);
     result = await db.compile(conn, code.toString());
-    errors = db.errors();
+    errors = db.createErrorList();
     lines = await db.getDbmsOutput(conn);
   } catch (error) {
     // Oracle returns character offset of error

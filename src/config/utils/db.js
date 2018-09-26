@@ -208,7 +208,7 @@ const syncDdlTime = async (conn, obj) => {
   return await dbLoc.upsertDdlTime(obj, timeOracle);
 };
 
-const error = ({ LINE, POSITION, ATTRIBUTE, TEXT, _ID }) => ({
+const createError = ({ LINE, POSITION, ATTRIBUTE, TEXT, _ID }) => ({
   isError: () => ATTRIBUTE === "ERROR",
   isWarning: () => ATTRIBUTE === "WARNING",
   isInfo: () => ATTRIBUTE === "INFO",
@@ -216,10 +216,10 @@ const error = ({ LINE, POSITION, ATTRIBUTE, TEXT, _ID }) => ({
   toString: () => `${LINE}/${POSITION} ${ATTRIBUTE} ${TEXT}`
 });
 
-const errors = (arr = []) => {
+const createErrorList = (arr = []) => {
   let _arr = [];
   // Construct errors from input array
-  arr.forEach(err => _arr.push(error(err)));
+  arr.forEach(err => _arr.push(createError(err)));
   let obj = {
     add: err => {
       _arr.push(err);
@@ -240,12 +240,12 @@ const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
   let s;
 
   // console.log(msg);
-  let err = errors();
+  let err = createErrorList();
   while ((s = reg.exec(msg)) !== null) {
     // console.log(`${s[1]} ${s[2]}`);
     // console.log(lineOffset);
     err.add(
-      error({
+      createError({
         LINE: lineOffset + parseInt(s[1]) - 1,
         POSITION: s[2],
         TEXT: s[3],
@@ -256,7 +256,7 @@ const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
 
   if (err.get().length === 0) {
     err.add(
-      error({
+      createError({
         LINE: lineOffset + line - 1,
         POSITION: position,
         TEXT: msg,
@@ -270,7 +270,7 @@ const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
 };
 
 const getErrorObjectChanged = () => {
-  return errors([
+  return createErrorList([
     {
       LINE: 1,
       POSITION: 1,
@@ -284,7 +284,7 @@ const getErrorObjectChanged = () => {
 
 const getErrors = async (conn, obj) => {
   let errsArray = await getErrorsInfo(conn, obj);
-  return errors(errsArray);
+  return createErrorList(errsArray);
 };
 
 const getNameResolve = (connection, { name, context }) => {
@@ -353,8 +353,8 @@ module.exports.getConnectionString = getConnectionString;
 module.exports.isDifferentDdlTime = isDifferentDdlTime;
 module.exports.compile = compile;
 module.exports.getUsers = getUsers;
-module.exports.error = error;
-module.exports.errors = errors;
+module.exports.createError = createError;
+module.exports.createErrorList = createErrorList;
 module.exports.getErrorObjectChanged = getErrorObjectChanged;
 module.exports.getErrors = getErrors;
 module.exports.getErrorSystem = getErrorSystem;

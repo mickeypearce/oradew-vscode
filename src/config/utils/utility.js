@@ -1,6 +1,7 @@
 import { sep, parse, resolve, relative } from "path";
 import { readFileSync, outputJsonSync } from "fs-extra";
 const stripJson = require("strip-json-comments");
+const exec = require("child_process").exec;
 
 let utils = {};
 
@@ -130,3 +131,14 @@ export const getDirFromObjectType = utils.getDirFromObjectType;
 export const getObjectTypes = utils.getObjectTypes;
 export const getDirTypes = utils.getDirTypes;
 export const config = new Config();
+
+export function execPromise(cmd) {
+  return new Promise(function(resolve, reject) {
+    exec(cmd, (error, stdout) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(stdout);
+    });
+  });
+}

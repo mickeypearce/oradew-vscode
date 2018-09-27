@@ -325,7 +325,7 @@ const saveLogFile = ({ env = argv.env }) => {
     .pipe(gulp.dest(deployDir));
 };
 
-const deployFilesToDb = ({ file = argv.file, env = argv.env }) => {
+const deployFilesToDb = async ({ file = argv.file, env = argv.env }) => {
   const src = file || config.get("package.output");
 
   // Simple output err colorizer
@@ -334,16 +334,17 @@ const deployFilesToDb = ({ file = argv.file, env = argv.env }) => {
       // Remove double new-lines
       _.replace(/(\n\r)+/g, "\n"),
       _.trim,
-      _.replace(/ERROR/g, chalk.red("ERROR"))
+      // Color red to the line that contains ERROR
+      _.replace(/^.*ERROR.*$/gm, chalk.red("$&"))
     )(text);
 
-  const processFile = (error, stdout, stderr) => {
-    if (error) throw error;
+  try {
+    const stdout = await base.runFileAsScript(src, env);
     console.log(`${env}@${src}`);
     console.log(colorize(stdout));
-    console.log(`${stderr}`);
-  };
-  return base.deployFile(src, env, processFile);
+  } catch (error) {
+    console.error(`${error.message}`);
+  }
 };
 
 const createDbConfigFile = async done => {

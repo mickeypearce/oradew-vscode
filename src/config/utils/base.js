@@ -1,4 +1,3 @@
-const exec = require("child_process").exec;
 const fs = require("fs-extra");
 
 const _ = require("lodash/fp");
@@ -208,17 +207,13 @@ obj.compileSelection = async (code, file, env, lineOffset) => {
   };
 };
 
-obj.deployFile = (file, env, done) => {
+obj.runFileAsScript = (file, env) => {
   const obj = utils.getDBObjectFromPath(file);
   const owner = obj.owner;
-  try {
-    const connCfg = db.getConfiguration(env, owner);
-    const connString = db.getConnectionString(connCfg);
-    const cmd = `(echo connect ${connString} & echo start ${file} & echo show errors) | sqlplus -S /nolog`;
-    return exec(cmd, done);
-  } catch (error) {
-    console.error(error.message);
-  }
+  const connCfg = db.getConfiguration(env, owner);
+  const connString = db.getConnectionString(connCfg);
+  const cmd = `(echo connect ${connString} & echo start ${file} & echo show errors) | sqlplus -S /nolog`;
+  return utils.execPromise(cmd);
 };
 
 obj.getObjectsInfoByType = async (env, owner, objectTypes) => {

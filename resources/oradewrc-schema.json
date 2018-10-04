@@ -74,7 +74,7 @@
     },
     "import.getDdlFunction": {
       "default": "dbms_metadata.get_ddl",
-      "description": "DB function to export objects.",
+      "description": "DDL function name. Use your own DB function to customize import of object's DDL. \"DBMS_METADATA.GET_DDL\" by default. \nex.custom DB func.spec.: FUNCTION GetDDL(object_type IN VARCHAR2, name IN VARCHAR2, schema IN VARCHAR2 DEFAULT NULL) RETURN CLOB;",
       "type": "string"
     }
   }

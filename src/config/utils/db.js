@@ -3,11 +3,7 @@ const _ = require("lodash/fp");
 const { readJsonSync } = require("fs-extra");
 
 const dbLoc = require("./nedb");
-const config = require("./utility").config;
-
-const warningScope = config.get("compile.warnings") || "NONE";
-const importDdlFunction =
-  config.get("import.getDdlFunction") || "dbms_metadata.get_ddl";
+const utils = require("./utility");
 
 /**
  * Connection config object from dbConfig.json
@@ -121,6 +117,7 @@ const getUsers = (env = "DEV") => {
 const compile = async (connection, code) => {
   oracledb.outFormat = oracledb.ARRAY;
   oracledb.autoCommit = true;
+  const warningScope = utils.config.get("compile.warnings") || "NONE";
   if (warningScope.toUpperCase() !== "NONE") {
     await connection.execute(
       `call dbms_warning.set_warning_setting_string ('ENABLE:${warningScope}', 'SESSION')`
@@ -133,6 +130,8 @@ const compile = async (connection, code) => {
 const getObjectDdl = (connection, { owner, objectName, objectType1 }) => {
   oracledb.fetchAsString = [oracledb.CLOB];
   oracledb.outFormat = oracledb.ARRAY;
+  const importDdlFunction =
+    utils.config.get("import.getDdlFunction") || "dbms_metadata.get_ddl";
   return connection
     .execute(
       `select ${importDdlFunction}(:objectType1, :objectName, :owner) from dual`,
@@ -236,14 +235,15 @@ const createErrorList = (arr = []) => {
 };
 
 const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
+  // Matches only one line of error msg
   let reg = /.*:\sline\s(\d*),\scolumn\s(\d*):\n(.*)/g;
   let s;
-
+  // msg = utils.removeNewlines(msg);
   // console.log(msg);
   let err = createErrorList();
   while ((s = reg.exec(msg)) !== null) {
     // console.log(`${s[1]} ${s[2]}`);
-    // console.log(lineOffset);
+    // console.log(s);
     err.add(
       createError({
         LINE: lineOffset + parseInt(s[1]) - 1,
@@ -253,8 +253,9 @@ const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
       })
     );
   }
-
+  // console.log(err.get().length);
   if (err.get().length === 0) {
+    // console.log(msg);
     err.add(
       createError({
         LINE: lineOffset + line - 1,

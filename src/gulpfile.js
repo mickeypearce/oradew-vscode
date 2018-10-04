@@ -229,12 +229,15 @@ const exportFilesFromDb = async ({
 
 const printResults = resp => {
   // Print column names and rows data
-  if (resp.result.rows) {
+  let rows = resp.result.rows;
+  if (rows) {
+    // Replace null values with '(null)'
+    rows = rows.map(r => r.map(v => v || "(null)"));
     const table = new Table({
       head: resp.result.metaData.map(col => col.name),
       style: { head: ["cyan"] }
     });
-    table.push(...resp.result.rows);
+    table.push(...rows);
     console.log(table.toString());
   }
   // Print affected rows
@@ -254,8 +257,8 @@ const printResults = resp => {
 
   // Generate status msg
   const status = resp.errors.hasErrors()
-    ? chalk.bgRed("Failed")
-    : chalk.green("Completed");
+    ? chalk.bgRed("Failure")
+    : chalk.green("Success");
   console.log(`${status} => ${resp.obj.owner}@${resp.env} $${resp.file}`);
   // Concat errors to problem matcher format
   const errMsg = resp.errors.toString();

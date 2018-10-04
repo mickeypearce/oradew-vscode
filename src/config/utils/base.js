@@ -13,7 +13,7 @@ let obj = {};
 obj.fromStdoutToFilesArray = stdout =>
   _.pipe(
     // Generate array from lines
-    _.split("\n"),
+    utils.splitLines,
     // Remove empty items and duplicates
     _.compact,
     _.uniq,
@@ -88,28 +88,8 @@ function simpleParse(code) {
   return code;
 }
 
-function removeNewlines(string) {
-  return string.replace(/\r\n|\r|\n/gi, " ");
-  // let reg = /.*:\sline\s(\d*),\scolumn\s(\d*):\n(.*)/g;
-  // let s;
-
-  // let err = db.errors();
-  // while ((s = reg.exec(string)) !== null) {
-  //   err.add(
-  //     db.error({
-  //       LINE: s[1],
-  //       POSITION: s[2],
-  //       TEXT: s[3],
-  //       ATTRIBUTE: "ERROR"
-  //     })
-  //   );
-  // }
-  // console.log(err.toString());
-  // return s;
-}
-
 function getLineAndPosition(code, offset) {
-  let lines = code.substring(0, offset).split(/\r\n|\r|\n/);
+  let lines = utils.splitLines(code.substring(0, offset));
   let line = lines.length;
   let position = lines.pop().length + 1;
   return { line, position };
@@ -145,7 +125,6 @@ obj.compileFile = async (code, file, env, force = false) => {
     }
   } catch (error) {
     const { line, position } = getLineAndPosition(code, error.offset);
-    // const msg = removeNewlines(error.message);
     let msg = error.message;
     // console.log(msg);
     errors = db.getErrorSystem(msg, 1, line, position);
@@ -165,7 +144,7 @@ obj.compileFile = async (code, file, env, force = false) => {
 
 obj.compileSelection = async (code, file, env, lineOffset) => {
   const obj = utils.getDBObjectFromPath(file);
-  const connCfg = db.getConfiguration(env);
+  const connCfg = db.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();
 
   code = simpleParse(code);
@@ -183,14 +162,7 @@ obj.compileSelection = async (code, file, env, lineOffset) => {
   } catch (error) {
     // Oracle returns character offset of error
     const { line, position } = getLineAndPosition(code, error.offset);
-    //     let msg = `ORA-06550: line 12, column 7:
-    // PLS-00201: identifier 'TESTPRC' must be declared
-    // ORA-06550: line 1, column 733:
-    // PL/SQL: Statement ignored`;
     let msg = error.message;
-    // msg = removeNewlines(msg);
-    // console.log(line + "+" + position);
-    // console.log(msg);
     errors = db.getErrorSystem(msg, lineOffset, line, position);
   } finally {
     conn && conn.close();

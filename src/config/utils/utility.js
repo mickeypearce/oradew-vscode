@@ -85,6 +85,9 @@ utils.getDBObjectFromPath = path => {
     dir = "FILE";
   }
 
+  owner = owner.toUpperCase();
+  objectName = objectName.toUpperCase();
+  dir = dir.toUpperCase();
   objectType = utils.getObjectTypeFromDir(dir);
   objectType1 = utils.getObjectType1FromObjectType(objectType);
 
@@ -132,13 +135,14 @@ export const getObjectTypes = utils.getObjectTypes;
 export const getDirTypes = utils.getDirTypes;
 export const config = new Config();
 
-export function execPromise(cmd) {
-  return new Promise(function(resolve, reject) {
-    exec(cmd, (error, stdout) => {
-      if (error) {
-        reject(error);
-      }
-      resolve(stdout);
-    });
-  });
-}
+const promisify = func => (...args) =>
+  new Promise((resolve, reject) =>
+    func(...args, (err, result) => (err ? reject(err) : resolve(result)))
+  );
+
+export const execPromise = promisify(exec);
+
+export const removeNewlines = str => str.replace(/\r\n|\r|\n/gi, " ");
+
+// alternative /\r?\n/
+export const splitLines = str => str.split(/\r\n|\r|\n/);

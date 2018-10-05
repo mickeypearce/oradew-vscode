@@ -18,13 +18,14 @@ const prompt = require("gulp-prompt");
 const globBase = require("glob-base");
 const inquirer = require("inquirer");
 const multiDest = require("gulp-multi-dest");
+const Table = require("cli-table");
 
 const utils = require("./config/utils/utility");
 const git = require("./config/utils/git");
 const base = require("./config/utils/base");
 const db = require("./config/utils/db");
 
-let config = base.config;
+let config = utils.config;
 
 const generateChangeLog = function(paths) {
   // Create Db objects from paths array
@@ -227,36 +228,41 @@ const exportFilesFromDb = async ({
 };
 
 const printResults = resp => {
-  // Print column names
-  resp.result.metaData &&
+  // Print column names and rows data
+  let rows = resp.result.rows;
+  if (rows) {
+    // Replace null values with '(null)'
+    rows = rows.map(r => r.map(v => v || "(null)"));
+    const table = new Table({
+      head: resp.result.metaData.map(col => col.name),
+      style: { head: ["cyan"] }
+    });
+    table.push(...rows);
+    console.log(table.toString());
+  }
+  // Print affected rows
+  if (resp.result.rowsAffected) {
     console.log(
-      chalk.bgYellow(resp.result.metaData.map(col => col.name).join("\t"))
+      // chalk.magenta(
+      `${resp.result.rowsAffected} ${
+        resp.result.rowsAffected === 1 ? "row" : "rows"
+      } affected.`
+      // )
     );
-  // Print rows data
-  resp.result.rows &&
-    console.log(resp.result.rows.map(row => row.join("\t")).join("\n"));
-};
+  }
+  // Print dbms output
+  if (resp.lines && resp.lines.length !== 0) {
+    console.log(chalk.blue(resp.lines.join("\n")));
+  }
 
-const printErrors = resp => {
-  if (!resp.errors) return resp;
-  // Concat errors to problem matcher format
-  const errMsg = resp.errors.toString();
   // Generate status msg
   const status = resp.errors.hasErrors()
     ? chalk.bgRed("Failure")
-    : chalk.green("Compiled");
+    : chalk.green("Success");
   console.log(`${status} => ${resp.obj.owner}@${resp.env} $${resp.file}`);
+  // Concat errors to problem matcher format
+  const errMsg = resp.errors.toString();
   if (errMsg) console.log(`${errMsg}`);
-  return resp;
-};
-
-// Stage file if no errors
-const addGit = async resp => {
-  if (!resp.errors) return resp;
-  if (!resp.errors.hasErrors()) {
-    await git.exec({ args: `add "${resp.file}"` });
-  }
-  return resp;
 };
 
 const getOnlyChangedFiles = async () => {
@@ -279,25 +285,16 @@ const compileFilesToDb = async ({
   const src =
     file || (changed ? await getOnlyChangedFiles() : config.get("source"));
 
-  const scope = config.get("compile.warnings");
-
   const processFile = async (file, done) => {
     let resp;
     try {
       // Compile file and get errors
-      resp = await base.compileFile(
-        file.contents,
-        file.path,
-        env,
-        force,
-        scope
-      );
-      // Print errors to output
-      printErrors(resp);
-      // Print query results if any
+      resp = await base.compileFile(file.contents, file.path, env, force);
       printResults(resp);
       // Stage file if no errors
-      if (!force) await addGit(resp);
+      if (!force && !resp.errors.hasErrors()) {
+        await git.exec({ args: `add "${resp.file}"` });
+      }
     } catch (error) {
       console.error(error.message);
     } finally {
@@ -306,9 +303,12 @@ const compileFilesToDb = async ({
     }
   };
 
+  // gulp4 rejects empty src
+  src.length === 0 && src.push("nonvalidfile");
+
   return (
     gulp
-      .src(src)
+      .src(src, { allowEmpty: true })
       // Compile file and emmit response
       .pipe(data(processFile))
       // End stream as there is no destination
@@ -328,7 +328,7 @@ const saveLogFile = ({ env = argv.env }) => {
     .pipe(gulp.dest(deployDir));
 };
 
-const deployFilesToDb = ({ file = argv.file, env = argv.env }) => {
+const deployFilesToDb = async ({ file = argv.file, env = argv.env }) => {
   const src = file || config.get("package.output");
 
   // Simple output err colorizer
@@ -337,16 +337,17 @@ const deployFilesToDb = ({ file = argv.file, env = argv.env }) => {
       // Remove double new-lines
       _.replace(/(\n\r)+/g, "\n"),
       _.trim,
-      _.replace(/ERROR/g, chalk.red("ERROR"))
+      // Color red to the line that contains ERROR
+      _.replace(/^.*ERROR.*$/gm, chalk.red("$&"))
     )(text);
 
-  const processFile = (error, stdout, stderr) => {
-    if (error) throw error;
+  try {
+    const stdout = await base.runFileAsScript(src, env);
     console.log(`${env}@${src}`);
     console.log(colorize(stdout));
-    console.log(`${stderr}`);
-  };
-  return base.deployFile(src, env, processFile);
+  } catch (error) {
+    console.error(`${error.message}`);
+  }
 };
 
 const createDbConfigFile = async done => {
@@ -669,7 +670,7 @@ const runTest = () => {
   return compileFilesToDbAsync({ file: config.get("test.input"), env: "DEV" });
 };
 
-const importObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
+const exportObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
   try {
     const source = globBase(config.get("source")[0]).base;
     const objs = await base.resolveObjectInfo(env, { name: object });
@@ -689,6 +690,17 @@ const importObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
   } catch (err) {
     console.error(err.message);
   }
+};
+
+const compileObjectToDb = async ({
+  file = argv.file,
+  env = argv.env,
+  object = argv.object,
+  line = argv.line
+}) => {
+  // console.log(object);
+  let resp = await base.compileSelection(object, file, env, line);
+  printResults(resp);
 };
 
 gulp.task(
@@ -720,6 +732,8 @@ gulp.task("compileFilesToDbAsync", compileFilesToDbAsync);
 compileAndMergeFilesToDb.description = "Compile with merge.";
 gulp.task("compileAndMergeFilesToDb", compileAndMergeFilesToDb);
 
+gulp.task("compileObjectToDb", compileObjectToDb);
+
 exportFilesFromDb.description = "Export files from DB.";
 exportFilesFromDb.flags = {
   "--env": "DB Environment. [DEV, TEST, UAT]",
@@ -730,7 +744,7 @@ exportFilesFromDb.flags = {
 };
 gulp.task("exportFilesFromDb", exportFilesFromDbAsync);
 
-gulp.task("importObjectFromDb", importObjectFromDb);
+gulp.task("exportObjectFromDb", exportObjectFromDb);
 
 gulp.task(
   "packageSrc",

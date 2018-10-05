@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "preview": true,
   "publisher": "mp",
   "engines": {
@@ -38,22 +38,28 @@
         {
           "command": "oradew.compileFileTask",
           "when": "resourceLangId == plsql",
-          "group": "navigation"
+          "group": "navigation",
+          "alt": "oradew.compileObjectTask"
         }
       ],
       "editor/context": [
         {
           "command": "oradew.compileFileTask",
-          "when": "resourceLangId == plsql",
+          "when": "resourceLangId == plsql && !editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.exportFileTask",
-          "when": "resourceLangId == plsql",
+          "when": "resourceLangId == plsql && !editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.exportObjectTask",
+          "when": "resourceLangId == plsql && editorHasSelection",
+          "group": "Oradew"
+        },
+        {
+          "command": "oradew.compileObjectTask",
           "when": "resourceLangId == plsql && editorHasSelection",
           "group": "Oradew"
         }
@@ -140,8 +146,22 @@
         }
       },
       {
+        "command": "oradew.compileObjectTask",
+        "title": "Run Selected Statement",
+        "category": "Oradew",
+        "icon": {
+          "light": "images/compile_icon_alt.png",
+          "dark": "images/compile_icon.png"
+        }
+      },
+      {
         "command": "oradew.compileFileTaskTest",
         "title": "TEST: Compile Current File",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.compileObjectTaskTest",
+        "title": "TEST: Run Selected Statement",
         "category": "Oradew"
       },
       {
@@ -191,6 +211,10 @@
       }
     ],
     "keybindings": [
+      {
+        "command": "oradew.compileObjectTask",
+        "key": "ctrl+enter"
+      },
       {
         "command": "oradew.deployTaskFile",
         "key": "f5"
@@ -256,6 +280,7 @@
     "vscode": "^1.1.18"
   },
   "dependencies": {
+    "cli-table": "^0.3.1",
     "del": "^2.2.2",
     "fs-extra": "^2.1.2",
     "glob": "^7.1.1",

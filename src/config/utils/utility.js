@@ -1,4 +1,7 @@
 import { sep, parse, resolve, relative } from "path";
+import { readFileSync, outputJsonSync } from "fs-extra";
+const stripJson = require("strip-json-comments");
+const exec = require("child_process").exec;
 
 let utils = {};
 
@@ -10,7 +13,8 @@ let mapDirToObjectType = {
   VIEWS: "VIEW",
   TRIGGERS: "TRIGGER",
   TYPES: "TYPE",
-  TYPE_BODIES: "TYPE BODY"
+  TYPE_BODIES: "TYPE BODY",
+  TABLES: "TABLE"
 };
 
 let mapObjectTypeAlternative = {
@@ -81,6 +85,9 @@ utils.getDBObjectFromPath = path => {
     dir = "FILE";
   }
 
+  owner = owner.toUpperCase();
+  objectName = objectName.toUpperCase();
+  dir = dir.toUpperCase();
   objectType = utils.getObjectTypeFromDir(dir);
   objectType1 = utils.getObjectType1FromObjectType(objectType);
 
@@ -98,8 +105,44 @@ utils.getDBObjectFromPath = path => {
   };
 };
 
+class Config {
+  constructor(file) {
+    this.file = file || "./oradewrc.json";
+    this.object = null;
+    // @TODO error handling when ther is no config file
+    // this.load();
+  }
+
+  load() {
+    this.object = JSON.parse(stripJson(readFileSync(this.file, "utf8")));
+  }
+  save() {
+    return outputJsonSync(this.file, this.object);
+  }
+  get(field) {
+    if (!this.object) this.load();
+    return field ? this.object[field] : this.object;
+  }
+  set(field, value) {
+    this.object[field] = value;
+  }
+}
+
 export const getDBObjectFromPath = utils.getDBObjectFromPath;
 export const getObjectTypeFromDir = utils.getObjectTypeFromDir;
 export const getDirFromObjectType = utils.getDirFromObjectType;
 export const getObjectTypes = utils.getObjectTypes;
 export const getDirTypes = utils.getDirTypes;
+export const config = new Config();
+
+const promisify = func => (...args) =>
+  new Promise((resolve, reject) =>
+    func(...args, (err, result) => (err ? reject(err) : resolve(result)))
+  );
+
+export const execPromise = promisify(exec);
+
+export const removeNewlines = str => str.replace(/\r\n|\r|\n/gi, " ");
+
+// alternative /\r?\n/
+export const splitLines = str => str.split(/\r\n|\r|\n/);

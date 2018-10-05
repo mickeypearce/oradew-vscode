@@ -3,12 +3,12 @@ const _ = require("lodash/fp");
 const { readJsonSync } = require("fs-extra");
 
 const dbLoc = require("./nedb");
+const utils = require("./utility");
 
 /**
  * Connection config object from dbConfig.json
  * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean}} ConnectionConfig
  */
-
 let dbConfig;
 const loadDbConfig = () => {
   try {
@@ -114,26 +114,27 @@ const getUsers = (env = "DEV") => {
   )(dbConfig);
 };
 
-const compile = (connection, code, warningScope = "NONE") => {
+const compile = async (connection, code) => {
   oracledb.outFormat = oracledb.ARRAY;
-  if (warningScope.toUpperCase() === "NONE") {
-    return connection.execute(code);
-  }
-  return connection
-    .execute(
+  oracledb.autoCommit = true;
+  const warningScope = utils.config.get("compile.warnings") || "NONE";
+  if (warningScope.toUpperCase() !== "NONE") {
+    await connection.execute(
       `call dbms_warning.set_warning_setting_string ('ENABLE:${warningScope}', 'SESSION')`
-    )
-    .then(() => connection.execute(code));
+    );
+  }
+  await connection.execute(`call dbms_output.enable(null)`);
+  return connection.execute(code);
 };
 
 const getObjectDdl = (connection, { owner, objectName, objectType1 }) => {
   oracledb.fetchAsString = [oracledb.CLOB];
   oracledb.outFormat = oracledb.ARRAY;
+  const importDdlFunction =
+    utils.config.get("import.getDdlFunction") || "dbms_metadata.get_ddl";
   return connection
     .execute(
-      `select
-      dbms_metadata.get_ddl(:objectType1, :objectName, :owner)
-      from dual`,
+      `select ${importDdlFunction}(:objectType1, :objectName, :owner) from dual`,
       {
         owner,
         objectName,
@@ -206,7 +207,7 @@ const syncDdlTime = async (conn, obj) => {
   return await dbLoc.upsertDdlTime(obj, timeOracle);
 };
 
-const error = ({ LINE, POSITION, ATTRIBUTE, TEXT, _ID }) => ({
+const createError = ({ LINE, POSITION, ATTRIBUTE, TEXT, _ID }) => ({
   isError: () => ATTRIBUTE === "ERROR",
   isWarning: () => ATTRIBUTE === "WARNING",
   isInfo: () => ATTRIBUTE === "INFO",
@@ -214,10 +215,10 @@ const error = ({ LINE, POSITION, ATTRIBUTE, TEXT, _ID }) => ({
   toString: () => `${LINE}/${POSITION} ${ATTRIBUTE} ${TEXT}`
 });
 
-const errors = (arr = []) => {
+const createErrorList = (arr = []) => {
   let _arr = [];
   // Construct errors from input array
-  arr.forEach(err => _arr.push(error(err)));
+  arr.forEach(err => _arr.push(createError(err)));
   let obj = {
     add: err => {
       _arr.push(err);
@@ -233,20 +234,44 @@ const errors = (arr = []) => {
   return obj;
 };
 
-const getErrorSystem = msg => {
-  return errors([
-    {
-      LINE: 1,
-      POSITION: 1,
-      TEXT: msg,
-      ATTRIBUTE: "ERROR",
-      _ID: "0002"
-    }
-  ]);
+const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
+  // Matches only one line of error msg
+  let reg = /.*:\sline\s(\d*),\scolumn\s(\d*):\n(.*)/g;
+  let s;
+  // msg = utils.removeNewlines(msg);
+  // console.log(msg);
+  let err = createErrorList();
+  while ((s = reg.exec(msg)) !== null) {
+    // console.log(`${s[1]} ${s[2]}`);
+    // console.log(s);
+    err.add(
+      createError({
+        LINE: lineOffset + parseInt(s[1]) - 1,
+        POSITION: s[2],
+        TEXT: s[3],
+        ATTRIBUTE: "ERROR"
+      })
+    );
+  }
+  // console.log(err.get().length);
+  if (err.get().length === 0) {
+    // console.log(msg);
+    err.add(
+      createError({
+        LINE: lineOffset + line - 1,
+        POSITION: position,
+        TEXT: msg,
+        ATTRIBUTE: "ERROR",
+        _ID: "0002"
+      })
+    );
+  }
+
+  return err;
 };
 
 const getErrorObjectChanged = () => {
-  return errors([
+  return createErrorList([
     {
       LINE: 1,
       POSITION: 1,
@@ -260,7 +285,7 @@ const getErrorObjectChanged = () => {
 
 const getErrors = async (conn, obj) => {
   let errsArray = await getErrorsInfo(conn, obj);
-  return errors(errsArray);
+  return createErrorList(errsArray);
 };
 
 const getNameResolve = (connection, { name, context }) => {
@@ -296,6 +321,28 @@ const getNameResolve = (connection, { name, context }) => {
     .then(result => result.outBinds);
 };
 
+const getDbmsOutputLine = connection => {
+  return connection
+    .execute("begin dbms_output.get_line(:line, :status); end;", {
+      line: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 32767 },
+      status: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+    })
+    .then(result => result.outBinds);
+};
+
+const getDbmsOutput = async connection => {
+  let line,
+    status = 0,
+    lines = [];
+
+  while (status === 0) {
+    ({ line, status } = await getDbmsOutputLine(connection));
+    line && lines.push(line);
+  }
+
+  return lines;
+};
+
 module.exports.getConfiguration = getConfiguration;
 module.exports.getConnection = getConnection;
 module.exports.getObjectDdl = getObjectDdl;
@@ -307,10 +354,11 @@ module.exports.getConnectionString = getConnectionString;
 module.exports.isDifferentDdlTime = isDifferentDdlTime;
 module.exports.compile = compile;
 module.exports.getUsers = getUsers;
-module.exports.error = error;
-module.exports.errors = errors;
+module.exports.createError = createError;
+module.exports.createErrorList = createErrorList;
 module.exports.getErrorObjectChanged = getErrorObjectChanged;
 module.exports.getErrors = getErrors;
 module.exports.getErrorSystem = getErrorSystem;
 module.exports.getNameResolve = getNameResolve;
 module.exports.loadDbConfig = loadDbConfig;
+module.exports.getDbmsOutput = getDbmsOutput;

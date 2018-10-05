@@ -1,9 +1,7 @@
-const exec = require("child_process").exec;
 const fs = require("fs-extra");
 
 const _ = require("lodash/fp");
 const glob = require("glob");
-const stripJson = require("strip-json-comments");
 const resolve = require("path").resolve;
 
 const utils = require("./utility");
@@ -11,35 +9,11 @@ const db = require("./db");
 
 let obj = {};
 
-class Config {
-  constructor(file) {
-    this.file = file || "./oradewrc.json";
-    this.object = null;
-    // @TODO error handling when ther is no config file
-    // this.load();
-  }
-
-  load() {
-    this.object = JSON.parse(stripJson(fs.readFileSync(this.file, "utf8")));
-  }
-  save() {
-    return fs.outputJsonSync(this.file, this.object);
-  }
-  get(field) {
-    if (!this.object) this.load();
-    return field ? this.object[field] : this.object;
-  }
-  set(field, value) {
-    this.object[field] = value;
-  }
-}
-obj.config = new Config();
-
 // Get array of files from output stream string
 obj.fromStdoutToFilesArray = stdout =>
   _.pipe(
     // Generate array from lines
-    _.split("\n"),
+    utils.splitLines,
     // Remove empty items and duplicates
     _.compact,
     _.uniq,
@@ -64,73 +38,96 @@ obj.exportFile = async (code, file, env, ease = false, done) => {
   let conn;
   try {
     conn = await db.getConnection(connCfg);
-    try {
-      if (!ease || (await db.isDifferentDdlTime(conn, obj))) {
-        // Get Db object code as string
-        let lob = await db.getObjectDdl(conn, obj);
-        lob = _.pipe(
-          // Remove whitespaces
-          _.trim,
-          // Remove NUL chars that are added to large files ?!
-          _.replace(/\x00/g, ""),
-          // Remove disable/enable line that is added at the end of the trigger
-          _.replace(/\nALTER TRIGGER+.*/g, "")
-        )(lob);
-        // Return a value async with callback
-        done(null, lob);
-        // Mark object as exported
-        await db.syncDdlTime(conn, obj);
-        exported = true;
-      } else {
-        // Return local code to continue gulp pipe
-        done(null, code);
-        exported = false;
-      }
-    } catch (error) {
-      console.error(error.message);
+    // try {
+    if (!ease || (await db.isDifferentDdlTime(conn, obj))) {
+      // Get Db object code as string
+      let lob = await db.getObjectDdl(conn, obj);
+      lob = _.pipe(
+        // Remove whitespaces
+        _.trim,
+        // Remove NUL chars that are added to large files ?!
+        _.replace(/\x00/g, ""),
+        // Remove disable/enable line that is added at the end of the trigger
+        _.replace(/\nALTER TRIGGER+.*/g, "")
+      )(lob);
+      // Return a value async with callback
+      done(null, lob);
+      // Mark object as exported
+      await db.syncDdlTime(conn, obj);
+      exported = true;
+    } else {
+      // Return local code to continue gulp pipe
+      done(null, code);
+      exported = false;
+      //   }
+      // } catch (error) {
+      //   console.error(error.message);
     }
   } catch (error) {
     console.error(error.message);
+    done(null, code);
+    exported = false;
   } finally {
     conn && conn.close();
   }
   return { obj, exported };
 };
 
-obj.compileFile = async (code, file, env, force = false, scope) => {
+function simpleParse(code) {
+  // Trim empties and slash (/) from code if it exists
+  code = _.pipe(
+    _.trim,
+    _.trimCharsEnd("/"),
+    _.trim
+  )(code);
+
+  // Trim semicolon (;) if it doesn't end with "END;" or "END <name>; etc"
+  if (!/END(\s\w*)*;$/gi.test(code)) {
+    code = _.trimCharsEnd(";")(code);
+  }
+  return code;
+}
+
+function getLineAndPosition(code, offset) {
+  let lines = utils.splitLines(code.substring(0, offset));
+  let line = lines.length;
+  let position = lines.pop().length + 1;
+  return { line, position };
+}
+
+obj.compileFile = async (code, file, env, force = false) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();
 
-  // Trim empties and slash (/) from code if it exists
-  code = _.pipe(
-    _.trim,
-    _.trimCharsEnd("/")
-  )(code);
+  code = simpleParse(code);
 
+  // console.log(code);
+  // console.log(code);
   let errors;
+  let lines = [];
   let result = {};
   let conn;
   try {
     conn = await db.getConnection(connCfg);
-    try {
-      // Generate error if we havent the latest obj version
-      // and we arent forcing compile
-      if ((await db.isDifferentDdlTime(conn, obj)) && !force) {
-        errors = db.getErrorObjectChanged();
-      } else {
-        // Otherwise compile object to Db with warning scope
-        result = await db.compile(conn, code.toString(), scope);
-        // Mark object as exported as we have the latest version
-        if (!force) await db.syncDdlTime(conn, obj);
-        // Getting errors for this object from Db
-        errors = await db.getErrors(conn, obj);
-      }
-    } catch (error) {
-      errors = db.getErrorSystem(error.message);
+    // Generate error if we havent the latest obj version
+    // and we arent forcing compile
+    if ((await db.isDifferentDdlTime(conn, obj)) && !force) {
+      errors = db.getErrorObjectChanged();
+    } else {
+      // Otherwise compile object to Db with warning scope
+      result = await db.compile(conn, code.toString());
+      // Mark object as exported as we have the latest version
+      if (!force) await db.syncDdlTime(conn, obj);
+      // Getting errors for this object from Db
+      errors = await db.getErrors(conn, obj);
+      lines = await db.getDbmsOutput(conn);
     }
   } catch (error) {
-    console.error(error.message);
+    const { line, position } = getLineAndPosition(code, error.offset);
+    let msg = error.message;
+    // console.log(msg);
+    errors = db.getErrorSystem(msg, 1, line, position);
   } finally {
     conn && conn.close();
   }
@@ -140,21 +137,55 @@ obj.compileFile = async (code, file, env, force = false, scope) => {
     file,
     env,
     errors,
-    result
+    result,
+    lines
   };
 };
 
-obj.deployFile = (file, env, done) => {
+obj.compileSelection = async (code, file, env, lineOffset) => {
+  const obj = utils.getDBObjectFromPath(file);
+  const connCfg = db.getConfiguration(env, obj.owner);
+  obj.owner = connCfg.user.toUpperCase();
+
+  code = simpleParse(code);
+
+  let errors;
+  let lines = [];
+  let result = {};
+  let conn;
+  // console.log("a" + code.toString());
+  try {
+    conn = await db.getConnection(connCfg);
+    result = await db.compile(conn, code.toString());
+    errors = db.createErrorList();
+    lines = await db.getDbmsOutput(conn);
+  } catch (error) {
+    // Oracle returns character offset of error
+    const { line, position } = getLineAndPosition(code, error.offset);
+    let msg = error.message;
+    errors = db.getErrorSystem(msg, lineOffset, line, position);
+  } finally {
+    conn && conn.close();
+  }
+  // Return results, errors array, file and env params
+  // dbmsoutput lines
+  return {
+    obj,
+    file,
+    env,
+    errors,
+    result,
+    lines
+  };
+};
+
+obj.runFileAsScript = (file, env) => {
   const obj = utils.getDBObjectFromPath(file);
   const owner = obj.owner;
-  try {
-    const connCfg = db.getConfiguration(env, owner);
-    const connString = db.getConnectionString(connCfg);
-    const cmd = `(echo connect ${connString} & echo start ${file} & echo show errors) | sqlplus -S /nolog`;
-    return exec(cmd, done);
-  } catch (error) {
-    console.error(error.message);
-  }
+  const connCfg = db.getConfiguration(env, owner);
+  const connString = db.getConnectionString(connCfg);
+  const cmd = `(echo connect ${connString} & echo start ${file} & echo show errors) | sqlplus -S /nolog`;
+  return utils.execPromise(cmd);
 };
 
 obj.getObjectsInfoByType = async (env, owner, objectTypes) => {

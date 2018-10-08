@@ -85,7 +85,7 @@ utils.getDBObjectFromPath = path => {
     dir = "FILE";
   }
 
-  owner = owner.toUpperCase();
+  owner = owner && owner.toUpperCase(); //owner cann be null
   objectName = objectName.toUpperCase();
   dir = dir.toUpperCase();
   objectType = utils.getObjectTypeFromDir(dir);

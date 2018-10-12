@@ -18,8 +18,8 @@
   "source": ["./src/**/*.sql"],
   "compile.warnings": "NONE",
   "compile.force": false,
-  "version.number": "develop",
-  "version.description": "develop",
-  "version.releaseDate": "1899-01-01",
+  "version.number": "0.0.1",
+  "version.description": "New feature",
+  "version.releaseDate": "2099-01-01",
   "test.input": ["./test/**/*.test.sql"]
 }

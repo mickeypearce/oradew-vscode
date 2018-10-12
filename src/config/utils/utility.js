@@ -1,6 +1,5 @@
 import { sep, parse, resolve, relative } from "path";
-import { readFileSync, outputJsonSync } from "fs-extra";
-const stripJson = require("strip-json-comments");
+import { existsSync, readJsonSync, outputJsonSync } from "fs-extra";
 const exec = require("child_process").exec;
 
 let utils = {};
@@ -85,9 +84,6 @@ utils.getDBObjectFromPath = path => {
     dir = "FILE";
   }
 
-  owner = owner && owner.toUpperCase(); //owner cann be null
-  objectName = objectName.toUpperCase();
-  dir = dir.toUpperCase();
   objectType = utils.getObjectTypeFromDir(dir);
   objectType1 = utils.getObjectType1FromObjectType(objectType);
 
@@ -108,16 +104,16 @@ utils.getDBObjectFromPath = path => {
 class Config {
   constructor(file) {
     this.file = file || "./oradewrc.json";
+    this.defaults = require("../templates/oradewrc.json");
     this.object = null;
-    // @TODO error handling when ther is no config file
-    // this.load();
   }
 
-  load() {
-    this.object = JSON.parse(stripJson(readFileSync(this.file, "utf8")));
+  read() {
+    return existsSync(this.file) ? readJsonSync(this.file, "utf8") : {};
   }
-  save() {
-    return outputJsonSync(this.file, this.object);
+  load() {
+    const config = this.read();
+    this.object = { ...this.defaults, ...config };
   }
   get(field) {
     if (!this.object) this.load();
@@ -125,6 +121,8 @@ class Config {
   }
   set(field, value) {
     this.object[field] = value;
+    const config = this.read();
+    return outputJsonSync(this.file, { ...config, ...{ [field]: value } });
   }
 }
 

@@ -1,10 +1,11 @@
 # Change Log
 
-## [0.1.3] - 2018-10-05
+## [0.1.4] - 2018-10-12
 
 - Added "import.getDdlFunction" configuration: Use a custom DB function to import object's DDL.
 - Added Tables to Source objects
 - Added "Run Selected Statement" (Shift+Enter) command: Execute SQL and PL/SQL statements.
+- Added default values for settings (oradewrc.json)
 
 ## [0.1.2] - 2018-09-06
 

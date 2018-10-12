@@ -20,6 +20,8 @@ const loadDbConfig = () => {
 };
 loadDbConfig();
 
+oracledb.fetchAsString = [oracledb.CLOB];
+
 // Each env has its own pool with users
 let _pool = {};
 _pool.DEV = {};
@@ -117,7 +119,7 @@ const getUsers = (env = "DEV") => {
 const compile = async (connection, code) => {
   oracledb.outFormat = oracledb.ARRAY;
   oracledb.autoCommit = true;
-  const warningScope = utils.config.get("compile.warnings") || "NONE";
+  const warningScope = utils.config.get("compile.warnings");
   if (warningScope.toUpperCase() !== "NONE") {
     await connection.execute(
       `call dbms_warning.set_warning_setting_string ('ENABLE:${warningScope}', 'SESSION')`
@@ -128,13 +130,11 @@ const compile = async (connection, code) => {
 };
 
 const getObjectDdl = (connection, { owner, objectName, objectType1 }) => {
-  oracledb.fetchAsString = [oracledb.CLOB];
   oracledb.outFormat = oracledb.ARRAY;
-  const importDdlFunction =
-    utils.config.get("import.getDdlFunction") || "dbms_metadata.get_ddl";
+  const importDdlFunction = utils.config.get("import.getDdlFunction");
   return connection
     .execute(
-      `select ${importDdlFunction}(:objectType1, :objectName, :owner) from dual`,
+      `select ${importDdlFunction}(upper(:objectType1), upper(:objectName), upper(:owner)) from dual`,
       {
         owner,
         objectName,
@@ -153,9 +153,9 @@ const getErrorsInfo = (connection, { owner, objectName, objectType }) => {
     .execute(
       `select line, position, attribute, replace(text, CHR(10), '') text
     from all_errors
-    where owner = :owner
-    and type = nvl(:objectType, type)
-    and name = nvl(:objectName, name)
+    where upper(owner) = upper(:owner)
+    and upper(type) = upper(nvl(:objectType, type))
+    and upper(name) = upper(nvl(:objectName, name))
     order by sequence desc`,
       {
         owner,
@@ -173,9 +173,9 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }) => {
     .execute(
       `select owner, object_id, object_name, object_type, last_ddl_time, status
     from all_objects
-    where owner = :owner
-    and object_type = nvl(:objectType, object_type)
-    and object_name = nvl(:objectName, object_name)
+    where upper(owner) = upper(:owner)
+    and upper(object_type) = upper(nvl(:objectType, object_type))
+    and upper(object_name) = upper(nvl(:objectName, object_name))
     and object_name not like 'SYS_PLSQL%'
     order by object_id`,
       {
@@ -238,24 +238,19 @@ const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
   // Matches only one line of error msg
   let reg = /.*:\sline\s(\d*),\scolumn\s(\d*):\n(.*)/g;
   let s;
-  // msg = utils.removeNewlines(msg);
-  // console.log(msg);
   let err = createErrorList();
   while ((s = reg.exec(msg)) !== null) {
-    // console.log(`${s[1]} ${s[2]}`);
-    // console.log(s);
     err.add(
       createError({
         LINE: lineOffset + parseInt(s[1]) - 1,
         POSITION: s[2],
         TEXT: s[3],
-        ATTRIBUTE: "ERROR"
+        ATTRIBUTE: "ERROR",
+        _ID: "0003"
       })
     );
   }
-  // console.log(err.get().length);
   if (err.get().length === 0) {
-    // console.log(msg);
     err.add(
       createError({
         LINE: lineOffset + line - 1,

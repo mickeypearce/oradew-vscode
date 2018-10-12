@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "preview": true,
   "publisher": "mp",
   "engines": {
@@ -28,7 +28,7 @@
   },
   "icon": "images/oradew_icon_128.png",
   "activationEvents": [
-    "workspaceContains:oradewrc.json",
+    "workspaceContains:dbconfig.json",
     "onCommand:oradew.initProjectTask"
   ],
   "main": "./out/extension",
@@ -118,7 +118,7 @@
       },
       {
         "command": "oradew.createProjectTask",
-        "title": "Create Source from DB Objects",
+        "title": "Import All Source from DB",
         "category": "Oradew"
       },
       {
@@ -264,7 +264,7 @@
     "utest": "node ./node_modules/mocha/bin/mocha src/test/*test.js",
     "build": "vsce package",
     "publish": "vsce publish",
-    "copy:static": "xcopy .\\src\\config\\templates\\* .\\out\\config\\templates\\ /S /Y && xcopy .\\src\\gulp.cmd .\\out\\ /Y"
+    "copy:static": "xcopy .\\src\\config\\templates\\* .\\out\\config\\templates\\ /S /Y"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.108",
@@ -292,7 +292,6 @@
     "gulp-git": "^2.5.2",
     "gulp-insert": "^0.5.0",
     "gulp-multi-dest": "^1.3.7",
-    "gulp-prompt": "^0.2.0",
     "gulp-rename": "^1.2.2",
     "gulp-template": "^4.0.0",
     "gulp-todo": "^5.5.0",
@@ -300,7 +299,6 @@
     "lodash": "^4.17.10",
     "nedb": "^1.8.0",
     "oracledb": "2.2.0",
-    "strip-json-comments": "^2.0.1",
     "vinyl-map2": "^1.2.1",
     "yargs": "^4.8.1"
   }

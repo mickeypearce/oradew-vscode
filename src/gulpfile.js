@@ -14,7 +14,6 @@ const data = require("gulp-data");
 const todo = require("gulp-todo");
 const template = require("gulp-template");
 const chalk = require("chalk");
-const prompt = require("gulp-prompt");
 const globBase = require("glob-base");
 const inquirer = require("inquirer");
 const multiDest = require("gulp-multi-dest");
@@ -110,7 +109,7 @@ SPOOL OFF
     }
   };
 
-  const templating = config.get("package.templating") || false;
+  const templating = config.get("package.templating");
 
   return (
     gulp
@@ -151,7 +150,6 @@ const createDeployInputFromGit = async () => {
 
     // Save new input to config
     config.set("package.input", newInput);
-    config.save();
     console.log(
       `${chalk.green("Changed file paths:")} ${newInput} ${chalk.green(
         "saved to package input."
@@ -159,6 +157,7 @@ const createDeployInputFromGit = async () => {
     );
   } catch (error) {
     console.error(error.message);
+    console.error("Probably no commits or tags. Create some.");
   }
 };
 
@@ -367,7 +366,7 @@ const createDbConfigFile = async done => {
   done();
 };
 
-const createProjectFiles = done => {
+const createProjectFiles = () => {
   // Create scripts dir for every user
   // and copy scripts templates
   db.loadDbConfig();
@@ -381,42 +380,18 @@ const createProjectFiles = done => {
 
   let src = [];
 
-  // Dont-overwrite files
-  //   .pipe(gulp.dest(".", { overwrite: false })); gulp@4.0.0
-  if (!fs.existsSync("./oradewrc.json"))
-    src.push(path.join(__dirname, "/config/templates/oradewrc.json"));
-  // if (!fs.existsSync("./dbconfig.json"))
-  //   src.push(path.join(__dirname, "/config/templates/dbconfig.json"));
   if (!fs.existsSync("./.gitignore"))
     src.push(path.join(__dirname, "/config/templates/.gitignore"));
   if (!fs.existsSync("./test"))
     src.push(path.join(__dirname, "/config/templates/test/*.test.sql"));
 
-  // Overwrite config file on request
-  inquirer
-    .prompt([
-      {
-        type: "confirm",
-        name: "defaultConfig",
-        message: `Use default workspace configuration (oradewrc.json)?`
-      }
-    ])
-    .then(res => {
-      // console.log("defaultConfig" + res.defaultConfig);
-      if (res.defaultConfig)
-        src.push(path.join(__dirname, "/config/templates/oradewrc.json"));
-
-      gulp
-        .src(src, { base: path.join(__dirname, "/config/templates/") })
-        .pipe(gulp.dest("."))
-        .on("end", () => {
-          done();
-        });
+  src.length === 0 && src.push("nonvalidfile");
+  return gulp
+    .src(src, {
+      allowEmpty: true,
+      base: path.join(__dirname, "/config/templates/")
     })
-    // Catch empty src error
-    .catch(() => {
-      done();
-    });
+    .pipe(gulp.dest("."));
 };
 
 const cleanProject = () => {
@@ -441,90 +416,86 @@ const initGit = async () => {
     isInitialized = false;
   }
 
-  if (isInitialized) {
-    return gulp
-      .src(config.file)
-      .pipe(
-        prompt.confirm({ message: `Create new version branch?`, default: true })
-      )
-      .on("data", () => git.branch(`version-${config.get("version.number")}`))
-      .on("end", () => console.log(chalk.magenta("Branch created.")));
-  } else {
-    return gulp
-      .src(config.file)
-      .pipe(
-        prompt.confirm({ message: `Initialize git repository?`, default: true })
-      )
-      .on("data", () => git.exec({ args: "init" }))
-      .on("end", () => console.log(chalk.magenta("Repository initialized.")));
+  if (!isInitialized) {
+    //   let answer = await inquirer.prompt({
+    //     type: "confirm",
+    //     name: "branch",
+    //     message: `Create new version branch?`
+    //   });
+    //   if (answer.branch) {
+    //     await git.branch(`version-${config.get("version.number")}`);
+    //     console.log(chalk.magenta("Branch created."));
+    //   }
+    // } else {
+    let answer = await inquirer.prompt({
+      type: "confirm",
+      name: "repo",
+      message: `Initialize git repository?`,
+      default: true
+    });
+    if (answer.repo) {
+      await git.exec({ args: "init" });
+      console.log(chalk.magenta("Repository initialized."));
+    }
   }
 };
 
-const initConfigFile = () => {
-  // Copy config file template
-  console.log("Let's fill out version details...");
-  return gulp
-    .src(config.file)
-    .pipe(
-      prompt.prompt(
-        [
-          {
-            type: "input",
-            name: "number",
-            message: "Version number [major.minor.patch]?"
-          },
-          {
-            type: "input",
-            name: "description",
-            message: "Version description?"
-          },
-          {
-            type: "input",
-            name: "releaseDate",
-            message: "Version release date [YYYY-MM-DD]?"
-          }
-          // ,
-          // {
-          //   type: "input",
-          //   name: "encoding",
-          //   message: "Package encoding? (utf8)"
-          // },
-          // {
-          //   type: "list",
-          //   name: "warnings",
-          //   message: "Compiler warning scope?",
-          //   choices: ["NONE", "ALL", "PERFORMANCE", "INFORMATIONAL", "SEVERE"]
-          // }
-        ],
-        res => {
-          // Reload config obj
-          config.load();
-          // Save prompts to config file, leave defaults if empty
-          config.set(
-            "version.number",
-            res.number || config.get("version.number")
-          );
-          config.set(
-            "version.description",
-            res.description || config.get("version.description")
-          );
-          config.set(
-            "version.releaseDate",
-            res.releaseDate || config.get("version.releaseDate")
-          );
-          // config.set(
-          //   "package.encoding",
-          //   res.encoding || config.get("package.encoding")
-          // );
-          // config.set(
-          //   "compile.warnings",
-          //   res.warnings || config.get("compile.warnings")
-          // );
-          config.save();
-        }
-      )
-    )
-    .on("data", () => console.log(chalk.green("Configuration file updated.")));
+const initConfigFile = async () => {
+  console.log("Let's fill out version details... Press <enter> to skip.");
+  let res = await inquirer.prompt([
+    {
+      type: "input",
+      name: "number",
+      message: "Version number [major.minor.patch]?"
+    },
+    {
+      type: "input",
+      name: "description",
+      message: "Version description?"
+    },
+    {
+      type: "input",
+      name: "releaseDate",
+      message: "Version release date [YYYY-MM-DD]?"
+    }
+    // ,
+    // {
+    //   type: "input",
+    //   name: "encoding",
+    //   message: "Package encoding? (utf8)"
+    // },
+    // {
+    //   type: "list",
+    //   name: "warnings",
+    //   message: "Compiler warning scope?",
+    //   choices: ["NONE", "ALL", "PERFORMANCE", "INFORMATIONAL", "SEVERE"]
+    // }
+  ]);
+  // Reload config obj
+  config.load();
+  // Save prompts to config file, leave defaults if empty
+  // res.number && config.set("version.number", res.number);
+  // res.description && config.set("version.description", res.description);
+  // res.releaseDate && config.set("version.releaseDate", res.releaseDate);
+  config.set("version.number", res.number || config.get("version.number"));
+  config.set(
+    "version.description",
+    res.description || config.get("version.description")
+  );
+  config.set(
+    "version.releaseDate",
+    res.releaseDate || config.get("version.releaseDate")
+  );
+
+  // config.set(
+  //   "package.encoding",
+  //   res.encoding || config.get("package.encoding")
+  // );
+  // config.set(
+  //   "compile.warnings",
+  //   res.warnings || config.get("compile.warnings")
+  // );
+  console.log(chalk.green("Configuration file updated."));
 };
 
 const compileEverywhere = async ({ file = argv.file }) => {

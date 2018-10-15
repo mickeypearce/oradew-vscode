@@ -327,7 +327,7 @@ const saveLogFile = ({ env = argv.env }) => {
     .pipe(gulp.dest(deployDir));
 };
 
-const deployFilesToDb = async ({ file = argv.file, env = argv.env }) => {
+const runFileOnDb = async ({ file = argv.file, env = argv.env }) => {
   const src = file || config.get("package.output");
 
   // Simple output err colorizer
@@ -728,12 +728,12 @@ gulp.task(
   createDeployInputFromGit
 );
 
-deployFilesToDb.description = "Deploy files to DB with SqlPlus.";
-deployFilesToDb.flags = {
+runFileOnDb.description = "Run file on DB with SqlPlus.";
+runFileOnDb.flags = {
   "--env": "DB Environment. [DEV, TEST, UAT]",
   "--file": "(optional) Absolute path of file"
 };
-gulp.task("deployFilesToDb", deployFilesToDb);
+gulp.task("runFileOnDb", runFileOnDb);
 
 runTest.description = "Simple unit testing.";
 gulp.task("runTest", runTest);

@@ -127,6 +127,11 @@
         "category": "Oradew"
       },
       {
+        "command": "oradew.deployTaskFileTest",
+        "title": "TEST: Run Current File As Script",
+        "category": "Oradew"
+      },
+      {
         "command": "oradew.compileTask",
         "title": "Compile Changes to DB",
         "category": "Oradew"

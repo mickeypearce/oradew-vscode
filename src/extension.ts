@@ -198,21 +198,28 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "deploy:TEST",
-        params: ["deployFilesToDb", "--env", "TEST"]
+        params: ["runFileOnDb", "--env", "TEST"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "deploy:UAT",
-        params: ["deployFilesToDb", "--env", "UAT"]
+        params: ["runFileOnDb", "--env", "UAT"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "deploy--file",
-        params: ["deployFilesToDb", "--env", "DEV", "--file", "${file}"]
+        params: ["runFileOnDb", "--env", "DEV", "--file", "${file}"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "deploy--file:TEST",
+        params: ["runFileOnDb", "--env", "TEST", "--file", "${file}"]
       })
     );
 
@@ -395,6 +402,15 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
+  let cmdTaskDeployFileTest = vscode.commands.registerCommand(
+    "oradew.deployTaskFileTest",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "Oradew: deploy--file:TEST"
+      );
+    }
+  );
   let cmdTaskTest = vscode.commands.registerCommand("oradew.testTask", () => {
     vscode.commands.executeCommand(
       "workbench.action.tasks.runTask",
@@ -419,6 +435,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskDeployTest);
   context.subscriptions.push(cmdTaskDeployUat);
   context.subscriptions.push(cmdTaskDeployFile);
+  context.subscriptions.push(cmdTaskDeployFileTest);
   context.subscriptions.push(cmdTaskTest);
 }
 

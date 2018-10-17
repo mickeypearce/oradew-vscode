@@ -82,7 +82,7 @@ PROMPT ***********************************************************
   done(null, prompt + code + ending);
 };
 
-const packageSrcFromFile = () => {
+const packageSrcFromFile = ({ env = argv.env }) => {
   const deployPrepend = `
 SPOOL deploy.log
 SET FEEDBACK ON
@@ -95,21 +95,25 @@ COMMIT;
 SPOOL OFF
 `;
 
-  const deployFile = path.basename(config.get("package.output"));
-  const deployDir = path.dirname(config.get("package.output"));
+  const outputFileName = path.basename(
+    config.get({ field: "package.output", env })
+  );
+  const outputDirectory = path.dirname(
+    config.get({ field: "package.output", env })
+  );
 
-  const src = config.get("package.input");
-  const encoding = config.get("package.encoding");
+  const src = config.get({ field: "package.input", env });
+  const encoding = config.get({ field: "package.encoding", env });
 
   const templateObject = {
-    config: config.get(),
+    config: config.get({ env }),
     data: {
       // Dates in format YYYY-MM-DD
       now: new Date().toISOString().substring(0, 10)
     }
   };
 
-  const templating = config.get("package.templating");
+  const templating = config.get({ field: "package.templating", env });
 
   return (
     gulp
@@ -118,12 +122,16 @@ SPOOL OFF
       .pipe(templating ? template(templateObject) : gutil.noop())
       // Adds object prompt to every file
       .pipe(map(addDBObjectPrompt))
-      .pipe(concat(deployFile))
+      .pipe(concat(outputFileName))
       .pipe(insert.wrap(deployPrepend, deployAppend))
       .pipe(insert.prepend(timestampHeader))
       .pipe(convertEncoding({ to: encoding }))
-      .pipe(gulp.dest(deployDir))
-      .on("end", () => console.log(chalk.green("Package created.")))
+      .pipe(gulp.dest(outputDirectory))
+      .on("end", () =>
+        console.log(
+          chalk.green(`Package created: ${outputDirectory}/${outputFileName}`)
+        )
+      )
   );
 };
 
@@ -174,13 +182,15 @@ const cherryPickFromJiraTask = async () => {
   console.log(`Files changed: ${stdout}`);
 };
 
-const makeChangeLog = () => {
+const makeChangeLog = ({ env = argv.env }) => {
   const file = path.join(__dirname, "/config/templates/changelog*.md");
   // Generate change log from deploy input array
-  const all = base.fromGlobsToFilesArray(config.get("package.input"));
+  const all = base.fromGlobsToFilesArray(
+    config.get({ field: "package.input", env })
+  );
   const content = generateChangeLog(all); // await git.getChangeLog();
   const templateObject = {
-    config: config.get(),
+    config: config.get({ env }),
     data: {
       // Dates in format YYYY-MM-DD
       now: new Date().toISOString().substring(0, 10)
@@ -203,8 +213,8 @@ const exportFilesFromDb = async ({
   ease = argv.ease,
   quiet = argv.quiet
 }) => {
-  const src =
-    file || (changed ? await getOnlyChangedFiles() : config.get("source"));
+  const source = config.get({ field: "source", env });
+  const src = file || (changed ? await getOnlyChangedFiles(source) : source);
 
   const processFile = async (code, file, done) => {
     let res;
@@ -264,12 +274,12 @@ const printResults = resp => {
   if (errMsg) console.log(`${errMsg}`);
 };
 
-const getOnlyChangedFiles = async () => {
+const getOnlyChangedFiles = async source => {
   const stdout = await git.getChangesNotStaged();
   // Get array of changed files from git
   const changed = base.fromStdoutToFilesArray(stdout);
-  // Get array of files matched by glob pattern source array
-  const all = base.fromGlobsToFilesArray(config.get("source"));
+  // Get array of files matched by source array parameter
+  const all = base.fromGlobsToFilesArray(source);
   // Intersection of both arrays
   const inter = _.intersection(all)(changed);
   return inter;
@@ -281,14 +291,21 @@ const compileFilesToDb = async ({
   changed = argv.changed,
   force = argv.force
 }) => {
-  const src =
-    file || (changed ? await getOnlyChangedFiles() : config.get("source"));
+  const source = config.get({ field: "source", env });
+  const src = file || (changed ? await getOnlyChangedFiles(source) : source);
+  const warnings = config.get({ field: "compile.warnings", env });
 
   const processFile = async (file, done) => {
     let resp;
     try {
       // Compile file and get errors
-      resp = await base.compileFile(file.contents, file.path, env, force);
+      resp = await base.compileFile(
+        file.contents,
+        file.path,
+        env,
+        force,
+        warnings
+      );
       printResults(resp);
       // Stage file if no errors
       if (!force && !resp.errors.hasErrors()) {
@@ -317,7 +334,7 @@ const compileFilesToDb = async ({
 };
 
 const saveLogFile = ({ env = argv.env }) => {
-  const deployDir = path.dirname(config.get("package.output"));
+  const deployDir = path.dirname(config.get({ field: "package.output", env }));
   const addEnvToName = path => {
     path.basename = path.basename + env;
   };
@@ -328,7 +345,7 @@ const saveLogFile = ({ env = argv.env }) => {
 };
 
 const runFileOnDb = async ({ file = argv.file, env = argv.env }) => {
-  const src = file || config.get("package.output");
+  const src = file || config.get({ field: "package.output", env });
 
   // Simple output err colorizer
   const colorize = text =>
@@ -591,8 +608,8 @@ const mergeLocalAndDbChanges = async ({
   env = argv.env,
   changed = argv.changed
 }) => {
-  const src =
-    file || (changed ? await getOnlyChangedFiles() : config.get("source"));
+  const source = config.get({ field: "source", env });
+  const src = file || (changed ? await getOnlyChangedFiles(source) : source);
 
   if (src.length !== 0) {
     try {
@@ -612,7 +629,7 @@ const compileAndMergeFilesToDb = async ({
   changed = argv.changed,
   force = argv.force
 }) => {
-  force = force || config.get("compile.force");
+  force = force || config.get({ field: "compile.force", env });
   try {
     // Compile and get error results
     const results = await compileFilesToDbAsync({ file, env, changed, force });

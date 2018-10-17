@@ -200,6 +200,16 @@
         "category": "Oradew"
       },
       {
+        "command": "oradew.packageTaskTest",
+        "title": "TEST: Package",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.packageTaskUat",
+        "title": "UAT: Package",
+        "category": "Oradew"
+      },
+      {
         "command": "oradew.populateChangesTask",
         "title": "Populate Package Input",
         "category": "Oradew"
@@ -252,7 +262,7 @@
     ],
     "jsonValidation": [
       {
-        "fileMatch": "oradewrc.json",
+        "fileMatch": "oradewrc*.json",
         "url": "./resources/oradewrc-schema.json"
       },
       {

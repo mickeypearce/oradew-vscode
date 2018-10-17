@@ -34,6 +34,11 @@ obj.exportFile = async (code, file, env, ease = false, done) => {
   // Owner can change to default user
   obj.owner = connCfg.user.toUpperCase();
 
+  const getFunctionName = utils.config.get({
+    field: "import.getDdlFunction",
+    env
+  });
+
   let exported = null;
   let conn;
   try {
@@ -41,7 +46,7 @@ obj.exportFile = async (code, file, env, ease = false, done) => {
     // try {
     if (!ease || (await db.isDifferentDdlTime(conn, obj))) {
       // Get Db object code as string
-      let lob = await db.getObjectDdl(conn, obj);
+      let lob = await db.getObjectDdl(conn, getFunctionName, obj);
       lob = _.pipe(
         // Remove whitespaces
         _.trim,
@@ -95,7 +100,7 @@ function getLineAndPosition(code, offset) {
   return { line, position };
 }
 
-obj.compileFile = async (code, file, env, force = false) => {
+obj.compileFile = async (code, file, env, force = false, warnings) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();
@@ -116,7 +121,7 @@ obj.compileFile = async (code, file, env, force = false) => {
       errors = db.getErrorObjectChanged();
     } else {
       // Otherwise compile object to Db with warning scope
-      result = await db.compile(conn, code.toString());
+      result = await db.compile(conn, code.toString(), warnings);
       // Mark object as exported as we have the latest version
       if (!force) await db.syncDdlTime(conn, obj);
       // Getting errors for this object from Db

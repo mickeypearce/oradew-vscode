@@ -221,7 +221,21 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "package",
-        params: ["packageSrc"]
+        params: ["packageSrc", "--env", "DEV"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "package:TEST",
+        params: ["packageSrc", "--env", "TEST"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "package:UAT",
+        params: ["packageSrc", "--env", "UAT"]
       })
     );
 
@@ -421,6 +435,24 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
+  let cmdTaskPackageTest = vscode.commands.registerCommand(
+    "oradew.packageTaskTest",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "Oradew: package:TEST"
+      );
+    }
+  );
+  let cmdTaskPackageUat = vscode.commands.registerCommand(
+    "oradew.packageTaskUat",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "Oradew: package:UAT"
+      );
+    }
+  );
   let cmdTaskPopulateChanges = vscode.commands.registerCommand(
     "oradew.populateChangesTask",
     () => {
@@ -487,6 +519,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskExportFileTest);
   context.subscriptions.push(cmdTaskExportObject);
   context.subscriptions.push(cmdTaskPackage);
+  context.subscriptions.push(cmdTaskPackageTest);
+  context.subscriptions.push(cmdTaskPackageUat);
   context.subscriptions.push(cmdTaskPopulateChanges);
   context.subscriptions.push(cmdTaskDeployTest);
   context.subscriptions.push(cmdTaskDeployUat);

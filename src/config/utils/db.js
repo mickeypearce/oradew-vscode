@@ -3,7 +3,6 @@ const _ = require("lodash/fp");
 const { readJsonSync } = require("fs-extra");
 
 const dbLoc = require("./nedb");
-const utils = require("./utility");
 
 /**
  * Connection config object from dbConfig.json
@@ -116,10 +115,9 @@ const getUsers = (env = "DEV") => {
   )(dbConfig);
 };
 
-const compile = async (connection, code) => {
+const compile = async (connection, code, warningScope = "NONE") => {
   oracledb.outFormat = oracledb.ARRAY;
   oracledb.autoCommit = true;
-  const warningScope = utils.config.get("compile.warnings");
   if (warningScope.toUpperCase() !== "NONE") {
     await connection.execute(
       `call dbms_warning.set_warning_setting_string ('ENABLE:${warningScope}', 'SESSION')`
@@ -129,12 +127,15 @@ const compile = async (connection, code) => {
   return connection.execute(code);
 };
 
-const getObjectDdl = (connection, { owner, objectName, objectType1 }) => {
+const getObjectDdl = (
+  connection,
+  getFunctionName,
+  { owner, objectName, objectType1 }
+) => {
   oracledb.outFormat = oracledb.ARRAY;
-  const importDdlFunction = utils.config.get("import.getDdlFunction");
   return connection
     .execute(
-      `select ${importDdlFunction}(upper(:objectType1), upper(:objectName), upper(:owner)) from dual`,
+      `select ${getFunctionName}(upper(:objectType1), upper(:objectName), upper(:owner)) from dual`,
       {
         owner,
         objectName,

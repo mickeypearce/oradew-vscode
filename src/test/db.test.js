@@ -1,7 +1,7 @@
 const assert = require("assert");
 const db = require("../config/utils/db");
 
-describe("#db", function() {
+describe("#db getConfiguration", function() {
   it("should return all distinct dev users", function() {
     let users = db.getUsers();
     assert.deepEqual(users, ["HR", "HR1"]);

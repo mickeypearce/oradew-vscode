@@ -1,13 +1,24 @@
 const assert = require("assert");
-const utils = require("../config/utils/utility");
+import { Config, createConfig } from "../config/utils/utility";
 
-const configDefault = utils.config;
-const configCustomrc = utils.createConfig("src/test/oradewrc.json");
+const configDefault = new Config();
+const configCustomrc = createConfig("src/test/oradewrc.json");
+
+const templateOradewrc = require("../config/templates/oradewrc.json");
 
 describe("#Utility Default Config in ./", function() {
+  it("should extract defaults from schema", function() {
+    const defaults = Config.getDefaultsFromSchema();
+    assert.deepEqual(defaults, templateOradewrc);
+  });
+
   it("should compile.force be false by default", function() {
     let force = configDefault.get("compile.force");
     assert.equal(force, false);
+  });
+  it("should test.input be ... by default", function() {
+    let testInput = configDefault.get("test.input");
+    assert.deepEqual(testInput, ["./test/**/*.test.sql"]);
   });
 });
 

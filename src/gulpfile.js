@@ -24,7 +24,7 @@ const git = require("./config/utils/git");
 const base = require("./config/utils/base");
 const db = require("./config/utils/db");
 
-let config = utils.config;
+let config = new utils.Config();
 
 const generateChangeLog = function(paths) {
   // Create Db objects from paths array
@@ -129,7 +129,9 @@ SPOOL OFF
       .pipe(gulp.dest(outputDirectory))
       .on("end", () =>
         console.log(
-          chalk.green(`Package created: ${outputDirectory}/${outputFileName}`)
+          `${chalk.green(
+            "Package created:"
+          )} ${outputDirectory}/${outputFileName}`
         )
       )
   );

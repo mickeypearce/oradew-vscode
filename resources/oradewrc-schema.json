@@ -48,21 +48,21 @@
     },
     "compile.force": {
       "default": false,
-      "description": "Ignore conflict detection and auto-merge of local file changes with DB object when compiling to DEV environment. \nCompilation on other env's is always done with force.",
+      "description": "Ignore conflict detection and auto-merge local file changes with DB object when compiling to DEV environment. \nCompilation on other envs is always done with force.",
       "type": "boolean"
     },
     "version.number": {
-      "default": "develop",
+      "default": "0.0.1",
       "description": "Version number.",
       "type": "string"
     },
     "version.description": {
-      "default": "develop",
+      "default": "New feature",
       "description": "Version description.",
       "type": "string"
     },
     "version.releaseDate": {
-      "default": "1899-01-01",
+      "default": "2099-01-01",
       "description": "Version release date.",
       "type": "string",
       "format": "date-time"
@@ -78,7 +78,13 @@
       "type": "string"
     },
     "generator.define": {
-      "default": [],
+      "default": [
+        {
+          "label": "#1",
+          "description": "Define your generator in oradewrc.json",
+          "function": ""
+        }
+      ],
       "description": "Array of generator definitions.",
       "type": "array",
       "items": {

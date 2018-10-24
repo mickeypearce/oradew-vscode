@@ -25,7 +25,9 @@
   "import.getDdlFunction": "dbms_metadata.get_ddl",
   "generator.define": [
     {
-      "description": "Define your generator in oradewrc.json"
+      "label": "#1",
+      "description": "Define your generator in oradewrc.json",
+      "function": ""
     }
   ]
 }

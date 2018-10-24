@@ -110,9 +110,9 @@ utils.getDBObjectFromPath = path => {
  * TEST: ./oradewrc.test.json (optional)
  * UAT: ./oradewrc.uat.json (optional)
  */
-class Config {
+export class Config {
   constructor(fileBase) {
-    this.defaults = require("../templates/oradewrc.json");
+    this.defaults = Config.getDefaultsFromSchema(); // require("../templates/oradewrc.json");
     this.fileBase = fileBase || "./oradewrc.json";
 
     let parsed = parse(this.fileBase);
@@ -123,6 +123,17 @@ class Config {
     this.objectTest = null;
     this.objectUat = null;
   }
+
+  // Defaults configuration object
+  // Config object with default setting values extracted from oradewrc-schema.json
+  static getDefaultsFromSchema = (
+    schema = "../../../resources/oradewrc-schema.json"
+  ) => {
+    const template = require(schema).properties;
+    return Object.keys(template).reduce((acc, value) => {
+      return { [value]: template[value].default, ...acc };
+    }, {});
+  };
 
   read() {
     return {
@@ -181,7 +192,7 @@ export const getObjectTypeFromDir = utils.getObjectTypeFromDir;
 export const getDirFromObjectType = utils.getDirFromObjectType;
 export const getObjectTypes = utils.getObjectTypes;
 export const getDirTypes = utils.getDirTypes;
-export const config = new Config();
+
 export const createConfig = file => new Config(file);
 
 const promisify = func => (...args) =>

@@ -213,6 +213,11 @@
         "command": "oradew.deployTaskUat",
         "title": "Deploy to UAT",
         "category": "Oradew"
+      },
+      {
+        "command": "oradew.generateTask",
+        "title": "Generate...",
+        "category": "Oradew"
       }
     ],
     "keybindings": [

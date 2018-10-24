@@ -674,6 +674,28 @@ const compileObjectToDb = async ({
   printResults(resp);
 };
 
+const generate = async ({
+  env = argv.env,
+  func = argv.func,
+  file = argv.file,
+  object = argv.object,
+  output = argv.output
+}) => {
+  try {
+    const resp = await base.getGenerator({ func, file, env, object });
+    const outputPath = output
+      ? path.resolve(output)
+      : path.resolve(
+          `./scripts/${resp.obj.owner}/file_${new Date().getTime()}.sql`
+        );
+
+    await utils.outputFilePromise(outputPath, resp.result);
+    console.log(`${outputPath} ${chalk.green("created.")}`);
+  } catch (err) {
+    console.error(err.message);
+  }
+};
+
 gulp.task(
   "initProject",
   gulp.series(
@@ -739,3 +761,5 @@ runTest.description = "Simple unit testing.";
 gulp.task("runTest", runTest);
 
 // gulp.task("default", "packageSrc");
+
+gulp.task("generate", generate);

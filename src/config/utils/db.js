@@ -187,6 +187,26 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }) => {
     .then(result => result.rows);
 };
 
+const getGeneratorFunction = (
+  connection,
+  getFunctionName,
+  { owner, objectName, objectType1 },
+  selectedObject
+) => {
+  oracledb.outFormat = oracledb.ARRAY;
+  return connection
+    .execute(
+      `select ${getFunctionName}(upper(:objectType1), upper(:objectName), upper(:owner), upper(:selectedObject)) from dual`,
+      {
+        owner,
+        objectName,
+        objectType1,
+        selectedObject
+      }
+    )
+    .then(result => result.rows[0][0]);
+};
+
 const getLastDdlTime = async (conn, obj) => {
   let all = await getObjectsInfo(conn, obj);
   return all.length !== 0 ? all[0].LAST_DDL_TIME : null;
@@ -357,3 +377,4 @@ module.exports.getErrorSystem = getErrorSystem;
 module.exports.getNameResolve = getNameResolve;
 module.exports.loadDbConfig = loadDbConfig;
 module.exports.getDbmsOutput = getDbmsOutput;
+module.exports.getGeneratorFunction = getGeneratorFunction;

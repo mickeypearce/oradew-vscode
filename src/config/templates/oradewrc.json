@@ -22,5 +22,10 @@
   "version.description": "New feature",
   "version.releaseDate": "2099-01-01",
   "test.input": ["./test/**/*.test.sql"],
-  "import.getDdlFunction": "dbms_metadata.get_ddl"
+  "import.getDdlFunction": "dbms_metadata.get_ddl",
+  "generator.define": [
+    {
+      "description": "Define your generator in oradewrc.json"
+    }
+  ]
 }

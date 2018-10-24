@@ -50,11 +50,14 @@ oradewrc.json           Workspace configuration
 - `Import Current File / Import Selected Object`
 - `Compile All Source to DB`
 - `Run tests` (F7)
-- `Populate Package Input` - with changed files from Git history using latest tagged commit as a starting point. (Shift + F8)
+- `Populate Package Input` with changed files from Git history using latest tagged commit as a starting point. (Shift + F8)
+- `Generate` PL/SQL with a code generator.
 
 ## Configuration
 
-The following settings are available for the workspace (`oradewrc.json`).
+Workspace supports a base configuration file (`oradewrc.json`). An additional configuration file for each environment is also supported (`oradewrc.test.json`, `oradewrc.uat.json`). The base configuration contains settings that are usually common across all environments but can be extended (overloaded) optionally by environment specific configurations for environment specific commands.
+
+Configuraton files are not required. Default values will be assumed in case they are not present. The following settings are available (`oradewrc*.json`):
 
 ```json
 {
@@ -81,7 +84,8 @@ The following settings are available for the workspace (`oradewrc.json`).
   "version.description": "New feature",
   "version.releaseDate": "2099-01-01",
   "test.input": ["./test/**/*.test.sql"],
-  "import.getDdlFunction": "dbms_metadata.get_ddl"
+  "import.getDdlFunction": "dbms_metadata.get_ddl",
+  "generator.define": []
 }
 ```
 
@@ -97,11 +101,42 @@ The following settings are available for the workspace (`oradewrc.json`).
 - `version.releaseDate` - Version release date.
 - `test.input` - Array of globs for test files.
 - `import.getDdlFunction` - Custom Get_DDL function name. Use your own DB function to customize import of object's DDL. It is used by `Import` commands. The default value is `DBMS_METADATA.GET_DDL`.
+  ```sql
+  -- Example of a DB function specification:
+  FUNCTION CustomGetDDL(object_type IN VARCHAR2, name IN VARCHAR2, schema IN VARCHAR2 DEFAULT NULL) RETURN CLOB;
+  ```
+
+### Code Generator
+
+Configure the setting `generator.define` to define code generators. Then use `Generate` command to generate your PL/SQL code.
+
+The `label` and `function` properties are required for a generator to be succesfully defined but a `description` is optional. You can also use `output` property to define a file path of the generated content (also optional). If the `output` is omitted a file with unique filename is created in `./scripts` directory. A generator example follows:
+
+```json
+  "generator.define": [
+    {
+      "label": "Update Statement",
+      "function": "utl_generate.updateStatement",
+      "description": "Generate update statement for a table"
+    }
+  ]
+```
+
+The DB `function` must have the following DB signature:
 
 ```sql
 -- Example of a DB function specification:
-FUNCTION CustomGetDDL(object_type IN VARCHAR2, name IN VARCHAR2, schema IN VARCHAR2 DEFAULT NULL) RETURN CLOB;
+FUNCTION updateStatement(
+  object_type IN VARCHAR2,    -- derived from path of ${file}
+  name IN VARCHAR2,           -- derived from path of ${file}
+  schema IN VARCHAR2,         -- derived from path of ${file}
+  selected_object IN VARCHAR2 -- ${selectedText}
+) RETURN CLOB;
 ```
+
+The first three function parameters (`object_type`, `name`, `schema`) are derived from path of the currently opened file, whereas `selected_object` is the currently selected text.
+
+See DB function from this example: [utl_generate.sql](plsql-generators/utl_generate.sql) and please submit your own!
 
 ## Important
 

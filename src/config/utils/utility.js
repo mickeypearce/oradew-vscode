@@ -1,5 +1,5 @@
 import { sep, parse, resolve, relative } from "path";
-import { existsSync, readJsonSync, outputJsonSync } from "fs-extra";
+import { existsSync, readJsonSync, outputJsonSync, outputFile } from "fs-extra";
 const exec = require("child_process").exec;
 
 let utils = {};
@@ -132,6 +132,7 @@ export const getDirFromObjectType = utils.getDirFromObjectType;
 export const getObjectTypes = utils.getObjectTypes;
 export const getDirTypes = utils.getDirTypes;
 export const config = new Config();
+export const createConfig = file => new Config(file);
 
 const promisify = func => (...args) =>
   new Promise((resolve, reject) =>
@@ -139,6 +140,7 @@ const promisify = func => (...args) =>
   );
 
 export const execPromise = promisify(exec);
+export const outputFilePromise = promisify(outputFile);
 
 export const removeNewlines = str => str.replace(/\r\n|\r|\n/gi, " ");
 

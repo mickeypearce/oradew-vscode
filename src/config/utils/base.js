@@ -246,4 +246,27 @@ obj.resolveObjectInfo = async (env, { name }) => {
   return result;
 };
 
+obj.getGenerator = async ({ func, file, env, object }) => {
+  const obj = utils.getDBObjectFromPath(file);
+  const connCfg = db.getConfiguration(env, obj.owner);
+  obj.owner = connCfg.user.toUpperCase();
+
+  let result = {};
+  let conn;
+  try {
+    conn = await db.getConnection(connCfg);
+    result = await db.getGeneratorFunction(conn, func, obj, object);
+  } catch (error) {
+    throw error;
+  } finally {
+    conn && conn.close();
+  }
+  return {
+    obj,
+    file,
+    env,
+    result
+  };
+};
+
 module.exports = obj;

@@ -34,28 +34,28 @@ oradewrc.json           Workspace configuration
 
 **Build**
 
-- `Compile Changes to DB` (F6) - Compile changed Source objects (working tree) to DEV. Succesfully compiled files are added to Staging area.
+- `Compile Changes to DB` (_F6_) - Compile changed Source objects (working tree) to DEV. Succesfully compiled files are added to Staging area.
 - `Compile Current File` - Compile file to DEV
-- `Run Current File as Script` (F5) - Run as Script on DEV environment (with SQLPlus)
-- `Run Selected Statement` (Shift+Enter) - Execute a single SQL or PL/SQL statement with autoCommit and dbms_output enabled
+- `Run Current File as Script` (_F5_) - Run as Script on DEV environment (with SQLPlus)
+- `Run Selected Statement` (_Ctrl+Enter_) - Execute a single SQL or PL/SQL statement with autoCommit and dbms_output enabled
 
 **Install**
 
-- `Package` (F8) - Generate distribution package script, TODOs file and ChangeLog
+- `Package` (_F9_) - Generate distribution package script, TODOs file and ChangeLog
 - `Deploy to TEST / UAT` - Run distribution package script on TEST or UAT environment (with SQLPlus)
 
 ### Additional
 
-- `Import Changes from DB` (Shift + F6)
+- `Import Changes from DB` (_Shift+F6_)
 - `Import Current File / Import Selected Object`
 - `Compile All Source to DB`
-- `Run tests` (F7)
-- `Populate Package Input` with changed files from Git history using latest tagged commit as a starting point. (Shift + F8)
+- `Run tests`
+- `Populate Package Input` (_Shift+F9_) with changed files from Git history using latest tagged commit as a starting point.
 - `Generate` PL/SQL with a code generator.
 
 ## Configuration
 
-Workspace supports a base configuration file (`oradewrc.json`). An additional configuration file for each environment is also supported (`oradewrc.test.json`, `oradewrc.uat.json`). The base configuration contains settings that are usually common across all environments but can be extended (overloaded) optionally by environment specific configurations for environment specific commands.
+Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.test.json`, `oradewrc.uat.json`). The base configuration contains settings that are usually common across all environments but can be extended (overloaded) optionally by environment specific configurations for environment specific commands.
 
 Configuraton files are not required. Default values will be assumed in case they are not present. The following settings are available (`oradewrc*.json`):
 

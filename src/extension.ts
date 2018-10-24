@@ -13,6 +13,8 @@ interface Command {
 let taskProvider: vscode.Disposable | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
+  vscode.commands.executeCommand("setContext", "inOradewProject", true);
+
   const isSilent = (process.env["silent"] || "true") === "true";
 
   let rootPath =

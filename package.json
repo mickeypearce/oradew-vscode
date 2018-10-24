@@ -37,7 +37,7 @@
       "editor/title": [
         {
           "command": "oradew.compileFileTask",
-          "when": "resourceLangId == plsql",
+          "when": "inOradewProject && resourceLangId == plsql",
           "group": "navigation",
           "alt": "oradew.compileObjectTask"
         }
@@ -45,48 +45,89 @@
       "editor/context": [
         {
           "command": "oradew.compileFileTask",
-          "when": "resourceLangId == plsql && !editorHasSelection",
+          "when": "inOradewProject && resourceLangId == plsql && !editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.exportFileTask",
-          "when": "resourceLangId == plsql && !editorHasSelection",
+          "when": "inOradewProject && resourceLangId == plsql && !editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.exportObjectTask",
-          "when": "resourceLangId == plsql && editorHasSelection",
+          "when": "inOradewProject && resourceLangId == plsql && editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.compileObjectTask",
-          "when": "resourceLangId == plsql && editorHasSelection",
+          "when": "inOradewProject && resourceLangId == plsql && editorHasSelection",
+          "group": "Oradew"
+        },
+        {
+          "command": "oradew.generateTask",
+          "when": "inOradewProject && resourceLangId == plsql && editorHasSelection",
           "group": "Oradew"
         }
       ],
       "explorer/context": [
         {
           "command": "oradew.initProjectTask",
-          "group": "Oradew",
-          "category": "Oradew"
+          "group": "Oradew@1",
+          "category": "Oradew",
+          "when": "inOradewProject"
         },
         {
           "command": "oradew.compileTask",
-          "group": "Oradew",
-          "category": "Oradew"
+          "group": "Oradew@2",
+          "category": "Oradew",
+          "when": "inOradewProject"
         },
         {
           "command": "oradew.testTask",
-          "group": "Oradew",
-          "category": "Oradew"
+          "group": "Oradew@3",
+          "category": "Oradew",
+          "when": "inOradewProject"
         },
         {
           "command": "oradew.packageTask",
-          "group": "Oradew",
-          "category": "Oradew"
+          "group": "Oradew@4",
+          "category": "Oradew",
+          "when": "inOradewProject"
         }
       ]
     },
+    "keybindings": [
+      {
+        "command": "oradew.compileObjectTask",
+        "key": "ctrl+enter",
+        "when": "inOradewProject"
+      },
+      {
+        "command": "oradew.deployTaskFile",
+        "key": "f5",
+        "when": "inOradewProject"
+      },
+      {
+        "command": "oradew.exportTask",
+        "key": "shift+f6",
+        "when": "inOradewProject"
+      },
+      {
+        "command": "oradew.compileTask",
+        "key": "f6",
+        "when": "inOradewProject"
+      },
+      {
+        "command": "oradew.packageTask",
+        "key": "f9",
+        "when": "inOradewProject"
+      },
+      {
+        "command": "oradew.populateChangesTask",
+        "key": "shift+f9",
+        "when": "inOradewProject"
+      }
+    ],
     "problemMatchers": [
       {
         "name": "oracle-plsql",
@@ -228,36 +269,6 @@
         "command": "oradew.generateTask",
         "title": "Generate...",
         "category": "Oradew"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "oradew.compileObjectTask",
-        "key": "ctrl+enter"
-      },
-      {
-        "command": "oradew.deployTaskFile",
-        "key": "f5"
-      },
-      {
-        "command": "oradew.exportTask",
-        "key": "shift+f6"
-      },
-      {
-        "command": "oradew.compileTask",
-        "key": "f6"
-      },
-      {
-        "command": "oradew.testTask",
-        "key": "f7"
-      },
-      {
-        "command": "oradew.packageTask",
-        "key": "f8"
-      },
-      {
-        "command": "oradew.populateChangesTask",
-        "key": "shift+f8"
       }
     ],
     "jsonValidation": [

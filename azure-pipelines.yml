@@ -6,7 +6,7 @@
 resources:
   containers:
     - container: my_container
-      image: container-registry.oracle.com/database/instantclient
+      image: jeffersonhealth/node-oracle-instantclient
 
 pool:
   vmImage: "ubuntu-16.04"

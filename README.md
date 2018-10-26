@@ -1,5 +1,7 @@
 # Oradew
 
+[![Build Status](https://dev.azure.com/mickeypearce0384/Oradew/_apis/build/status/mickeypearce.oradew-vscode)](https://dev.azure.com/mickeypearce0384/Oradew/_build/latest?definitionId=1)
+
 **PL/SQL development with Git and a simple compile-package-deploy workflow**
 
 This extension allows you to develop your PL/SQL project in Visual Studio Code. It enables you to:

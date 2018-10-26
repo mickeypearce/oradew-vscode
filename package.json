@@ -257,14 +257,14 @@
   ],
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "npm run copy:static && tsc -p ./",
-    "watch": "npm run copy:static && tsc -watch -p ./",
+    "compile": "npm run precompile && tsc -p ./",
+    "watch": "npm run precompile && tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "npm run compile && node ./node_modules/vscode/bin/test",
-    "utest": "node ./node_modules/mocha/bin/mocha src/test/*test.js",
+    "utest": "npm run compile && node ./node_modules/mocha/bin/mocha --ui tdd out/test/*test.js",
     "build": "vsce package",
     "publish": "vsce publish",
-    "copy:static": "xcopy .\\src\\config\\templates\\* .\\out\\config\\templates\\ /S /Y"
+    "precompile": "node ./scripts/precompile.js"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.108",

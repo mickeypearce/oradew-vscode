@@ -3,8 +3,15 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
+resources:
+  containers:
+    - container: my_container
+      image: container-registry.oracle.com/database/instantclient
+
 pool:
-  vmImage: "vs2017-win2016"
+  vmImage: "ubuntu-16.04"
+
+container: my_container
 
 steps:
   - task: NodeTool@0

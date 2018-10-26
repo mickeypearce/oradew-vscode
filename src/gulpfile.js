@@ -19,10 +19,10 @@ const inquirer = require("inquirer");
 const multiDest = require("gulp-multi-dest");
 const Table = require("cli-table");
 
-const utils = require("./config/utils/utility");
-const git = require("./config/utils/git");
-const base = require("./config/utils/base");
-const db = require("./config/utils/db");
+const utils = require("./common/utility");
+const git = require("./common/git");
+const base = require("./common/base");
+const db = require("./common/db");
 
 let config = new utils.Config();
 
@@ -185,7 +185,7 @@ const cherryPickFromJiraTask = async () => {
 };
 
 const makeChangeLog = ({ env = argv.env }) => {
-  const file = path.join(__dirname, "/config/templates/changelog*.md");
+  const file = path.join(__dirname, "/templates/changelog*.md");
   // Generate change log from deploy input array
   const all = base.fromGlobsToFilesArray(
     config.get({ field: "package.input", env })
@@ -217,11 +217,15 @@ const exportFilesFromDb = async ({
 }) => {
   const source = config.get({ field: "source", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
+  const getFunctionName = config.get({
+    field: "import.getDdlFunction",
+    env
+  });
 
   const processFile = async (code, file, done) => {
     let res;
     try {
-      res = await base.exportFile(code, file, env, ease, done);
+      res = await base.exportFile(code, file, env, ease, getFunctionName, done);
       if (!quiet && res.exported)
         console.log(
           `${chalk.green("Imported")} <= ${res.obj.owner}@${env} $${file}`
@@ -371,7 +375,7 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env }) => {
 const createDbConfigFile = async done => {
   if (!fs.existsSync("./dbconfig.json")) {
     fs.copySync(
-      path.join(__dirname, "/config/templates/dbconfig.json"),
+      path.join(__dirname, "/templates/dbconfig.json"),
       "./dbconfig.json"
     );
     await inquirer.prompt([
@@ -392,23 +396,23 @@ const createProjectFiles = () => {
   const scriptsDirs = db.getUsers().map(v => `./scripts/${v}`);
   gulp
     .src([
-      path.join(__dirname, "/config/templates/scripts/initial*.sql"),
-      path.join(__dirname, "/config/templates/scripts/final*.sql")
+      path.join(__dirname, "/templates/scripts/initial*.sql"),
+      path.join(__dirname, "/templates/scripts/final*.sql")
     ])
     .pipe(multiDest(scriptsDirs));
 
   let src = [];
 
   if (!fs.existsSync("./.gitignore"))
-    src.push(path.join(__dirname, "/config/templates/.gitignore"));
+    src.push(path.join(__dirname, "/templates/.gitignore"));
   if (!fs.existsSync("./test"))
-    src.push(path.join(__dirname, "/config/templates/test/*.test.sql"));
+    src.push(path.join(__dirname, "/templates/test/*.test.sql"));
 
   src.length === 0 && src.push("nonvalidfile");
   return gulp
     .src(src, {
       allowEmpty: true,
-      base: path.join(__dirname, "/config/templates/")
+      base: path.join(__dirname, "/templates/")
     })
     .pipe(gulp.dest("."));
 };

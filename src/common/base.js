@@ -1,5 +1,4 @@
 const fs = require("fs-extra");
-
 const _ = require("lodash/fp");
 const glob = require("glob");
 const resolve = require("path").resolve;
@@ -28,16 +27,18 @@ obj.fromGlobsToFilesArray = globArray => {
   return globArray.reduce((acc, path) => acc.concat(glob.sync(path)), []);
 };
 
-obj.exportFile = async (code, file, env, ease = false, done) => {
+obj.exportFile = async (
+  code,
+  file,
+  env,
+  ease = false,
+  getFunctionName,
+  done
+) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.getConfiguration(env, obj.owner);
   // Owner can change to default user
   obj.owner = connCfg.user.toUpperCase();
-
-  const getFunctionName = utils.config.get({
-    field: "import.getDdlFunction",
-    env
-  });
 
   let exported = null;
   let conn;

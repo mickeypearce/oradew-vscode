@@ -127,7 +127,7 @@ export class Config {
   // Defaults configuration object
   // Config object with default setting values extracted from oradewrc-schema.json
   static getDefaultsFromSchema = (
-    schema = "../../../resources/oradewrc-schema.json"
+    schema = "../../resources/oradewrc-schema.json"
   ) => {
     const template = require(schema).properties;
     return Object.keys(template).reduce((acc, value) => {

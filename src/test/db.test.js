@@ -1,5 +1,5 @@
 const assert = require("assert");
-const db = require("../config/utils/db");
+const db = require("../common/db");
 
 describe("#db getConfiguration", function() {
   it("should return all distinct dev users", function() {

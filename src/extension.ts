@@ -1,7 +1,7 @@
 "use strict";
 
 import * as vscode from "vscode";
-import { createConfig } from "./config/utils/utility";
+import { createConfig } from "./common/utility";
 
 interface Command {
   label: string;

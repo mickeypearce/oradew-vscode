@@ -1,10 +1,10 @@
 const assert = require("assert");
-import { Config, createConfig } from "../config/utils/utility";
+import { Config, createConfig } from "../common/utility";
 
 const configDefault = new Config();
-const configCustomrc = createConfig("src/test/oradewrc.json");
+const configCustomrc = createConfig(__dirname + "/resources/oradewrc.json");
 
-const templateOradewrc = require("../config/templates/oradewrc.json");
+const templateOradewrc = require("./resources/oradewrc.default.json");
 
 describe("#Utility Default Config in ./", function() {
   it("should extract defaults from schema", function() {

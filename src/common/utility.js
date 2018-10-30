@@ -1,5 +1,5 @@
-import { sep, parse, resolve, relative } from "path";
-import { existsSync, readJsonSync, outputJsonSync } from "fs-extra";
+import { sep, parse, resolve, relative, join } from "path";
+import { existsSync, readJsonSync, outputJsonSync, outputFile } from "fs-extra";
 const exec = require("child_process").exec;
 
 let utils = {};
@@ -101,28 +101,89 @@ utils.getDBObjectFromPath = path => {
   };
 };
 
-class Config {
-  constructor(file) {
-    this.file = file || "./oradewrc.json";
-    this.defaults = require("../templates/oradewrc.json");
-    this.object = null;
+/**
+ * Configuration for each environment.
+ *
+ * Config file extending sequence: defaults <== DEV (base) <== TEST <== UAT
+ *
+ * DEV (base): ./oradewrc.json
+ * TEST: ./oradewrc.test.json (optional)
+ * UAT: ./oradewrc.uat.json (optional)
+ */
+export class Config {
+  constructor(fileBase) {
+    this.defaults = Config.getDefaultsFromSchema(); // require("../templates/oradewrc.json");
+    this.fileBase = fileBase || "./oradewrc.json";
+
+    let parsed = parse(this.fileBase);
+    this.fileTest = resolve(parsed.dir, `${parsed.name}.test${parsed.ext}`);
+    this.fileUat = resolve(parsed.dir, `${parsed.name}.uat${parsed.ext}`);
+
+    this.objectBase = null;
+    this.objectTest = null;
+    this.objectUat = null;
   }
 
+  // Defaults configuration object
+  // Config object with default setting values extracted from oradewrc-schema.json
+  static getDefaultsFromSchema = (
+    schema = "../../resources/oradewrc-schema.json"
+  ) => {
+    const template = require(schema).properties;
+    return Object.keys(template).reduce((acc, value) => {
+      return { [value]: template[value].default, ...acc };
+    }, {});
+  };
+
   read() {
-    return existsSync(this.file) ? readJsonSync(this.file, "utf8") : {};
+    return {
+      objectBase: existsSync(this.fileBase)
+        ? readJsonSync(this.fileBase, "utf8")
+        : {},
+      objectTest: existsSync(this.fileTest)
+        ? readJsonSync(this.fileTest, "utf8")
+        : {},
+      objectUat: existsSync(this.fileUat)
+        ? readJsonSync(this.fileUat, "utf8")
+        : {}
+    };
   }
   load() {
-    const config = this.read();
-    this.object = { ...this.defaults, ...config };
+    const { objectBase, objectTest, objectUat } = this.read();
+    this.objectBase = { ...this.defaults, ...objectBase };
+    this.objectTest = { ...this.objectBase, ...objectTest };
+    this.objectUat = { ...this.objectBase, ...objectUat };
   }
-  get(field) {
-    if (!this.object) this.load();
-    return field ? this.object[field] : this.object;
+  // Input param can be object: { field, env }
+  // or just string "field" (env is DEV by default)
+  // If Field is empty whole config object is returned
+  get(param) {
+    let field, env;
+    if (typeof param === "object") {
+      ({ field, env } = param);
+    } else {
+      field = param;
+      env = "DEV";
+    }
+    switch (env) {
+      case "TEST":
+        if (!this.objectTest) this.load();
+        return field ? this.objectTest[field] : this.objectTest;
+      case "UAT":
+        if (!this.objectUat) this.load();
+        return field ? this.objectUat[field] : this.objectUat;
+      default:
+        if (!this.objectBase) this.load();
+        return field ? this.objectBase[field] : this.objectBase;
+    }
   }
   set(field, value) {
-    this.object[field] = value;
-    const config = this.read();
-    return outputJsonSync(this.file, { ...config, ...{ [field]: value } });
+    this.objectBase[field] = value;
+    const { objectBase } = this.read();
+    return outputJsonSync(this.fileBase, {
+      ...objectBase,
+      ...{ [field]: value }
+    });
   }
 }
 
@@ -131,7 +192,8 @@ export const getObjectTypeFromDir = utils.getObjectTypeFromDir;
 export const getDirFromObjectType = utils.getDirFromObjectType;
 export const getObjectTypes = utils.getObjectTypes;
 export const getDirTypes = utils.getDirTypes;
-export const config = new Config();
+
+export const createConfig = file => new Config(file);
 
 const promisify = func => (...args) =>
   new Promise((resolve, reject) =>
@@ -139,6 +201,7 @@ const promisify = func => (...args) =>
   );
 
 export const execPromise = promisify(exec);
+export const outputFilePromise = promisify(outputFile);
 
 export const removeNewlines = str => str.replace(/\r\n|\r|\n/gi, " ");
 

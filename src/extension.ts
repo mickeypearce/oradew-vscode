@@ -1,10 +1,20 @@
 "use strict";
 
 import * as vscode from "vscode";
+import { createConfig } from "./common/utility";
+
+interface Command {
+  label: string;
+  function: string;
+  description?: string;
+  output?: string;
+}
 
 let taskProvider: vscode.Disposable | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
+  vscode.commands.executeCommand("setContext", "inOradewProject", true);
+
   const isSilent = (process.env["silent"] || "true") === "true";
 
   let rootPath =
@@ -12,44 +22,73 @@ export function activate(context: vscode.ExtensionContext) {
 
   const storagePath = context.storagePath || context.extensionPath;
 
+  const config = createConfig(`${rootPath}/oradewrc.json`);
+  const getGenerators = (): Array<Command> => {
+    config.load();
+    return config.get("generator.define");
+  };
+
+  const gulpPathJs = context.asAbsolutePath("node_modules/gulp/bin/gulp.js");
+  const gulpFile = context.asAbsolutePath("out/gulpfile.js");
+
+  let gulpParams = [
+    `${gulpPathJs}`,
+    "--cwd",
+    `${rootPath}`,
+    "--gulpfile",
+    `${gulpFile}`,
+    "--color",
+    "true",
+    ...(isSilent ? ["--silent", "true"] : [])
+  ];
+
+  const shellOptions = { env: { storagePath } };
+
+  const createOradewTask = ({
+    name,
+    params
+  }: {
+    name: string;
+    params: Array<string>;
+  }) => {
+    return new vscode.Task(
+      { type: "gulp", name },
+      name,
+      "Oradew",
+      new vscode.ProcessExecution(
+        "node",
+        [...gulpParams, ...params],
+        shellOptions
+      ),
+      "$oracle-plsql"
+    );
+  };
+
   function getTasks(): vscode.Task[] {
     let result: vscode.Task[] = [];
 
-    const gulpPathJs = context.asAbsolutePath("node_modules/gulp/bin/gulp.js");
-    const gulpFile = context.asAbsolutePath("out/gulpfile.js");
-
-    let gulpParams = [
-      `${gulpPathJs}`,
-      "--cwd",
-      `${rootPath}`,
-      "--gulpfile",
-      `${gulpFile}`,
-      "--color",
-      "true",
-      ...(isSilent ? ["--silent", "true"] : [])
-    ];
-
-    const shellOptions = { env: { storagePath } };
-
-    const createOradewTask = ({
-      name,
-      params
-    }: {
-      name: string;
-      params: Array<string>;
-    }) => {
-      return new vscode.Task(
-        { type: "gulp", name },
-        name,
-        "Oradew",
-        new vscode.ProcessExecution(
-          "node",
-          [...gulpParams, ...params],
-          shellOptions
-        ),
-        "$oracle-plsql"
-      );
-    };
+    // Register generators as tasks
+    for (let generator of getGenerators()) {
+      if (generator.label && generator.function) {
+        result.push(
+          createOradewTask({
+            name: "generator." + generator.label,
+            params: [
+              "generate",
+              "--env",
+              "DEV",
+              "--func",
+              generator.function,
+              "--file",
+              "${file}",
+              "--object",
+              "${selectedText}",
+              ...(generator.output ? ["--output", generator.output] : [])
+            ]
+          })
+        );
+      }
+    }
 
     result.push(
       createOradewTask({
@@ -184,7 +223,21 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "package",
-        params: ["packageSrc"]
+        params: ["packageSrc", "--env", "DEV"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "package:TEST",
+        params: ["packageSrc", "--env", "TEST"]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "package:UAT",
+        params: ["packageSrc", "--env", "UAT"]
       })
     );
 
@@ -235,19 +288,37 @@ export function activate(context: vscode.ExtensionContext) {
 
   /* ***********/
 
-  let tasks: vscode.Task[] = [];
-  taskProvider = vscode.tasks.registerTaskProvider("gulp", {
-    provideTasks: () => {
-      if (tasks.length === 0) {
-        tasks = getTasks();
+  let registerOradewTasks = () => {
+    let tasks: vscode.Task[] = [];
+    taskProvider = vscode.tasks.registerTaskProvider("gulp", {
+      provideTasks: () => {
+        if (tasks.length === 0) {
+          tasks = getTasks();
+        }
+        return tasks;
+      },
+      resolveTask(_task: vscode.Task): vscode.Task | undefined {
+        return undefined;
       }
-      return tasks;
-    },
-    resolveTask(_task: vscode.Task): vscode.Task | undefined {
-      return undefined;
-    }
-  });
+    });
+  };
 
+  registerOradewTasks();
+
+  let cmdTaskGenerate = vscode.commands.registerCommand(
+    "oradew.generateTask",
+    async () => {
+      // Reload registering
+      registerOradewTasks();
+      let generator = await vscode.window.showQuickPick(getGenerators());
+      if (generator && generator.label && generator.function) {
+        vscode.commands.executeCommand(
+          "workbench.action.tasks.runTask",
+          "Oradew: generator." + generator.label
+        );
+      }
+    }
+  );
   /************** */
   let cmdTaskInitProject = vscode.commands.registerCommand(
     "oradew.initProjectTask",
@@ -366,6 +437,24 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
+  let cmdTaskPackageTest = vscode.commands.registerCommand(
+    "oradew.packageTaskTest",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "Oradew: package:TEST"
+      );
+    }
+  );
+  let cmdTaskPackageUat = vscode.commands.registerCommand(
+    "oradew.packageTaskUat",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "Oradew: package:UAT"
+      );
+    }
+  );
   let cmdTaskPopulateChanges = vscode.commands.registerCommand(
     "oradew.populateChangesTask",
     () => {
@@ -418,6 +507,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
   });
 
+  context.subscriptions.push(cmdTaskGenerate);
   context.subscriptions.push(cmdTaskInitProject);
   context.subscriptions.push(cmdTaskCreateProject);
   context.subscriptions.push(cmdTaskCompile);
@@ -431,6 +521,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskExportFileTest);
   context.subscriptions.push(cmdTaskExportObject);
   context.subscriptions.push(cmdTaskPackage);
+  context.subscriptions.push(cmdTaskPackageTest);
+  context.subscriptions.push(cmdTaskPackageUat);
   context.subscriptions.push(cmdTaskPopulateChanges);
   context.subscriptions.push(cmdTaskDeployTest);
   context.subscriptions.push(cmdTaskDeployUat);

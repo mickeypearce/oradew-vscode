@@ -1,10 +1,16 @@
 # Change Log
 
+## [0.1.5] - 2018-11-02
+
+- Added environment-specific configurations [#10](https://github.com/mickeypearce/oradew-vscode/issues/10)
+- Added PL/SQL code generators ("Generate" command)
+- Fixed keybinding conflicts and activations [#12](https://github.com/mickeypearce/oradew-vscode/issues/12)
+
 ## [0.1.4] - 2018-10-12
 
 - Added "import.getDdlFunction" configuration: Use a custom DB function to import object's DDL.
 - Added Tables to Source objects
-- Added "Run Selected Statement" (Shift+Enter) command: Execute SQL and PL/SQL statements.
+- Added "Run Selected Statement" (Ctrl+Enter) command: Execute SQL and PL/SQL statements.
 - Added default values for settings (oradewrc.json)
 
 ## [0.1.2] - 2018-09-06

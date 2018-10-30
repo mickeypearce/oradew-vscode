@@ -2,21 +2,22 @@
 
 [![Build Status](https://dev.azure.com/mickeypearce0384/Oradew/_apis/build/status/mickeypearce.oradew-vscode)](https://dev.azure.com/mickeypearce0384/Oradew/_build/latest?definitionId=1)
 
-**PL/SQL development with Git and a simple compile-package-deploy workflow**
+## Oracle (PL/SQL) Development for VS Code
 
-This extension allows you to develop your PL/SQL project in Visual Studio Code. It enables you to:
+This extension allows you to develop your Oracle (PL/SQL) project in Visual Studio Code. It enables you to:
 
 - Manage PL/SQL source code with version control (Git)
-- Compile files and Run statements<sup>New</sup> with ORA errors problem matching
-- Package files into a single script and deploy to multiple environments in one click
+- Compile files and Run statements with ORA errors problem matching
+- Package files into a single SQL deployment script
+- Deploy to multiple environments in one click
 
 ![Compile Demo](images/demo.gif)
 
-## Workspace Structure
+## Structure
 
 ```
-./deploy                Distribution package
-./scripts               Deployment scripts (DDL, DML, etc)
+./deploy                Deployment package
+./scripts               SQL Scripts (DDL, DML, etc)
 ./src                   Source with PL/SQL objects (FUNCTIONS, PACKAGES, PROCEDURES, TABLES, TRIGGERS, TYPES, VIEWS)
 ./test                  Unit tests
 dbconfig.json           DB connection configuration
@@ -35,14 +36,14 @@ oradewrc.json           Workspace configuration
 **Build**
 
 - `Compile Changes to DB` (_F6_) - Compile changed Source objects (working tree) to DEV. Succesfully compiled files are added to Staging area.
-- `Compile Current File` - Compile file to DEV
-- `Run Current File as Script` (_F5_) - Run as Script on DEV environment (with SQLPlus)
-- `Run Selected Statement` (_Ctrl+Enter_) - Execute a single SQL or PL/SQL statement with autoCommit and dbms_output enabled
+- `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
+- `Run Current File as Script` (_F5_) - Execute a SQL script (with SQLPlus)
+- `Run Selected Statement` (_Ctrl+Enter_) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
 
 **Install**
 
-- `Package` (_F9_) - Generate distribution package script, TODOs file and ChangeLog
-- `Deploy to TEST / UAT` - Run distribution package script on TEST or UAT environment (with SQLPlus)
+- `Package` (_F9_) - Generate SQL deployment script, TODOs file and ChangeLog
+- `Deploy to TEST / UAT` - Run SQL deployment script on TEST or UAT environment (with SQLPlus)
 
 ### Additional
 
@@ -51,11 +52,13 @@ oradewrc.json           Workspace configuration
 - `Compile All Source to DB`
 - `Run tests`
 - `Populate Package Input` (_Shift+F9_) with changed files from Git history using latest tagged commit as a starting point.
-- `Generate` PL/SQL with a code generator.
+- `Generate` PL/SQL code with a code generator.
+
+_All commands execute to `DEV` environment by default (except for Install commands). Environment specific commands start with prefix: `TEST:` or `UAT:`._
 
 ## Configuration
 
-Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.test.json`, `oradewrc.uat.json`). The base configuration contains settings that are usually common across all environments but can be extended (overloaded) optionally by environment specific configurations for environment specific commands.
+Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.test.json`, `oradewrc.uat.json`). The base configuration contains settings that are usually common across all environments but can be extended (overloaded) optionally by environment specific configurations for environment-specific commands.
 
 Configuraton files are not required. Default values will be assumed in case they are not present. The following settings are available (`oradewrc*.json`):
 
@@ -136,15 +139,17 @@ FUNCTION updateStatement(
 
 The first three function parameters (`object_type`, `name`, `schema`) are derived from path of the currently opened file, whereas `selected_object` is the currently selected text.
 
-See DB function from this example: [utl_generate.sql](plsql-generators/utl_generate.sql) and please submit your own!
+Take a look at DB function from this example in [utl_generate.sql](plsql-generators/utl_generate.sql). You are kindly invited to submit your own code generators (PR welcomed).
 
-## Important
+## Installation
 
 ### Prerequisites
 
 - Node.js
 - Git
 - SQLPlus
+
+### Important
 
 > `Oracle driver (node-oracledb) in extension is precompiled with "node-v59 (Node.js 9) - win32 - x64 (64bit)" binary package.`
 

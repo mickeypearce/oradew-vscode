@@ -2,12 +2,13 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "preview": true,
   "publisher": "mp",
   "engines": {
     "vscode": "^1.24.0"
   },
+  "license": "MIT",
   "categories": [
     "Other",
     "Extension Packs"
@@ -73,8 +74,7 @@
         {
           "command": "oradew.initProjectTask",
           "group": "Oradew@1",
-          "category": "Oradew",
-          "when": "inOradewProject"
+          "category": "Oradew"
         },
         {
           "command": "oradew.compileTask",

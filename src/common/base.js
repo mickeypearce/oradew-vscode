@@ -228,13 +228,19 @@ obj.resolveObjectInfo = async (env, { name }) => {
           context
         }));
       } catch (error) {
-        if (error.errorNum != "4047") {
+        // Triggers throw 06564 if not correct context (3)?
+        // ORA-06564: object does not exist
+        // ORA-04047: object specified is incompatible with the flag specified
+        if (![6564, 4047].includes(error.errorNum)) {
           throw error;
         }
       }
+      // Break if we got objectName
       objectName = part1 || part2;
       if (objectName) break;
     }
+
+    if (!objectName) throw Error(`object ${name} does not exist`);
 
     await conn.close();
     // Get connection to object schema

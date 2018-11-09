@@ -247,7 +247,7 @@ const printResults = resp => {
   let rows = resp.result.rows;
   if (rows) {
     // Replace null values with '(null)'
-    rows = rows.map(r => r.map(v => v || "(null)"));
+    rows = rows.map(r => r.map(v => (v === null ? "(null)" : v)));
     const table = new Table({
       head: resp.result.metaData.map(col => col.name),
       style: { head: ["cyan"] }

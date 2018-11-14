@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import { createConfig } from "./common/utility";
 
-interface Command {
+interface IGenerator {
   label: string;
   function: string;
   description?: string;
@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
   const storagePath = context.storagePath || context.extensionPath;
 
   const config = createConfig(`${rootPath}/oradewrc.json`);
-  const getGenerators = (): Array<Command> => {
+  const getGenerators = (): Array<IGenerator> => {
     config.load();
     return config.get("generator.define");
   };
@@ -147,6 +147,21 @@ export function activate(context: vscode.ExtensionContext) {
 
     result.push(
       createOradewTask({
+        name: "compile--file:UAT",
+        params: [
+          "compileAndMergeFilesToDb",
+          "--env",
+          "UAT",
+          "--file",
+          "${file}",
+          "--force",
+          "true"
+        ]
+      })
+    );
+
+    result.push(
+      createOradewTask({
         name: "compile--all",
         params: ["compileAndMergeFilesToDb", "--env", "DEV"]
       })
@@ -176,6 +191,23 @@ export function activate(context: vscode.ExtensionContext) {
           "compileObjectToDb",
           "--env",
           "TEST",
+          "--file",
+          "${file}",
+          "--object",
+          "${selectedText}",
+          "--line",
+          "${lineNumber}"
+        ]
+      })
+    );
+
+    result.push(
+      createOradewTask({
+        name: "compile--object:UAT",
+        params: [
+          "compileObjectToDb",
+          "--env",
+          "UAT",
           "--file",
           "${file}",
           "--object",
@@ -374,6 +406,15 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
+  let cmdTaskCompileFileUat = vscode.commands.registerCommand(
+    "oradew.compileFileTaskUat",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "Oradew: compile--file:UAT"
+      );
+    }
+  );
   let cmdTaskCompileObject = vscode.commands.registerCommand(
     "oradew.compileObjectTask",
     () => {
@@ -389,6 +430,15 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
         "Oradew: compile--object:TEST"
+      );
+    }
+  );
+  let cmdTaskCompileObjectUat = vscode.commands.registerCommand(
+    "oradew.compileObjectTaskUat",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "Oradew: compile--object:UAT"
       );
     }
   );
@@ -514,8 +564,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskCompileAll);
   context.subscriptions.push(cmdTaskCompileFile);
   context.subscriptions.push(cmdTaskCompileFileTest);
+  context.subscriptions.push(cmdTaskCompileFileUat);
   context.subscriptions.push(cmdTaskCompileObject);
   context.subscriptions.push(cmdTaskCompileObjectTest);
+  context.subscriptions.push(cmdTaskCompileObjectUat);
   context.subscriptions.push(cmdTaskExport);
   context.subscriptions.push(cmdTaskExportFile);
   context.subscriptions.push(cmdTaskExportFileTest);

@@ -211,6 +211,16 @@
         "category": "Oradew"
       },
       {
+        "command": "oradew.compileFileTaskUat",
+        "title": "UAT: Compile Current File",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.compileObjectTaskUat",
+        "title": "UAT: Run Selected Statement",
+        "category": "Oradew"
+      },
+      {
         "command": "oradew.exportTask",
         "title": "Import Changes from DB",
         "category": "Oradew"

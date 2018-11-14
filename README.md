@@ -2,7 +2,7 @@
 
 [![Build Status](https://dev.azure.com/mickeypearce0384/Oradew/_apis/build/status/mickeypearce.oradew-vscode)](https://dev.azure.com/mickeypearce0384/Oradew/_build/latest?definitionId=1)
 
-## Oracle (PL/SQL) Development for VS Code
+> Oracle (PL/SQL) Development Workspace for VS Code.
 
 This extension allows you to develop your Oracle (PL/SQL) project in Visual Studio Code. It enables you to:
 
@@ -95,7 +95,7 @@ Configuraton files are not required. Default values will be assumed in case they
 - `package.input` - Array of globs for packaging files into deploy script file (output). Preserving order, prefix with ! for excluding. Use `Populate Package Input` to extract only changed file paths from Git history starting from latest tagged commit (latest version). This way you can package and deploy only current version changes.
 - `package.output` - Deploy script file path. Created with `Package` command from concatenated input files and prepared for SQLPlus execution. (wrapped with "SPOOL deploy.log", "COMMIT;", etc )
 - `package.encoding` - Encoding of deploy script file. (ex.: utf8, win1250, ...) The default value is `utf8`.
-- `package.templating` - Turn on templating of config variables. Use existing ('${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging (`Package` command). The default value is `false`.
+- `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging (`Package` command). The default value is `false`.
 - `source` - Glob pattern for source files.
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Conflict detection (on DEV environment). If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.
@@ -113,7 +113,7 @@ Configuraton files are not required. Default values will be assumed in case they
 
 Configure the setting `generator.define` to define code generators. Then use `Generate` command to generate your PL/SQL code.
 
-The `label` and `function` properties are required for a generator to be succesfully defined but a `description` is optional. You can also use `output` property to define a file path of the generated content (also optional). If the `output` is omitted a file with unique filename is created in `./scripts` directory. A generator example follows:
+The `label` and `function` properties are required for a generator to be succesfully defined but a `description` is optional. You can also use `output` property to define a file path of the generated content (also optional). If the `output` is omitted a file with unique filename is created in `./scripts` directory. A generator definition example follows:
 
 ```json
   "generator.define": [
@@ -125,21 +125,7 @@ The `label` and `function` properties are required for a generator to be succesf
   ]
 ```
 
-The DB `function` must have the following DB signature:
-
-```sql
--- Example of a DB function specification:
-FUNCTION updateStatement(
-  object_type IN VARCHAR2,    -- derived from path of ${file}
-  name IN VARCHAR2,           -- derived from path of ${file}
-  schema IN VARCHAR2,         -- derived from path of ${file}
-  selected_object IN VARCHAR2 -- ${selectedText}
-) RETURN CLOB;
-```
-
-The first three function parameters (`object_type`, `name`, `schema`) are derived from path of the currently opened file, whereas `selected_object` is the currently selected text.
-
-Take a look at DB function from this example in [utl_generate.sql](plsql-generators/utl_generate.sql). You are kindly invited to submit your own code generators (PR welcomed).
+You can find generator's source code (including `updateStatement` from previous example) and additional information about writing generators over here: [Oradew Code Generators](https://github.com/mickeypearce/oradew-generators).
 
 ## Installation
 

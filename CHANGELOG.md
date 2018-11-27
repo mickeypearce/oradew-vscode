@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.6] - 2018-11-27
+
+- Added "Compile" commands for UAT, bug fixes...
+
 ## [0.1.5] - 2018-11-02
 
 - Added environment-specific configurations [#10](https://github.com/mickeypearce/oradew-vscode/issues/10)

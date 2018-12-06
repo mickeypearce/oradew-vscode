@@ -1,7 +1,7 @@
 "use strict";
 
 import * as vscode from "vscode";
-import { createConfig } from "./common/utility";
+import { WorkspaceConfig } from "./common/utility";
 
 interface IGenerator {
   label: string;
@@ -17,15 +17,17 @@ export function activate(context: vscode.ExtensionContext) {
 
   const isSilent = (process.env["silent"] || "true") === "true";
 
-  let rootPath =
+  const workspacePath =
     vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
-
+  // Path variables
   const storagePath = context.storagePath || context.extensionPath;
+  const dbConfigPath = `${workspacePath}/dbconfig.json`;
+  const wsConfigPath = `${workspacePath}/oradewrc.json`;
 
-  const config = createConfig(`${rootPath}/oradewrc.json`);
+  const wsConfig = new WorkspaceConfig(wsConfigPath);
   const getGenerators = (): Array<IGenerator> => {
-    config.load();
-    return config.get("generator.define");
+    wsConfig.load();
+    return wsConfig.get("generator.define");
   };
 
   const gulpPathJs = context.asAbsolutePath("node_modules/gulp/bin/gulp.js");
@@ -34,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
   let gulpParams = [
     `${gulpPathJs}`,
     "--cwd",
-    `${rootPath}`,
+    `${workspacePath}`,
     "--gulpfile",
     `${gulpFile}`,
     "--color",
@@ -42,7 +44,10 @@ export function activate(context: vscode.ExtensionContext) {
     ...(isSilent ? ["--silent", "true"] : [])
   ];
 
-  const shellOptions = { env: { storagePath } };
+  // To avoid passing throug gulp parameters we pass paths as process variables
+  const processEnv = {
+    env: { storagePath, dbConfigPath, wsConfigPath }
+  };
 
   const createOradewTask = ({
     name,
@@ -58,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
       new vscode.ProcessExecution(
         "node",
         [...gulpParams, ...params],
-        shellOptions
+        processEnv
       ),
       "$oracle-plsql"
     );

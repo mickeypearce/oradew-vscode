@@ -36,7 +36,7 @@ obj.exportFile = async (
   done
 ) => {
   const obj = utils.getDBObjectFromPath(file);
-  const connCfg = db.getConfiguration(env, obj.owner);
+  const connCfg = db.config.getConfiguration(env, obj.owner);
   // Owner can change to default user
   obj.owner = connCfg.user.toUpperCase();
 
@@ -103,7 +103,7 @@ function getLineAndPosition(code, offset) {
 
 obj.compileFile = async (code, file, env, force = false, warnings) => {
   const obj = utils.getDBObjectFromPath(file);
-  const connCfg = db.getConfiguration(env, obj.owner);
+  const connCfg = db.config.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();
 
   code = simpleParse(code);
@@ -150,7 +150,7 @@ obj.compileFile = async (code, file, env, force = false, warnings) => {
 
 obj.compileSelection = async (code, file, env, lineOffset) => {
   const obj = utils.getDBObjectFromPath(file);
-  const connCfg = db.getConfiguration(env, obj.owner);
+  const connCfg = db.config.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();
 
   code = simpleParse(code);
@@ -188,14 +188,14 @@ obj.compileSelection = async (code, file, env, lineOffset) => {
 obj.runFileAsScript = (file, env) => {
   const obj = utils.getDBObjectFromPath(file);
   const owner = obj.owner;
-  const connCfg = db.getConfiguration(env, owner);
+  const connCfg = db.config.getConfiguration(env, owner);
   const connString = db.getConnectionString(connCfg);
   const cmd = `(echo connect ${connString} & echo start ${file} & echo show errors) | sqlplus -S /nolog`;
   return utils.execPromise(cmd);
 };
 
 obj.getObjectsInfoByType = async (env, owner, objectTypes) => {
-  const connCfg = db.getConfiguration(env, owner);
+  const connCfg = db.config.getConfiguration(env, owner);
   let conn;
   let result = [];
   try {
@@ -213,7 +213,7 @@ obj.getObjectsInfoByType = async (env, owner, objectTypes) => {
 };
 
 obj.resolveObjectInfo = async (env, { name }) => {
-  let connCfg = db.getConfiguration(env);
+  let connCfg = db.config.getConfiguration(env);
   let conn;
   let result;
   try {
@@ -244,7 +244,7 @@ obj.resolveObjectInfo = async (env, { name }) => {
 
     await conn.close();
     // Get connection to object schema
-    connCfg = db.getConfiguration(env, schema);
+    connCfg = db.config.getConfiguration(env, schema);
     conn = await db.getConnection(connCfg);
     result = await db.getObjectsInfo(conn, {
       owner: schema,
@@ -260,7 +260,7 @@ obj.resolveObjectInfo = async (env, { name }) => {
 
 obj.getGenerator = async ({ func, file, env, object }) => {
   const obj = utils.getDBObjectFromPath(file);
-  const connCfg = db.getConfiguration(env, obj.owner);
+  const connCfg = db.config.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();
 
   let result = {};

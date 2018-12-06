@@ -20,7 +20,7 @@ This extension allows you to develop your Oracle (PL/SQL) project in Visual Stud
 ./scripts               SQL Scripts (DDL, DML, etc)
 ./src                   Source with PL/SQL objects (FUNCTIONS, PACKAGES, PROCEDURES, TABLES, TRIGGERS, TYPES, VIEWS)
 ./test                  Unit tests
-dbconfig.json           DB connection configuration
+dbconfig.json           DB connection configuration (required)
 oradewrc.json           Workspace configuration
 ```
 
@@ -30,29 +30,29 @@ oradewrc.json           Workspace configuration
 
 **Setup**
 
-- `Initialize Workspace/Version` - Create/clean workspace structure and configuration files
+- `Initialize Workspace/Version` - Init config files (dbconfig.json, oradewrc.json), Create workspace structure (./scripts, ./src, ./test dirs) and Init git repo when starting from scratch (new workspace). Clear logs, package and scripts: prepare workspace for a new version/feature when executed in a non-empty workspace.
 - `Import All Source from DB` - Create Source files from DB objects from DEV environment
 
 **Build**
 
-- `Compile Changes to DB` (_F6_) - Compile changed Source objects (working tree) to DEV. Succesfully compiled files are added to Staging area.
+- `Compile Changes to DB` (F6) - Compile changed Source objects (working tree) to DEV. Succesfully compiled files are added to Staging area.
 - `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
-- `Run Current File as Script` (_F5_) - Execute a SQL script (with SQLPlus)
-- `Run Selected Statement` (_Ctrl+Enter_) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
+- `Run Current File as Script` (F5) - Execute a SQL script (with SQLPlus)
+- `Run Selected Statement` (Ctrl+Enter) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
 
 **Install**
 
-- `Package` (_F9_) - Generate SQL deployment script, TODOs file and ChangeLog
+- `Package` (F9) - Generate SQL deployment script, TODOs file and ChangeLog
 - `Deploy to TEST / UAT` - Run SQL deployment script on TEST or UAT environment (with SQLPlus)
 
 ### Additional
 
-- `Import Changes from DB` (_Shift+F6_)
+- `Import Changes from DB` (Shift+F6)
 - `Import Current File / Import Selected Object`
 - `Compile All Source to DB`
 - `Run tests`
-- `Populate Package Input` (_Shift+F9_) with changed files from Git history using latest tagged commit as a starting point.
-- `Generate` PL/SQL code with a code generator.
+- `Populate Package Input` (Shift+F9) with changed files from Git history using latest tagged commit as a starting point.
+- `Generate...` PL/SQL code with a code generator.
 
 _All commands execute to `DEV` environment by default (except for Install commands). Environment specific commands start with prefix: `TEST:` or `UAT:`._
 
@@ -111,9 +111,9 @@ Configuraton files are not required. Default values will be assumed in case they
 
 ### Code Generator
 
-Configure the setting `generator.define` to define code generators. Then use `Generate` command to generate your PL/SQL code.
+Configure the setting `generator.define` to define code generators. Then use `Generate...` command to generate your PL/SQL code.
 
-The `label` and `function` properties are required for a generator to be succesfully defined but a `description` is optional. You can also use `output` property to define a file path of the generated content (also optional). If the `output` is omitted a file with unique filename is created in `./scripts` directory. A generator definition example follows:
+The `label` and `function` properties are required for a generator to be succesfully defined but a `description` is optional. You can also use `output` property to define a file path of the generated content (also optional). If the `output` is omitted a file with unique filename is created in ./scripts directory. A generator definition example follows:
 
 ```json
   "generator.define": [
@@ -139,11 +139,11 @@ You can find generator's source code (including `updateStatement` from previous 
 
 > `Oracle driver (node-oracledb) in extension is precompiled with "node-v59 (Node.js 9) - win32 - x64 (64bit)" binary package.`
 
-Oracle client library architecture (instantclient), Node.js version, OS and architecture must match precompiled configuration otherwise node-oracledb drivers have to be rebuild.
+Oracle client library architecture (instantclient), Node.js version, OS and architecture must match precompiled configuration otherwise node-oracledb drivers have to be re-installed.
 
 ```bash
-## Rebuild Oracle drivers (in ext folder ~/.vscode/extensions/mp.oradew-vscode-...):
-> npm rebuild
+## Re-install Oracle drivers (in ext folder ~/.vscode/extensions/mp.oradew-vscode-...):
+> npm install
 ```
 
 ### Included extensions:

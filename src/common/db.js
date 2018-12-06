@@ -3,79 +3,107 @@ const _ = require("lodash/fp");
 const { readJsonSync } = require("fs-extra");
 
 const dbLoc = require("./nedb");
-
-/**
- * Connection config object from dbConfig.json
- * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean}} ConnectionConfig
- */
-let dbConfig;
-const loadDbConfig = () => {
-  try {
-    dbConfig = readJsonSync("./dbconfig.json");
-  } catch (e) {
-    // Require scope is in ext folder
-    dbConfig = require("../templates/dbconfig.json");
-  }
-};
-loadDbConfig();
+const { getDefaultsFromSchema } = require("./utility");
 
 oracledb.fetchAsString = [oracledb.DATE, oracledb.CLOB];
+
+export class DBConfig {
+  constructor(fileBase) {
+    this.fileBase = fileBase || "./dbconfig.json";
+    this.object = null;
+    this.load();
+  }
+
+  load() {
+    try {
+      this.object = readJsonSync(this.fileBase);
+    } catch (e) {
+      // Defaults
+      this.object = getDefaultsFromSchema(
+        "../../resources/dbconfig-schema.json"
+      );
+    }
+  }
+
+  // getConnectString = (env = "DEV") => this.object[env].connectString;
+  // getUserObjects = (env = "DEV") => this.object[env].users;
+
+  /**
+   * Get all users (schemas) for envoronment
+   *  @param {string} env
+   *  @returns {string} user
+   */
+  getUsers = (env = "DEV") => {
+    return _.pipe(
+      _.get(env),
+      _.get("users"),
+      _.map(v => v.user.toUpperCase()),
+      _.uniq
+    )(this.object);
+  };
+
+  /**
+   * Connection config object from dbConfig.json
+   * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean}} ConnectionConfig
+   */
+
+  /**
+   ** Get connection configuration from dbConfig.
+   * It gets default config for user if it cannot be determined, for ex. if is non existent or null
+   * @param {string} env
+   * @param {?string} user
+   * @returns {ConnectionConfig} Connection config
+   */
+  getConfiguration = (env, user) => {
+    if (!env) throw Error(`No env.`);
+
+    // Head of flattened object that we return
+    const head = { env, connectString: this.object[env].connectString };
+
+    // First filter by env, if only one config return
+    let byEnv = this.object[env].users;
+
+    if (!byEnv) throw Error("dbconfig.json: Invalid structure.");
+
+    if (byEnv.length === 0) {
+      throw Error(`dbconfig.json: No user for "${env}" env.`);
+    }
+    if (byEnv.length === 1) {
+      return { ...head, ...byEnv[0] };
+    }
+
+    // If user exist filter env by user, if only one return
+    let byUser = user
+      ? _.filter(v => v.user.toUpperCase() === user)(byEnv)
+      : byEnv;
+
+    if (byUser.length === 1) {
+      return { ...head, ...byUser[0] };
+    }
+    // non existing user -> go for default
+    // if (byUser.length === 0) {
+    //   byUser = byEnv;
+    // }
+
+    // We couldn't match by user so go for default for env
+    let byDefault = _.filter({ default: true })(byEnv);
+
+    if (byDefault.length === 1) {
+      return { ...head, ...byDefault[0] };
+    } else {
+      throw Error(
+        `dbconfig.json: No default connection configuration for "${env}" env.`
+      );
+    }
+  };
+}
+export const config = new DBConfig(process.env.dbConfigPath);
 
 // Each env has its own pool with users
 let _pool = {};
 _pool.DEV = {};
 _pool.TEST = {};
 _pool.UAT = {};
-
-/**
- ** Get connection configuration from dbConfig.
- * It gets default config for user if it cannot be determined, for ex. if is non existent or null
- * @param {string} env
- * @param {?string} user
- * @returns {ConnectionConfig} Connection config
- */
-const getConfiguration = (env, user) => {
-  if (!env) throw Error(`No env.`);
-
-  // Head of flattened object that we return
-  const head = { env, connectString: dbConfig[env].connectString };
-
-  // First filter by env, if only one config return
-  let byEnv = dbConfig[env].users;
-
-  if (!byEnv) throw Error("dbconfig.json: Invalid structure.");
-
-  if (byEnv.length === 0) {
-    throw Error(`dbconfig.json: No user for "${env}" env.`);
-  }
-  if (byEnv.length === 1) {
-    return { ...head, ...byEnv[0] };
-  }
-
-  // If user exist filter env by user, if only one return
-  let byUser = user
-    ? _.filter(v => v.user.toUpperCase() === user)(byEnv)
-    : byEnv;
-
-  if (byUser.length === 1) {
-    return { ...head, ...byUser[0] };
-  }
-  // non existing user -> go for default
-  // if (byUser.length === 0) {
-  //   byUser = byEnv;
-  // }
-
-  // We couldn't match by user so go for default for env
-  let byDefault = _.filter({ default: true })(byEnv);
-
-  if (byDefault.length === 1) {
-    return { ...head, ...byDefault[0] };
-  } else {
-    throw Error(
-      `dbconfig.json: No default connection configuration for "${env}" env.`
-    );
-  }
-};
 
 /**
  ** Return existing connection from pool or creates a new one.
@@ -104,15 +132,6 @@ const getConnection = connCfg => {
  */
 const getConnectionString = connCfg => {
   return `${connCfg.user}/${connCfg.password}@${connCfg.connectString}`;
-};
-
-const getUsers = (env = "DEV") => {
-  return _.pipe(
-    _.get(env),
-    _.get("users"),
-    _.map(v => v.user.toUpperCase()),
-    _.uniq
-  )(dbConfig);
 };
 
 const compile = async (connection, code, warningScope = "NONE") => {
@@ -359,7 +378,6 @@ const getDbmsOutput = async connection => {
   return lines;
 };
 
-module.exports.getConfiguration = getConfiguration;
 module.exports.getConnection = getConnection;
 module.exports.getObjectDdl = getObjectDdl;
 module.exports.getErrorsInfo = getErrorsInfo;
@@ -369,13 +387,11 @@ module.exports.syncDdlTime = syncDdlTime;
 module.exports.getConnectionString = getConnectionString;
 module.exports.isDifferentDdlTime = isDifferentDdlTime;
 module.exports.compile = compile;
-module.exports.getUsers = getUsers;
 module.exports.createError = createError;
 module.exports.createErrorList = createErrorList;
 module.exports.getErrorObjectChanged = getErrorObjectChanged;
 module.exports.getErrors = getErrors;
 module.exports.getErrorSystem = getErrorSystem;
 module.exports.getNameResolve = getNameResolve;
-module.exports.loadDbConfig = loadDbConfig;
 module.exports.getDbmsOutput = getDbmsOutput;
 module.exports.getGeneratorFunction = getGeneratorFunction;

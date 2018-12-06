@@ -15,10 +15,10 @@ const db = require("../common/base");
 //       password: "welcome1",
 //       default: true
 //     };
-//     let cfgNonUser = db.getConfiguration("DEV", "XXX");
+//     let cfgNonUser = db.dbConfigInstance.getConfiguration("DEV", "XXX");
 //     assert.deepEqual(cfgNonUser, cfg);
 
-//     let cfgNullUser = db.getConfiguration("DEV");
+//     let cfgNullUser = db.dbConfigInstance.getConfiguration("DEV");
 //     assert.deepEqual(cfgNullUser, cfg);
 //   });
 // });

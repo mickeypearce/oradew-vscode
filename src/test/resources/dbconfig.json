@@ -1,0 +1,16 @@
+{
+  "DEV": {
+    "connectString": "oradew",
+    "users": [
+      {
+        "user": "dev",
+        "password": "welcome"
+      },
+      {
+        "user": "dev1",
+        "password": "welcome1",
+        "default": true
+      }
+    ]
+  }
+}

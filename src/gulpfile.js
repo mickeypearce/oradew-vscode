@@ -24,7 +24,7 @@ const git = require("./common/git");
 const base = require("./common/base");
 const db = require("./common/db");
 
-let config = new utils.Config();
+let config = utils.workspaceConfig;
 
 const generateChangeLog = function(paths) {
   // Create Db objects from paths array
@@ -382,7 +382,7 @@ const createDbConfigFile = async done => {
       {
         type: "input",
         name: "defaultDbConfig",
-        message: `Zdravo! Please edit DB configuration (dbconfig.json). Then press <enter> to continue.`
+        message: `Zdravo! Please edit DB configuration file that was just created (./dbconfig.json). Then press <enter> to continue to create workspace structure. (press <ctrl+c> to break).`
       }
     ]);
   }
@@ -392,8 +392,8 @@ const createDbConfigFile = async done => {
 const createProjectFiles = () => {
   // Create scripts dir for every user
   // and copy scripts templates
-  db.loadDbConfig();
-  const scriptsDirs = db.getUsers().map(v => `./scripts/${v}`);
+  db.config.load();
+  const scriptsDirs = db.config.getUsers().map(v => `./scripts/${v}`);
   gulp
     .src([
       path.join(__dirname, "/templates/scripts/initial*.sql"),
@@ -554,7 +554,7 @@ gulp.task("compileEverywhereOnSave", function() {
 const createSrcEmpty = done => {
   try {
     const source = globBase(config.get("source")[0]).base;
-    const users = db.getUsers();
+    const users = db.config.getUsers();
     const dirs = utils.getDirTypes();
     for (const user of users) {
       for (const dir of dirs) {
@@ -571,7 +571,7 @@ const createSrcEmpty = done => {
 const createSrcFromDbObjects = async ({ env = argv.env }) => {
   // TODO source is array, taking first element
   const source = globBase(config.get("source")[0]).base;
-  const users = db.getUsers();
+  const users = db.config.getUsers();
   const objectTypes = utils.getObjectTypes();
   try {
     for (const owner of users) {

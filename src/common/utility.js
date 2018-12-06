@@ -101,8 +101,16 @@ utils.getDBObjectFromPath = path => {
   };
 };
 
+// Build default object from json schema defaults (simplified)
+export const getDefaultsFromSchema = schema => {
+  const template = require(schema).properties;
+  return Object.keys(template).reduce((acc, value) => {
+    return { [value]: template[value].default, ...acc };
+  }, {});
+};
+
 /**
- * Configuration for each environment.
+ * Workspace configuration (one for each environment.)
  *
  * Config file extending sequence: defaults <== DEV (base) <== TEST <== UAT
  *
@@ -110,9 +118,12 @@ utils.getDBObjectFromPath = path => {
  * TEST: ./oradewrc.test.json (optional)
  * UAT: ./oradewrc.uat.json (optional)
  */
-export class Config {
+export class WorkspaceConfig {
   constructor(fileBase) {
-    this.defaults = Config.getDefaultsFromSchema(); // require("../templates/oradewrc.json");
+    // Defaults configuration object
+    this.defaults = getDefaultsFromSchema(
+      "../../resources/oradewrc-schema.json"
+    );
     this.fileBase = fileBase || "./oradewrc.json";
 
     let parsed = parse(this.fileBase);
@@ -123,17 +134,6 @@ export class Config {
     this.objectTest = null;
     this.objectUat = null;
   }
-
-  // Defaults configuration object
-  // Config object with default setting values extracted from oradewrc-schema.json
-  static getDefaultsFromSchema = (
-    schema = "../../resources/oradewrc-schema.json"
-  ) => {
-    const template = require(schema).properties;
-    return Object.keys(template).reduce((acc, value) => {
-      return { [value]: template[value].default, ...acc };
-    }, {});
-  };
 
   read() {
     return {
@@ -186,14 +186,14 @@ export class Config {
     });
   }
 }
+export const workspaceConfig = new WorkspaceConfig(process.env.wsConfigPath);
+// export const createConfig = file => new Config(file);
 
 export const getDBObjectFromPath = utils.getDBObjectFromPath;
 export const getObjectTypeFromDir = utils.getObjectTypeFromDir;
 export const getDirFromObjectType = utils.getDirFromObjectType;
 export const getObjectTypes = utils.getObjectTypes;
 export const getDirTypes = utils.getDirTypes;
-
-export const createConfig = file => new Config(file);
 
 const promisify = func => (...args) =>
   new Promise((resolve, reject) =>

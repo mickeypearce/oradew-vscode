@@ -12,5 +12,6 @@
   "editor.trimAutoWhitespace": true,
   "files.trimTrailingWhitespace": true,
   // Turn off tsc task auto detection since we have the necessary task as npm scripts
-  "typescript.tsc.autoDetect": "off"
+  "typescript.tsc.autoDetect": "off",
+  "prettier.eslintIntegration": true
 }

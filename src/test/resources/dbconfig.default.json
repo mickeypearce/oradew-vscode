@@ -1,0 +1,34 @@
+{
+  "DEV": {
+    "connectString": "localhost/orclpdb",
+    "users": [
+      {
+        "user": "hr",
+        "password": "welcome"
+      },
+      {
+        "user": "hr1",
+        "password": "welcome1",
+        "default": true
+      }
+    ]
+  },
+  "TEST": {
+    "connectString": "localhost/orclpdb",
+    "users": [
+      {
+        "user": "hr",
+        "password": "welcome"
+      }
+    ]
+  },
+  "UAT": {
+    "connectString": "localhost/orclpdb",
+    "users": [
+      {
+        "user": "hr",
+        "password": "welcome"
+      }
+    ]
+  }
+}

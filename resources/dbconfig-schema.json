@@ -5,15 +5,47 @@
   "properties": {
     "DEV": {
       "type": "object",
-      "$ref": "#/definitions/ConnectionConfig"
+      "$ref": "#/definitions/ConnectionConfig",
+      "default": {
+        "connectString": "localhost/orclpdb",
+        "users": [
+          {
+            "user": "hr",
+            "password": "welcome"
+          },
+          {
+            "user": "hr1",
+            "password": "welcome1",
+            "default": true
+          }
+        ]
+      }
     },
     "TEST": {
       "type": "object",
-      "$ref": "#/definitions/ConnectionConfig"
+      "$ref": "#/definitions/ConnectionConfig",
+      "default": {
+        "connectString": "localhost/orclpdb",
+        "users": [
+          {
+            "user": "hr",
+            "password": "welcome"
+          }
+        ]
+      }
     },
     "UAT": {
       "type": "object",
-      "$ref": "#/definitions/ConnectionConfig"
+      "$ref": "#/definitions/ConnectionConfig",
+      "default": {
+        "connectString": "localhost/orclpdb",
+        "users": [
+          {
+            "user": "hr",
+            "password": "welcome"
+          }
+        ]
+      }
     }
   },
   "definitions": {
@@ -35,45 +67,19 @@
                 "type": "string"
               },
               "default": {
-                "description":
-                  "Default connection for environment. \nIf user can't be extracted from path, default connection is used. (ex. for deploy)",
+                "description": "Default connection for environment. \nIf user can't be extracted from path, default connection is used. (ex. for deploy)",
                 "type": "boolean"
               }
             },
-            "required": ["user", "password"]
+            "required": ["user", "password"],
+            "default": {
+              "user": "hr",
+              "password": "welcome"
+            }
           }
         }
       },
       "required": ["connectString", "users"]
-    }
-  },
-  "default": {
-    "DEV": {
-      "connectString": "localhost/orclpdb",
-      "users": [
-        {
-          "user": "hr",
-          "password": "welcome"
-        }
-      ]
-    },
-    "TEST": {
-      "connectString": "localhost/orclpdb",
-      "users": [
-        {
-          "user": "hr",
-          "password": "welcome"
-        }
-      ]
-    },
-    "UAT": {
-      "connectString": "localhost/orclpdb",
-      "users": [
-        {
-          "user": "hr",
-          "password": "welcome"
-        }
-      ]
     }
   }
 }

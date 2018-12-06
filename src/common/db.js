@@ -19,7 +19,7 @@ const loadDbConfig = () => {
 };
 loadDbConfig();
 
-oracledb.fetchAsString = [oracledb.CLOB];
+oracledb.fetchAsString = [oracledb.DATE, oracledb.CLOB];
 
 // Each env has its own pool with users
 let _pool = {};
@@ -172,7 +172,7 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }) => {
   oracledb.outFormat = oracledb.OBJECT;
   return connection
     .execute(
-      `select owner, object_id, object_name, object_type, last_ddl_time, status
+      `select owner, object_id, object_name, object_type, cast(last_ddl_time as timestamp) as last_ddl_time, status
     from all_objects
     where upper(owner) = upper(:owner)
     and upper(object_type) = upper(nvl(:objectType, object_type))

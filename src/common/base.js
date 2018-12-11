@@ -27,14 +27,7 @@ obj.fromGlobsToFilesArray = globArray => {
   return globArray.reduce((acc, path) => acc.concat(glob.sync(path)), []);
 };
 
-obj.exportFile = async (
-  code,
-  file,
-  env,
-  ease = false,
-  getFunctionName,
-  done
-) => {
+obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
   // Owner can change to default user
@@ -101,7 +94,7 @@ function getLineAndPosition(code, offset) {
   return { line, position };
 }
 
-obj.compileFile = async (code, file, env, force = false, warnings) => {
+obj.compileFile = async (code, file, env, force, warnings) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();

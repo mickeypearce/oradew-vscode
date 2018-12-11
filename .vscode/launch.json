@@ -39,7 +39,7 @@
       "args": [
         "--cwd=${workspaceFolder}/test",
         "--gulpfile=${workspaceFolder}/out/gulpfile.js",
-        "exportFilesFromDb",
+        "importFiles",
         "--env=DEV",
         "--file=${workspaceFolder}/test/src/FUNCTIONS/FUNC_TEST.sql"
         // "--object=FUNC_TEST1"

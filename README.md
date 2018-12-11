@@ -157,3 +157,27 @@ Oracle client library architecture (instantclient), Node.js version, OS and arch
 - Numbered bookmarks
 - Better comments
 - Multiple clipboards
+
+## Command Line <sup>Preview</sup>
+
+Oradew commands (Gulp tasks) in command line (CLI).
+
+```bash
+$ git clone https://github.com/mickeypearce/oradew-vscode
+# Installation
+$ npm run install-cli
+# (Use `oradew <command> --help` for command options.)
+$ oradew --help
+Usage: oradew <command> [options]
+
+Commands:
+  initWorkspace            Initialize Workspace
+  createSource [options]   Import All Objects from Db to Source
+  compileFiles [options]   Compile files (all source if no file specified)
+  compileObject [options]  Compile selected object
+  importFiles [options]    Import files (all source if no file specified)
+  importObject [options]   Import selected object
+  package [options]        Package
+  runFile [options]        Run file as a Script (path package.deploy if no file specified)
+  runTest [options]        Run unit tests
+```

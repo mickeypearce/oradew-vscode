@@ -210,10 +210,10 @@ const makeChangeLog = ({ env = argv.env }) => {
 
 const exportFilesFromDb = async ({
   file = argv.file,
-  env = argv.env,
-  changed = argv.changed,
-  ease = argv.ease,
-  quiet = argv.quiet
+  env = argv.env || "DEV",
+  changed = argv.changed || false,
+  ease = argv.ease || false,
+  quiet = argv.quiet || false
 }) => {
   const source = config.get({ field: "source", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
@@ -293,9 +293,9 @@ const getOnlyChangedFiles = async source => {
 
 const compileFilesToDb = async ({
   file = argv.file,
-  env = argv.env,
-  changed = argv.changed,
-  force = argv.force
+  env = argv.env || "DEV",
+  changed = argv.changed || false,
+  force = argv.force || false
 }) => {
   const source = config.get({ field: "source", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
@@ -350,7 +350,7 @@ const saveLogFile = ({ env = argv.env }) => {
     .pipe(gulp.dest(deployDir));
 };
 
-const runFileOnDb = async ({ file = argv.file, env = argv.env }) => {
+const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   const src = file || config.get({ field: "package.output", env });
 
   // Simple output err colorizer
@@ -631,9 +631,9 @@ const mergeLocalAndDbChanges = async ({
 
 const compileAndMergeFilesToDb = async ({
   file = argv.file,
-  env = argv.env,
-  changed = argv.changed,
-  force = argv.force
+  env = argv.env || "DEV",
+  changed = argv.changed || false,
+  force = argv.force || false
 }) => {
   force = force || config.get({ field: "compile.force", env });
   try {
@@ -664,7 +664,10 @@ const runTest = () => {
   return compileFilesToDbAsync({ file: config.get("test.input"), env: "DEV" });
 };
 
-const exportObjectFromDb = async ({ env = argv.env, object = argv.object }) => {
+const exportObjectFromDb = async ({
+  env = argv.env || "DEV",
+  object = argv.object
+}) => {
   try {
     const source = globBase(config.get("source")[0]).base;
     const objs = await base.resolveObjectInfo(env, { name: object });
@@ -720,7 +723,7 @@ const generate = async ({
 };
 
 gulp.task(
-  "initProject",
+  "initWorkspace",
   gulp.series(
     createDbConfigFile,
     cleanProject,
@@ -732,7 +735,7 @@ gulp.task(
 );
 
 gulp.task(
-  "createProject",
+  "createSource",
   gulp.series(createSrcFromDbObjects, exportFilesFromDbAsync)
 );
 
@@ -746,9 +749,9 @@ compileFilesToDbAsync.flags = {
 gulp.task("compileFilesToDbAsync", compileFilesToDbAsync);
 
 compileAndMergeFilesToDb.description = "Compile with merge.";
-gulp.task("compileAndMergeFilesToDb", compileAndMergeFilesToDb);
+gulp.task("compileFiles", compileAndMergeFilesToDb);
 
-gulp.task("compileObjectToDb", compileObjectToDb);
+gulp.task("compileObject", compileObjectToDb);
 
 exportFilesFromDb.description = "Export files from DB.";
 exportFilesFromDb.flags = {
@@ -758,18 +761,18 @@ exportFilesFromDb.flags = {
   "--ease": "(optional) Export only if DB object changed",
   "--quiet": "(optional) Suppress console output"
 };
-gulp.task("exportFilesFromDb", exportFilesFromDbAsync);
+gulp.task("importFiles", exportFilesFromDbAsync);
 
-gulp.task("exportObjectFromDb", exportObjectFromDb);
+gulp.task("importObject", exportObjectFromDb);
 
 gulp.task(
-  "packageSrc",
+  "package",
   gulp.series(packageSrcFromFile, makeChangeLog, extractTodos)
 );
 
 gulp.task(
   "createDeployInputFromGit",
-  // gulp.series(createDeployInputFromGit, "packageSrc")
+  // gulp.series(createDeployInputFromGit, "package")
   createDeployInputFromGit
 );
 
@@ -778,11 +781,11 @@ runFileOnDb.flags = {
   "--env": "DB Environment. [DEV, TEST, UAT]",
   "--file": "(optional) Absolute path of file"
 };
-gulp.task("runFileOnDb", runFileOnDb);
+gulp.task("runFile", runFileOnDb);
 
 runTest.description = "Simple unit testing.";
 gulp.task("runTest", runTest);
 
-// gulp.task("default", "packageSrc");
+// gulp.task("default", "package");
 
 gulp.task("generate", generate);

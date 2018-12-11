@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "publisher": "mp",
   "engines": {
     "vscode": "^1.24.0"
@@ -12,6 +12,9 @@
     "Other",
     "Extension Packs"
   ],
+  "bin": {
+    "oradew": "./out/cli.js"
+  },
   "keywords": [
     "plsql",
     "PL/SQL",
@@ -304,15 +307,16 @@
     "utest": "npm run compile && node ./node_modules/mocha/bin/mocha --ui tdd out/test/*test.js",
     "build": "vsce package",
     "publish": "vsce publish",
-    "precompile": "node ./scripts/precompile.js"
+    "precompile": "node ./scripts/precompile.js",
+    "install-cli": "npm run compile && npm install -g ./"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.108",
     "@types/mocha": "^2.2.42",
     "@types/node": "^10.3.2",
     "@types/oracledb": "^1.11.34",
+    "commander": "^2.19.0",
     "electron-rebuild": "^1.7.3",
-    "gulp-runner": "^1.1.0",
     "mocha": "^5.2.0",
     "tslint": "^5.8.0",
     "typescript": "^2.8.3",

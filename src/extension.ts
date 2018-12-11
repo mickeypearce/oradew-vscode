@@ -2,6 +2,7 @@
 
 import * as vscode from "vscode";
 import { WorkspaceConfig } from "./common/utility";
+import { TaskManager } from "./TaskManager";
 
 interface IGenerator {
   label: string;
@@ -15,38 +16,17 @@ let taskProvider: vscode.Disposable | undefined;
 export function activate(context: vscode.ExtensionContext) {
   vscode.commands.executeCommand("setContext", "inOradewProject", true);
 
-  const isSilent = (process.env["silent"] || "true") === "true";
-
   const workspacePath =
     vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
-  // Path variables
+  const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
-  const dbConfigPath = `${workspacePath}/dbconfig.json`;
-  const wsConfigPath = `${workspacePath}/oradewrc.json`;
 
-  const wsConfig = new WorkspaceConfig(wsConfigPath);
+  const taskManager = new TaskManager(workspacePath, contextPath, storagePath);
+
+  const wsConfig = new WorkspaceConfig(taskManager.wsConfigPath);
   const getGenerators = (): Array<IGenerator> => {
     wsConfig.load();
     return wsConfig.get("generator.define");
-  };
-
-  const gulpPathJs = context.asAbsolutePath("node_modules/gulp/bin/gulp.js");
-  const gulpFile = context.asAbsolutePath("out/gulpfile.js");
-
-  let gulpParams = [
-    `${gulpPathJs}`,
-    "--cwd",
-    `${workspacePath}`,
-    "--gulpfile",
-    `${gulpFile}`,
-    "--color",
-    "true",
-    ...(isSilent ? ["--silent", "true"] : [])
-  ];
-
-  // To avoid passing throug gulp parameters we pass paths as process variables
-  const processEnv = {
-    env: { storagePath, dbConfigPath, wsConfigPath }
   };
 
   const createOradewTask = ({
@@ -62,8 +42,8 @@ export function activate(context: vscode.ExtensionContext) {
       "Oradew",
       new vscode.ProcessExecution(
         "node",
-        [...gulpParams, ...params],
-        processEnv
+        [...taskManager.gulpParams, ...params],
+        taskManager.processEnv
       ),
       "$oracle-plsql"
     );
@@ -98,40 +78,28 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "init",
-        params: ["initProject"]
+        params: ["initWorkspace"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "create",
-        params: ["createProject", "--env", "DEV"]
+        params: ["createSource", "--env", "DEV"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "compile",
-        params: [
-          "compileAndMergeFilesToDb",
-          "--env",
-          "DEV",
-          "--changed",
-          "true"
-        ]
+        params: ["compileFiles", "--env", "DEV", "--changed", "true"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "compile--file",
-        params: [
-          "compileAndMergeFilesToDb",
-          "--env",
-          "DEV",
-          "--file",
-          "${file}"
-        ]
+        params: ["compileFiles", "--env", "DEV", "--file", "${file}"]
       })
     );
 
@@ -139,7 +107,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "compile--file:TEST",
         params: [
-          "compileAndMergeFilesToDb",
+          "compileFiles",
           "--env",
           "TEST",
           "--file",
@@ -154,7 +122,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "compile--file:UAT",
         params: [
-          "compileAndMergeFilesToDb",
+          "compileFiles",
           "--env",
           "UAT",
           "--file",
@@ -168,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "compile--all",
-        params: ["compileAndMergeFilesToDb", "--env", "DEV"]
+        params: ["compileFiles", "--env", "DEV"]
       })
     );
 
@@ -176,7 +144,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "compile--object",
         params: [
-          "compileObjectToDb",
+          "compileObject",
           "--env",
           "DEV",
           "--file",
@@ -193,7 +161,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "compile--object:TEST",
         params: [
-          "compileObjectToDb",
+          "compileObject",
           "--env",
           "TEST",
           "--file",
@@ -210,7 +178,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "compile--object:UAT",
         params: [
-          "compileObjectToDb",
+          "compileObject",
           "--env",
           "UAT",
           "--file",
@@ -226,55 +194,49 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "export",
-        params: ["exportFilesFromDb", "--env", "DEV", "--ease", "true"]
+        params: ["importFiles", "--env", "DEV", "--ease", "true"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "export--file",
-        params: ["exportFilesFromDb", "--env", "DEV", "--file", "${file}"]
+        params: ["importFiles", "--env", "DEV", "--file", "${file}"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "export--file:TEST",
-        params: ["exportFilesFromDb", "--env", "TEST", "--file", "${file}"]
+        params: ["importFiles", "--env", "TEST", "--file", "${file}"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "export--object",
-        params: [
-          "exportObjectFromDb",
-          "--env",
-          "DEV",
-          "--object",
-          "${selectedText}"
-        ]
+        params: ["importObject", "--env", "DEV", "--object", "${selectedText}"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "package",
-        params: ["packageSrc", "--env", "DEV"]
+        params: ["package", "--env", "DEV"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "package:TEST",
-        params: ["packageSrc", "--env", "TEST"]
+        params: ["package", "--env", "TEST"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "package:UAT",
-        params: ["packageSrc", "--env", "UAT"]
+        params: ["package", "--env", "UAT"]
       })
     );
 
@@ -288,28 +250,28 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "deploy:TEST",
-        params: ["runFileOnDb", "--env", "TEST"]
+        params: ["runFile", "--env", "TEST"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "deploy:UAT",
-        params: ["runFileOnDb", "--env", "UAT"]
+        params: ["runFile", "--env", "UAT"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "deploy--file",
-        params: ["runFileOnDb", "--env", "DEV", "--file", "${file}"]
+        params: ["runFile", "--env", "DEV", "--file", "${file}"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "deploy--file:TEST",
-        params: ["runFileOnDb", "--env", "TEST", "--file", "${file}"]
+        params: ["runFile", "--env", "TEST", "--file", "${file}"]
       })
     );
 

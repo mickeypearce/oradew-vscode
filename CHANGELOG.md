@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.1.7] - 2018-12-12
+
+- Added command line (CLI) [#11](https://github.com/mickeypearce/oradew-vscode/issues/11)
+
 ## [0.1.6] - 2018-11-27
 
 - Added "Compile" commands for UAT, bug fixes...

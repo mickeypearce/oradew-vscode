@@ -235,8 +235,11 @@ const exportFilesFromDb = async ({
     }
   };
 
+  // gulp4 rejects empty src
+  src.length === 0 && src.push("nonvalidfile");
+
   return gulp
-    .src(src, { base: "./" })
+    .src(src, { base: "./", allowEmpty: true })
     .pipe(map(processFile))
     .pipe(gulp.dest("."));
   // .on('end', () => ((!quiet) && console.log('Done.')))
@@ -691,7 +694,7 @@ const exportObjectFromDb = async ({
 
 const compileObjectToDb = async ({
   file = argv.file,
-  env = argv.env,
+  env = argv.env || "DEV",
   object = argv.object,
   line = argv.line
 }) => {

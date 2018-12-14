@@ -39,6 +39,7 @@ utils.getObjectType1FromObjectType = type =>
 utils.getDirFromObjectType = type => invert(mapDirToObjectType)(type) || type;
 
 utils.getDBObjectFromPath = path => {
+  if (!path) return { owner: undefined };
   // Path can be relative or absolute
   // tasks ${file} is absolute for ex
   const absPath = resolve(path);

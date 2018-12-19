@@ -376,12 +376,13 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
 };
 
 const createDbConfigFile = async done => {
+  const prompt = argv.prompt || false;
   if (!fs.existsSync("./dbconfig.json")) {
     fs.copySync(
       path.join(__dirname, "/templates/dbconfig.json"),
       "./dbconfig.json"
     );
-    await inquirer.prompt([
+    prompt && await inquirer.prompt([
       {
         type: "input",
         name: "defaultDbConfig",
@@ -432,7 +433,7 @@ const cleanProject = () => {
   });
 };
 
-const initGit = async () => {
+const initGit = async ({prompt = argv.prompt || false}) => {
   let isInitialized;
   try {
     isInitialized = await git.exec({
@@ -453,20 +454,23 @@ const initGit = async () => {
     //     console.log(chalk.magenta("Branch created."));
     //   }
     // } else {
-    let answer = await inquirer.prompt({
+
+    let answer = prompt && await inquirer.prompt({
       type: "confirm",
       name: "repo",
       message: `Initialize git repository?`,
       default: true
     });
-    if (answer.repo) {
+
+    if (!prompt || answer.repo) {
       await git.exec({ args: "init" });
       console.log(chalk.magenta("Repository initialized."));
     }
   }
 };
 
-const initConfigFile = async () => {
+const initConfigFile = async ({prompt = argv.prompt || false}) => {
+  if (!prompt) return;
   console.log("Let's fill out version details... Press <enter> to skip.");
   let res = await inquirer.prompt([
     {

@@ -46,8 +46,8 @@ export class TaskManager {
         dbConfigPath: this.dbConfigPath,
         wsConfigPath: this.wsConfigPath
       },
-      // inherit stdin
-      stdio: ["inherit"]
+      // inherit stdio
+      stdio: "inherit"
     };
   }
 
@@ -56,16 +56,6 @@ export class TaskManager {
     console.log("Executing oradew task: " + params.join(" "));
 
     // Execute process
-    let p = child.spawn(process.execPath, params, this.processEnv);
-
-    p.stdout.on("data", data => {
-      console.log(`${data}`);
-    });
-
-    p.stderr.on("data", error => {
-      console.log(`${error}`);
-    });
-
-    p.on("end", () => {});
+    child.spawn(process.execPath, params, this.processEnv);
   }
 }

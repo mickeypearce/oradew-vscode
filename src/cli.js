@@ -70,7 +70,8 @@ program
   .action(() => execute());
 
 program
-  .command("runFile")
+  .command("deploy")
+  .alias("runFile")
   .description("Run as a Script (package.output if no file specified)")
   .option("--env <env>", "DB Environment")
   .option("--file <file>", "Absolute path of file")

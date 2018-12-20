@@ -308,7 +308,7 @@
     "build": "vsce package",
     "publish": "vsce publish",
     "precompile": "node ./scripts/precompile.js",
-    "install-cli": "npm run compile && npm install -g ./"
+    "install-cli": "npm install -g ./"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.108",

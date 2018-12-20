@@ -160,12 +160,27 @@ Oracle client library architecture (instantclient), Node.js version, OS and arch
 
 ## Command Line <sup>Preview</sup>
 
-Oradew commands (Gulp tasks) in command line (CLI).
+You can now execute Oradew commands (gulp tasks) from the command line (CLI).
+
+### Installation
+
+```bash
+# From the extension folder ~/.vscode/extensions/mp.oradew-vscode-...
+$ npm run install-cli
+```
+
+This will install `oradew` command globally.
+
+If you are installing from repository you must first compile the source code:
 
 ```bash
 $ git clone https://github.com/mickeypearce/oradew-vscode
-# Installation
-$ npm run install-cli
+$ npm install && npm run compile && npm run install-cli
+```
+
+### Usage
+
+```bash
 # (Use `oradew <command> --help` for command options.)
 $ oradew --help
 Usage: oradew <command> [options]
@@ -174,10 +189,18 @@ Commands:
   initWorkspace            Initialize Workspace
   createSource [options]   Import All Objects from Db to Source
   compileFiles [options]   Compile files (all source if no file specified)
-  compileObject [options]  Compile selected object
+  compileObject [options]  Compile object
   importFiles [options]    Import files (all source if no file specified)
-  importObject [options]   Import selected object
+  importObject [options]   Import object
   package [options]        Package
-  runFile [options]        Run file as a Script (path package.deploy if no file specified)
+  deploy|runFile [options] Run as a Script (package.output if no file specified)
   runTest [options]        Run unit tests
+```
+
+### Example
+
+```bash
+$ oradew compileFiles --file c:\file.sql
+$ oradew package
+$ oradew deploy --env TEST
 ```

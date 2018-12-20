@@ -789,6 +789,7 @@ runFileOnDb.flags = {
   "--file": "(optional) Absolute path of file"
 };
 gulp.task("runFile", runFileOnDb);
+gulp.task("deploy", runFileOnDb); // Alias
 
 runTest.description = "Simple unit testing.";
 gulp.task("runTest", runTest);

@@ -160,18 +160,18 @@ Oracle client library architecture (instantclient), Node.js version, OS and arch
 
 ## Command Line <sup>Preview</sup>
 
-You can now execute Oradew commands (gulp tasks) from the command line (CLI).
+You can now execute Oradew commands (gulp tasks) also from the command line (CLI).
 
 ### Installation
 
 ```bash
-# From the extension folder ~/.vscode/extensions/mp.oradew-vscode-...
+# From the extension folder %USERPROFILE%/.vscode/extensions/mp.oradew-vscode-...
 $ npm run install-cli
 ```
 
 This will install `oradew` command globally.
 
-If you are installing from repository you must first compile the source code:
+If you are installing from the repository you must first compile the source code:
 
 ```bash
 $ git clone https://github.com/mickeypearce/oradew-vscode
@@ -200,7 +200,8 @@ Commands:
 ### Example
 
 ```bash
-$ oradew compileFiles --file c:\file.sql
-$ oradew package
-$ oradew deploy --env TEST
+# create simple dbconfig file
+$ echo {"DEV": {"connectString": "localhost/orclpdb", "users": [{"user": "hr", "password": "welcome"}]}} > dbconfig.json
+# run commmand on DEV environment
+$ oradew compileObject --object "select 'world' as hello from dual"
 ```

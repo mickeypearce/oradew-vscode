@@ -1,6 +1,6 @@
 const oracledb = require("oracledb");
 const _ = require("lodash/fp");
-const { readJsonSync } = require("fs-extra");
+const { readJsonSync, outputJsonSync } = require("fs-extra");
 
 const dbLoc = require("./nedb");
 const { getDefaultsFromSchema } = require("./utility");
@@ -9,9 +9,18 @@ oracledb.fetchAsString = [oracledb.DATE, oracledb.CLOB];
 
 export class DBConfig {
   constructor(fileBase) {
+    // Defaults DB configuration object
+    this.defaults = getDefaultsFromSchema(
+      "../../resources/dbconfig-schema.json"
+    );
     this.fileBase = fileBase || "./dbconfig.json";
     this.object = null;
     this.load();
+  }
+
+  // Create config file with default values
+  createFile() {
+    return outputJsonSync(this.fileBase, this.defaults);
   }
 
   load() {
@@ -19,9 +28,7 @@ export class DBConfig {
       this.object = readJsonSync(this.fileBase);
     } catch (e) {
       // Defaults
-      this.object = getDefaultsFromSchema(
-        "../../resources/dbconfig-schema.json"
-      );
+      this.object = this.defaults;
     }
   }
 

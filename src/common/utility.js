@@ -102,11 +102,12 @@ utils.getDBObjectFromPath = path => {
   };
 };
 
-// Build default object from json schema defaults (simplified)
+// Build default object from json schema defaults
+// simplified - only defaults from first level in tree
 export const getDefaultsFromSchema = schema => {
   const template = require(schema).properties;
   return Object.keys(template).reduce((acc, value) => {
-    return { [value]: template[value].default, ...acc };
+    return { ...acc, [value]: template[value].default };
   }, {});
 };
 

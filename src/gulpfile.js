@@ -375,22 +375,22 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   }
 };
 
-const createDbConfigFile = async done => {
-  const prompt = argv.prompt || false;
-  if (!fs.existsSync("./dbconfig.json")) {
-    fs.copySync(
-      path.join(__dirname, "/templates/dbconfig.json"),
-      "./dbconfig.json"
-    );
-    prompt && await inquirer.prompt([
-      {
-        type: "input",
-        name: "defaultDbConfig",
-        message: `Zdravo! Please edit DB configuration file that was just created (./dbconfig.json). Then press <enter> to continue to create workspace structure. (press <ctrl+c> to break).`
-      }
-    ]);
+const createDbConfigFile = async ({ prompt = argv.prompt || false }) => {
+  // Create db config file if it doesn't exists already...
+  const dbconfig = db.config.fileBase;
+  if (!fs.existsSync(dbconfig)) {
+    db.config.createFile();
+    console.log(chalk.magenta("DB config created."));
+    // Prompt user to edit db config file
+    prompt &&
+      (await inquirer.prompt([
+        {
+          type: "input",
+          name: "defaultDbConfig",
+          message: `Zdravo! Please edit DB config file (${dbconfig}). Then press <enter> to continue to create workspace structure. (press <ctrl+c> to break).`
+        }
+      ]));
   }
-  done();
 };
 
 const createProjectFiles = () => {
@@ -433,7 +433,7 @@ const cleanProject = () => {
   });
 };
 
-const initGit = async ({prompt = argv.prompt || false}) => {
+const initGit = async ({ prompt = argv.prompt || false }) => {
   let isInitialized;
   try {
     isInitialized = await git.exec({
@@ -455,12 +455,14 @@ const initGit = async ({prompt = argv.prompt || false}) => {
     //   }
     // } else {
 
-    let answer = prompt && await inquirer.prompt({
-      type: "confirm",
-      name: "repo",
-      message: `Initialize git repository?`,
-      default: true
-    });
+    let answer =
+      prompt &&
+      (await inquirer.prompt({
+        type: "confirm",
+        name: "repo",
+        message: `Initialize git repository?`,
+        default: true
+      }));
 
     if (!prompt || answer.repo) {
       await git.exec({ args: "init" });
@@ -469,7 +471,7 @@ const initGit = async ({prompt = argv.prompt || false}) => {
   }
 };
 
-const initConfigFile = async ({prompt = argv.prompt || false}) => {
+const initConfigFile = async ({ prompt = argv.prompt || false }) => {
   if (!prompt) return;
   console.log("Let's fill out version details... Press <enter> to skip.");
   let res = await inquirer.prompt([
@@ -488,25 +490,10 @@ const initConfigFile = async ({prompt = argv.prompt || false}) => {
       name: "releaseDate",
       message: "Version release date [YYYY-MM-DD]?"
     }
-    // ,
-    // {
-    //   type: "input",
-    //   name: "encoding",
-    //   message: "Package encoding? (utf8)"
-    // },
-    // {
-    //   type: "list",
-    //   name: "warnings",
-    //   message: "Compiler warning scope?",
-    //   choices: ["NONE", "ALL", "PERFORMANCE", "INFORMATIONAL", "SEVERE"]
-    // }
   ]);
   // Reload config obj
   config.load();
   // Save prompts to config file, leave defaults if empty
-  // res.number && config.set("version.number", res.number);
-  // res.description && config.set("version.description", res.description);
-  // res.releaseDate && config.set("version.releaseDate", res.releaseDate);
   config.set("version.number", res.number || config.get("version.number"));
   config.set(
     "version.description",
@@ -516,16 +503,7 @@ const initConfigFile = async ({prompt = argv.prompt || false}) => {
     "version.releaseDate",
     res.releaseDate || config.get("version.releaseDate")
   );
-
-  // config.set(
-  //   "package.encoding",
-  //   res.encoding || config.get("package.encoding")
-  // );
-  // config.set(
-  //   "compile.warnings",
-  //   res.warnings || config.get("compile.warnings")
-  // );
-  console.log(chalk.green("Configuration file updated."));
+  console.log(chalk.magenta("Workspace config saved."));
 };
 
 const compileEverywhere = async ({ file = argv.file }) => {

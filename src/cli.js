@@ -18,8 +18,8 @@ program
 
 program
   .command("initWorkspace")
-  .description("Initialize Workspace")
-  .option("--prompt", "With configuration prompts")
+  .description("Initialize a new workspace")
+  .option("--prompt", "With input prompts")
   .action(() => execute());
 
 program

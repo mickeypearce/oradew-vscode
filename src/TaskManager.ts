@@ -1,5 +1,5 @@
-const child = require("child_process");
-const path = require("path");
+import child = require("child_process");
+import path = require("path");
 
 export class TaskManager {
   workspacePath: string;
@@ -12,16 +12,19 @@ export class TaskManager {
   gulpParams: Array<string>;
   processEnv: object;
 
-  constructor(workspacePath: string, contextPath: string, storagePath: string) {
-    const isColor = (process.env["color"] || "true") === "true";
-    const isSilent = (process.env["silent"] || "true") === "true";
-
-    this.workspacePath = workspacePath;
-    this.contextPath = contextPath;
+  constructor(tmConfig: {
+    workspacePath: string;
+    contextPath: string;
+    storagePath: string;
+    isSilent: boolean;
+    isColor: boolean;
+  }) {
+    this.workspacePath = tmConfig.workspacePath;
+    this.contextPath = tmConfig.contextPath;
 
     this.dbConfigPath = path.resolve(this.workspacePath, "dbconfig.json");
     this.wsConfigPath = path.resolve(this.workspacePath, "oradewrc.json");
-    this.storagePath = storagePath;
+    this.storagePath = tmConfig.storagePath;
 
     this.gulpPathJs = path.resolve(
       this.contextPath,
@@ -36,8 +39,8 @@ export class TaskManager {
       "--gulpfile",
       `${this.gulpFile}`,
       // Set only when true, had some problems with false
-      ...(isColor ? ["--color", "true"] : []),
-      ...(isSilent ? ["--silent", "true"] : [])
+      ...(tmConfig.isColor ? ["--color", "true"] : []),
+      ...(tmConfig.isSilent ? ["--silent", "true"] : [])
     ];
 
     this.processEnv = {

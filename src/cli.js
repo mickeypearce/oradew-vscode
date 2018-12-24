@@ -4,11 +4,24 @@ const { resolve } = require("path");
 import { TaskManager } from "./TaskManager";
 import * as program from "commander";
 
-const workspacePath = process.cwd();
+// ENVironment variables:
+// cwd: workspace path (current working dir by default)
+// color: gulp output in colors (true by default)
+// silent: without gulp output (true by default)
+// example in powershell: $env:silent="false"
+const workspacePath = process.env.cwd || process.cwd();
 const contextPath = resolve(__dirname, "..");
+const storagePath = workspacePath;
+const isColor = (process.env.color || "true") === "true";
+const isSilent = (process.env.silent || "true") === "true";
 
-process.env.silent = "true";
-const taskManager = new TaskManager(workspacePath, contextPath, workspacePath);
+const taskManager = new TaskManager({
+  workspacePath,
+  contextPath,
+  storagePath,
+  isSilent,
+  isColor
+});
 const execute = () => taskManager.executeOradewTask(process.argv);
 
 program

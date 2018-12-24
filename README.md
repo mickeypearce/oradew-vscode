@@ -142,7 +142,7 @@ You can find generator's source code (including `updateStatement` from previous 
 Oracle client library architecture (instantclient), Node.js version, OS and architecture must match precompiled configuration otherwise node-oracledb drivers have to be re-installed.
 
 ```bash
-## Re-install Oracle drivers (in ext folder ~/.vscode/extensions/mp.oradew-vscode-...):
+## Re-install Oracle drivers (in ext folder %USERPROFILE%/.vscode/extensions/mp.oradew-vscode-...):
 > npm install
 ```
 
@@ -166,7 +166,7 @@ You can now execute Oradew commands (gulp tasks) also from the command line (CLI
 
 ```bash
 # From the extension folder %USERPROFILE%/.vscode/extensions/mp.oradew-vscode-...
-$ npm run install-cli
+> npm run install-cli
 ```
 
 This will install `oradew` command globally.
@@ -174,15 +174,15 @@ This will install `oradew` command globally.
 If you are installing from the repository you must first compile the source code:
 
 ```bash
-$ git clone https://github.com/mickeypearce/oradew-vscode
-$ npm install && npm run compile && npm run install-cli
+> git clone https://github.com/mickeypearce/oradew-vscode
+> npm install && npm run compile && npm run install-cli
 ```
 
 ### Usage
 
 ```bash
 # (Use `oradew <command> --help` for command options.)
-$ oradew --help
+> oradew --help
 Usage: oradew <command> [options]
 
 Commands:
@@ -200,8 +200,7 @@ Commands:
 ### Example
 
 ```bash
-# create simple dbconfig file
-$ echo {"DEV": {"connectString": "localhost/orclpdb", "users": [{"user": "hr", "password": "welcome"}]}} > dbconfig.json
-# run commmand on DEV environment
-$ oradew compileObject --object "select 'world' as hello from dual"
+# Create simple dbconfig file and run commmand on DEV environment
+> echo {"DEV": {"connectString": "localhost/orclpdb", "users": [{"user": "hr", "password": "welcome"}]}} > dbconfig.json
+> oradew compileObject --object "select 'world' as hello from dual"
 ```

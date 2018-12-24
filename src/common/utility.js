@@ -114,7 +114,7 @@ export const getDefaultsFromSchema = schema => {
 /**
  * Workspace configuration (one for each environment.)
  *
- * Config file extending sequence: defaults <== DEV (base) <== TEST <== UAT
+ * Config file extending sequence: defaults <== DEV (base) <== (TEST, UAT)
  *
  * DEV (base): ./oradewrc.json
  * TEST: ./oradewrc.test.json (optional)

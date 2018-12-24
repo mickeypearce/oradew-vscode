@@ -20,8 +20,15 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
   const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
+  const isSilent = (process.env.silent || "true") === "true";
 
-  const taskManager = new TaskManager(workspacePath, contextPath, storagePath);
+  const taskManager = new TaskManager({
+    workspacePath,
+    contextPath,
+    storagePath,
+    isSilent,
+    isColor: true
+  });
 
   const wsConfig = new WorkspaceConfig(taskManager.wsConfigPath);
   const getGenerators = (): Array<IGenerator> => {

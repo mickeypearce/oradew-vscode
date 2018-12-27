@@ -26,7 +26,7 @@ const execute = () => taskManager.executeOradewTask(process.argv);
 
 program
   .name("oradew")
-  .version("0.0.1")
+  .version("0.0.2")
   .usage("<command> [options]");
 
 program
@@ -38,62 +38,81 @@ program
 program
   .command("createSource")
   .description("Import All Objects from Db to Source")
-  .option("--env <env>", "DB Environment")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
   .action(() => execute());
 
 program
   .command("compileFiles")
-  .description("Compile files (all source if no file specified)")
-  .option("--env <env>", "DB Environment")
-  .option("--file <file>", "Absolute path of file")
-  .option("--changed", "Changed files from working tree")
+  .description("Compile files")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
+  .option("--file <file>", "Path of file. all 'source' if not specified.")
+  .option("--changed", "Only changed files from working tree")
   .option("--force", "Overwrite changes on DB")
   .action(() => execute());
 
 program
   .command("compileObject")
-  .description("Compile object")
-  .option("--env <env>", "DB Environment")
-  .option("--object <object>", "DB statement (query or block)")
-  .option("--file <file>", "Absolute path of file")
-  .option("--line <line>", "Line offset in file - start of object")
+  .description("Compile object (statement)")
+  .option("--object <object>", "DB statement (query or block) (required)")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
+  .option("--file <file>", "Path of file")
+  .option("--line <line>", "Line offset of statement in file")
   .action(() => execute());
 
 program
   .command("importFiles")
-  .description("Import files (all source if no file specified)")
-  .option("--env <env>", "DB Environment")
-  .option("--file <file>", "Absolute path of file")
-  .option("--changed", "Changed files from working tree")
-  .option("--ease", "Import only if DB object changed")
+  .description("Import source files from DB")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
+  .option("--file <file>", "Path of file. all 'source' if not specified.")
+  .option("--changed", "Only changed files from working tree")
+  .option("--ease", "Skip files (objects) that hasn't changed on DB")
   .option("--quiet", "Suppress console output")
   .action(() => execute());
 
 program
   .command("importObject")
-  .description("Import object")
-  .option("--env <env>", "DB Environment")
-  .option("--object <object>", "DB object name")
+  .description("Import object from DB")
+  .option("--object <object>", "DB object name (required)")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
   .action(() => execute());
 
 program
   .command("package")
-  .description("Package")
-  .option("--env <env>", "DB Environment")
+  .description("Package files to deploy script")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
   .action(() => execute());
 
 program
   .command("deploy")
   .alias("runFile")
-  .description("Run as a Script (package.output if no file specified)")
-  .option("--env <env>", "DB Environment")
-  .option("--file <file>", "Absolute path of file")
+  .description("Run script (with SQLPlus)")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
+  .option("--file <file>", "Path of file. 'package.output' if not specified.")
   .action(() => execute());
 
 program
   .command("runTest")
   .description("Run unit tests")
-  .option("--env <env>", "DB Environment")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
+  .action(() => execute());
+
+program
+  .command("generate")
+  .description("Code generator")
+  .option("--func <func>", "DB generator function (required)")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
+  .option(
+    "--file <file>",
+    "Path of file. (func. param mapping: ./src/${schema}/${object_type}/${name}.sql)"
+  )
+  .option(
+    "--object <object>",
+    "Object name. (func. param mapping: selected_object)"
+  )
+  .option(
+    "--output <output>",
+    "Result output path. Generated file name if not specified."
+  )
   .action(() => execute());
 
 program.parse(process.argv);

@@ -654,6 +654,8 @@ const exportObjectFromDb = async ({
   object = argv.object
 }) => {
   try {
+    if (!object) throw Error("Object cannot be empty.");
+
     const source = globBase(config.get("source")[0]).base;
     const objs = await base.resolveObjectInfo(env, { name: object });
 
@@ -680,24 +682,35 @@ const compileObjectToDb = async ({
   object = argv.object,
   line = argv.line
 }) => {
-  // console.log(object);
-  let resp = await base.compileSelection(object, file, env, line);
-  printResults(resp);
+  try {
+    if (!object) throw Error("Object cannot be empty.");
+    let resp = await base.compileSelection(object, file, env, line);
+    printResults(resp);
+  } catch (err) {
+    console.error(err.message);
+  }
 };
 
 const generate = async ({
-  env = argv.env,
+  env = argv.env || "DEV",
   func = argv.func,
   file = argv.file,
   object = argv.object,
   output = argv.output
 }) => {
   try {
+    if (!func) throw Error("Func cannot be empty.");
+
     const resp = await base.getGenerator({ func, file, env, object });
+
+    // Save to output argument if it exists
+    // otherwise save to generated file in ./script directory
     const outputPath = output
       ? path.resolve(output)
       : path.resolve(
-          `./scripts/${resp.obj.owner}/file_${new Date().getTime()}.sql`
+          `./scripts/${
+            resp.obj.owner
+          }/file_${object}_${new Date().getTime()}.sql`
         );
 
     await utils.outputFilePromise(outputPath, resp.result);

@@ -1,7 +1,8 @@
 const fs = require("fs-extra");
 const _ = require("lodash/fp");
 const glob = require("glob");
-const resolve = require("path").resolve;
+// var glob = require("glob-stream");
+import { parse, resolve } from "path";
 
 const utils = require("./utility");
 const db = require("./db");
@@ -152,7 +153,7 @@ obj.compileSelection = async (code, file, env, lineOffset) => {
   let lines = [];
   let result = {};
   let conn;
-  // console.log("a" + code.toString());
+
   try {
     conn = await db.getConnection(connCfg);
     result = await db.compile(conn, code.toString());
@@ -183,8 +184,14 @@ obj.runFileAsScript = (file, env) => {
   const owner = obj.owner;
   const connCfg = db.config.getConfiguration(env, owner);
   const connString = db.getConnectionString(connCfg);
-  const cmd = `(echo connect ${connString} & echo start ${file} & echo show errors) | sqlplus -S /nolog`;
-  return utils.execPromise(cmd);
+
+  const cwd = parse(file).dir;
+  const filename = parse(file).base;
+  const cmd = `(echo connect ${connString} & echo start ${filename} & echo show errors) | sqlplus -S /nolog`;
+
+  // We execute from file directory (change cwd)
+  // mainly because of spooling to dir of the file (packaged script)
+  return utils.execPromise(cmd, { cwd });
 };
 
 obj.getObjectsInfoByType = async (env, owner, objectTypes) => {

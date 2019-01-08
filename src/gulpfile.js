@@ -82,28 +82,15 @@ PROMPT ***********************************************************
   done(null, prompt + code + ending);
 };
 
+const getLogFilename = filename => `spool__${filename}.log`;
+
 const packageSrcFromFile = ({ env = argv.env }) => {
-  const deployPrepend = `
-SPOOL deploy.log
-SET FEEDBACK ON
-SET ECHO ON
-SET VERIFY OFF
-SET DEFINE OFF
-`;
-  const deployAppend = `
-COMMIT;
-SPOOL OFF
-`;
-
-  const outputFileName = path.basename(
-    config.get({ field: "package.output", env })
-  );
-  const outputDirectory = path.dirname(
-    config.get({ field: "package.output", env })
-  );
-
+  const outputFile = config.get({ field: "package.output", env });
+  const outputFileName = path.basename(outputFile);
+  const outputDirectory = path.dirname(outputFile);
   const src = config.get({ field: "package.input", env });
   const encoding = config.get({ field: "package.encoding", env });
+  const templating = config.get({ field: "package.templating", env });
 
   const templateObject = {
     config: config.get({ env }),
@@ -113,7 +100,19 @@ SPOOL OFF
     }
   };
 
-  const templating = config.get({ field: "package.templating", env });
+  // Log is spooled to "package.output" filename with prefix and .log extension
+  // spool__Run.sql.log by default
+  const deployPrepend = `
+SPOOL ${getLogFilename(outputFileName)}
+SET FEEDBACK ON
+SET ECHO ON
+SET VERIFY OFF
+SET DEFINE OFF
+`;
+  const deployAppend = `
+COMMIT;
+SPOOL OFF
+`;
 
   return (
     gulp
@@ -342,19 +341,20 @@ const compileFilesToDb = async ({
   );
 };
 
-const saveLogFile = ({ env = argv.env }) => {
-  const deployDir = path.dirname(config.get({ field: "package.output", env }));
-  const addEnvToName = path => {
-    path.basename = path.basename + env;
-  };
-  return gulp
-    .src(["./deploy.log"])
-    .pipe(rename(addEnvToName))
-    .pipe(gulp.dest(deployDir));
-};
-
 const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   const src = file || config.get({ field: "package.output", env });
+
+  const outputFileName = path.basename(src);
+  const outputDirectory = path.dirname(src);
+
+  // Default log file that packaged scripts spools to
+  const logPath = path.join(outputDirectory, getLogFilename(outputFileName));
+
+  // Append 'env' to the log's filename to differentiate beetwen logs
+  const logPathEnv = path.join(
+    outputDirectory,
+    getLogFilename(`${outputFileName}-${env}`)
+  );
 
   // Simple output err colorizer
   const colorize = text =>
@@ -370,6 +370,11 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
     const stdout = await base.runFileAsScript(src, env);
     console.log(`${env}@${src}`);
     console.log(colorize(stdout));
+
+    // Add env suffix to log file if it exists
+    if (fs.existsSync(logPath)) {
+      fs.renameSync(logPath, logPathEnv);
+    }
   } catch (error) {
     console.error(`${error.message}`);
   }

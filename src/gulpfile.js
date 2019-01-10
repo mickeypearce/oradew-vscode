@@ -392,7 +392,7 @@ const createDbConfigFile = async ({ prompt = argv.prompt || false }) => {
         {
           type: "input",
           name: "defaultDbConfig",
-          message: `Zdravo! Please edit DB config file (${dbconfig}). Then press <enter> to continue to create workspace structure. (press <ctrl+c> to break).`
+          message: `Zdravo! Please edit DB config file (dbconfig.json). Then press <enter> to continue to create workspace structure. (press <ctrl+c> to break).`
         }
       ]));
   }

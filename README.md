@@ -186,15 +186,16 @@ If you are installing from the repository you must first compile the source code
 Usage: oradew <command> [options]
 
 Commands:
-  initWorkspace            Initialize Workspace
-  createSource [options]   Import All Objects from Db to Source
-  compileFiles [options]   Compile files (all source if no file specified)
-  compileObject [options]  Compile object
-  importFiles [options]    Import files (all source if no file specified)
-  importObject [options]   Import object
-  package [options]        Package
-  deploy|runFile [options] Run as a Script (package.output if no file specified)
-  runTest [options]        Run unit tests
+  initWorkspace [options]   Initialize a new workspace
+  createSource [options]    Import All Objects from Db to Source
+  compileFiles [options]    Compile files
+  compileObject [options]   Compile object (statement)
+  importFiles [options]     Import source files from DB
+  importObject [options]    Import object from DB
+  package [options]         Package files to deploy script
+  deploy|runFile [options]  Run script (with SQLPlus)
+  runTest [options]         Run unit tests
+  generate [options]        Code generator
 ```
 
 ### Example

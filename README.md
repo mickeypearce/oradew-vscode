@@ -42,7 +42,7 @@ oradewrc.json           Workspace configuration
 
 **Install**
 
-- `Package` (F9) - Generate SQL deployment script, TODOs file and ChangeLog
+- `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
 - `Deploy to TEST / UAT` - Run SQL deployment script on TEST or UAT environment (with SQLPlus)
 
 ### Additional

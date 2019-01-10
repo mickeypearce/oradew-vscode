@@ -4,7 +4,6 @@ const gulp = require("gulp");
 const gutil = require("gulp-util");
 const concat = require("gulp-concat");
 const insert = require("gulp-insert");
-const rename = require("gulp-rename");
 const argv = require("yargs").argv;
 const map = require("vinyl-map2");
 const del = require("del");
@@ -25,44 +24,6 @@ const base = require("./common/base");
 const db = require("./common/db");
 
 let config = utils.workspaceConfig;
-
-const generateChangeLog = function(paths) {
-  // Create Db objects from paths array
-  let dbo = paths.map(path => {
-    let obj = utils.getDBObjectFromPath(path);
-    let exclude = path.startsWith("!");
-    // return {...obj, exclude};
-    return Object.assign({}, obj, { exclude });
-  });
-
-  // Group to structure:
-  // { "owner": { "objectType": [ 'objectName' ] }}
-  let o = _.pipe(
-    _.groupBy("owner"),
-    _.mapValues(
-      _.pipe(
-        _.groupBy("objectType"),
-        _.mapValues(_.map("objectName"))
-      )
-    )
-  )(dbo);
-
-  // Build changelog
-  let c = "";
-  for (let owner in o) {
-    c = `${c}### ${owner}\n`;
-    for (let i_objectType in o[owner]) {
-      let objectType = o[owner][i_objectType];
-      c = `${c}#### ${i_objectType}\n`;
-      objectType.forEach(val => {
-        c = `${c}- ${val}\n`;
-      });
-      c = `${c}\n`;
-    }
-  }
-
-  return c;
-};
 
 const timestampHeader = `-- File created: ${new Date()}
 `;
@@ -105,7 +66,7 @@ const packageSrcFromFile = ({ env = argv.env }) => {
   const deployPrepend = `
 SPOOL ${getLogFilename(outputFileName)}
 SET FEEDBACK ON
-SET ECHO ON
+SET ECHO OFF
 SET VERIFY OFF
 SET DEFINE OFF
 `;
@@ -128,9 +89,9 @@ SPOOL OFF
       .pipe(gulp.dest(outputDirectory))
       .on("end", () =>
         console.log(
-          `${chalk.green(
-            "Package created:"
-          )} ${outputDirectory}/${outputFileName}`
+          `${outputDirectory}/${outputFileName} ${chalk.green(
+            "script packaged."
+          )}`
         )
       )
   );
@@ -183,13 +144,51 @@ const cherryPickFromJiraTask = async () => {
   console.log(`Files changed: ${stdout}`);
 };
 
-const makeChangeLog = ({ env = argv.env }) => {
-  const file = path.join(__dirname, "/templates/changelog*.md");
+const generateBOLContent = function(paths) {
+  // Create Db objects from paths array
+  let dbo = paths.map(path => {
+    let obj = utils.getDBObjectFromPath(path);
+    let exclude = path.startsWith("!");
+    // return {...obj, exclude};
+    return Object.assign({}, obj, { exclude });
+  });
+
+  // Group to structure:
+  // { "owner": { "objectType": [ 'objectName' ] }}
+  let o = _.pipe(
+    _.groupBy("owner"),
+    _.mapValues(
+      _.pipe(
+        _.groupBy("objectType"),
+        _.mapValues(_.map("objectName"))
+      )
+    )
+  )(dbo);
+
+  // Build markdown
+  let c = "";
+  for (let owner in o) {
+    c = `${c}### ${owner}\n`;
+    for (let i_objectType in o[owner]) {
+      let objectType = o[owner][i_objectType];
+      c = `${c}#### ${i_objectType}\n`;
+      objectType.forEach(val => {
+        c = `${c}- ${val}\n`;
+      });
+      c = `${c}\n`;
+    }
+  }
+
+  return c;
+};
+
+const makeBillOfLading = ({ env = argv.env }) => {
+  const file = path.join(__dirname, "/templates/BOL*.md");
   // Generate change log from deploy input array
   const all = base.fromGlobsToFilesArray(
     config.get({ field: "package.input", env })
   );
-  const content = generateChangeLog(all); // await git.getChangeLog();
+  const content = generateBOLContent(all); // await git.getChangeLog();
   const templateObject = {
     config: config.get({ env }),
     data: {
@@ -197,14 +196,16 @@ const makeChangeLog = ({ env = argv.env }) => {
       now: new Date().toISOString().substring(0, 10)
     }
   };
-  // Add changelog to template object
+  const outputFile = config.get({ field: "package.output", env });
+  const outputDirectory = path.dirname(outputFile);
+  // Add content to template object
   templateObject.data.content = content;
   return gulp
     .src(file)
     .pipe(template(templateObject))
     .pipe(insert.prepend("<!---\n" + timestampHeader + "-->\n"))
-    .pipe(rename("changelog.md"))
-    .pipe(gulp.dest("./"));
+    .pipe(gulp.dest(outputDirectory))
+    .on("end", () => console.log(`${outputDirectory}/BOL.md created`));
 };
 
 const exportFilesFromDb = async ({
@@ -428,12 +429,7 @@ const createProjectFiles = () => {
 
 const cleanProject = () => {
   // Delete temp directories
-  return del([
-    "./scripts/*",
-    "./deploy/*",
-    "./**/*.log",
-    "./**/changelog.md"
-  ]).then(rDel => {
+  return del(["./scripts/*", "./deploy/*", "./**/*.log"]).then(rDel => {
     rDel.length != 0 && console.log(chalk.magenta("Workspace cleaned."));
   });
 };
@@ -646,8 +642,8 @@ const extractTodos = () => {
     .src(src, { base: "./" })
     .pipe(todo())
     .pipe(todo.reporter("vscode"))
-    .pipe(gulp.dest("./"));
-  // .on('end', () => console.log('Todos created.'))
+    .pipe(gulp.dest("./"))
+    .on("end", () => console.log("./TODO.md created"));
 };
 
 const runTest = () => {
@@ -770,7 +766,7 @@ gulp.task("importObject", exportObjectFromDb);
 
 gulp.task(
   "package",
-  gulp.series(packageSrcFromFile, makeChangeLog, extractTodos)
+  gulp.series(extractTodos, makeBillOfLading, packageSrcFromFile)
 );
 
 gulp.task(

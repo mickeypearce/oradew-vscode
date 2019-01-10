@@ -1,4 +1,4 @@
-# Changelog
+# Bill Of Lading
 
 ## ${config["version.number"]} - ${config["version.description"]} (${config["version.releaseDate"]})
 

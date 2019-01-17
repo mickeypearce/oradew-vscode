@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "publisher": "mp",
   "engines": {
     "vscode": "^1.24.0"
@@ -127,6 +127,11 @@
       {
         "command": "oradew.populateChangesTask",
         "key": "shift+f9",
+        "when": "inOradewProject"
+      },
+      {
+        "command": "workbench.action.tasks.reRunTask",
+        "key": "ctrl+alt+enter",
         "when": "inOradewProject"
       }
     ],
@@ -308,7 +313,8 @@
     "build": "vsce package",
     "publish": "vsce publish",
     "precompile": "node ./scripts/precompile.js",
-    "install-cli": "npm install -g ./"
+    "install-cli": "npm install -g ./",
+    "fix": "rd node_modules /S /Q & del package-lock.json & npm install --no-optional"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.108",

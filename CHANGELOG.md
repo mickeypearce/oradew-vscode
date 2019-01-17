@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.1.8] - 2019-01-17
+
+- Generate BOL instead of ChangeLog file
+- Added ENV names to spooled logs (deploy)
+- Keybinding (ctrl+alt+enter) to re-run last command
+
 ## [0.1.7] - 2018-12-12
 
 - Added command line (CLI) [#11](https://github.com/mickeypearce/oradew-vscode/issues/11)

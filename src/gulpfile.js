@@ -90,7 +90,7 @@ SPOOL OFF
       .on("end", () =>
         console.log(
           `${outputDirectory}/${outputFileName} ${chalk.green(
-            "script packaged."
+            "Script packaged."
           )}`
         )
       )
@@ -121,8 +121,8 @@ const createDeployInputFromGit = async () => {
     // Save new input to config
     config.set("package.input", newInput);
     console.log(
-      `${chalk.green("Changed file paths:")} ${newInput} ${chalk.green(
-        "saved to package input."
+      `${newInput.join("\n")} \n./oradewrc.json ${chalk.green(
+        "Saved to package input."
       )}`
     );
   } catch (error) {

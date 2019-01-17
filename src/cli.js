@@ -5,13 +5,29 @@ import { TaskManager } from "./TaskManager";
 import * as program from "commander";
 
 // ENVironment variables:
+
 // cwd: workspace path (current working dir by default)
 // color: gulp output in colors (true by default)
 // silent: without gulp output (true by default)
-// example in powershell: $env:silent="false"
+// dbconfig: DB config path (./dbconfig.json by default)
+// wsconfig: Workspace config path (./oradewrc.json by default)
+
+// Examples in powershell:
+// $env:silent="false"
+// $env:dbconfig="./.vscode/dbconfig.json"
+
+// WS is current dir by default
 const workspacePath = process.env.cwd || process.cwd();
+
 const contextPath = resolve(__dirname, "..");
 const storagePath = workspacePath;
+
+// Configs are in WS dir by default
+const dbConfigPath =
+  process.env.dbconfig || resolve(workspacePath, "dbconfig.json");
+const wsConfigPath =
+  process.env.wsconfig || resolve(workspacePath, "oradewrc.json");
+
 const isColor = (process.env.color || "true") === "true";
 const isSilent = (process.env.silent || "true") === "true";
 
@@ -19,6 +35,8 @@ const taskManager = new TaskManager({
   workspacePath,
   contextPath,
   storagePath,
+  dbConfigPath,
+  wsConfigPath,
   isSilent,
   isColor
 });

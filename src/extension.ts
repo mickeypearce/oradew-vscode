@@ -3,6 +3,7 @@
 import * as vscode from "vscode";
 import { WorkspaceConfig } from "./common/utility";
 import { TaskManager } from "./TaskManager";
+import path = require("path");
 
 interface IGenerator {
   label: string;
@@ -30,7 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
     isColor: true
   });
 
-  const wsConfig = new WorkspaceConfig(taskManager.wsConfigPath);
+  const wsConfig = new WorkspaceConfig(
+    path.resolve(workspacePath, "oradewrc.json")
+  );
   const getGenerators = (): Array<IGenerator> => {
     wsConfig.load();
     return wsConfig.get("generator.define");

@@ -133,6 +133,16 @@ const getConnection = connCfg => {
     });
 };
 
+const closeConnection = async conn => {
+  if (conn) {
+    try {
+      await conn.close();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+};
+
 /**
  ** Return connection string.
  * @param {ConnectionConfig} connCfg
@@ -392,6 +402,7 @@ module.exports.getObjectsInfo = getObjectsInfo;
 module.exports.getLastDdlTime = getLastDdlTime;
 module.exports.syncDdlTime = syncDdlTime;
 module.exports.getConnectionString = getConnectionString;
+module.exports.closeConnection = closeConnection;
 module.exports.isDifferentDdlTime = isDifferentDdlTime;
 module.exports.compile = compile;
 module.exports.createError = createError;

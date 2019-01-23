@@ -65,9 +65,13 @@ utils.getDBObjectFromPath = path => {
   // Null otherwise
   if (isScript) {
     // `./${scripts}/${owner}/${name}.sql`,
-    // Owner is important
-    // unfortunately is on different position than in Source
-    owner = pathSplit[1];
+    // owner = pathSplit[1];
+    owner = pathSplit[pathSplit.length - 2];
+    // If owner is missing (scripts structure without owner)
+    // Legacy - single schema workspace
+    if (owner.toLowerCase() === "scripts") {
+      owner = null;
+    }
     dir = "SCRIPTS"; //non existent type but no problem
   } else if (isSource) {
     // `./${source}/${owner}/${dir}/${name}.sql`,
@@ -75,6 +79,11 @@ utils.getDBObjectFromPath = path => {
     // dir = pathSplit[2];
     // More resilient if we go backwards
     owner = pathSplit[pathSplit.length - 3];
+    // If owner is missing (src structure without owner)
+    // Legacy - single schema workspace
+    if (owner.toLowerCase() === "src") {
+      owner = null;
+    }
     dir = pathSplit[pathSplit.length - 2];
   } else {
     // `./${deploy}/${name}.sql`,

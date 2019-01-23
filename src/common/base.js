@@ -31,8 +31,6 @@ obj.fromGlobsToFilesArray = globArray => {
 obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
-  // Owner can change to default user
-  obj.owner = connCfg.user.toUpperCase();
 
   let exported = null;
   let conn;
@@ -68,7 +66,7 @@ obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
     done(null, code);
     exported = false;
   } finally {
-    conn && conn.close();
+    db.closeConnection(conn);
   }
   return { obj, exported };
 };
@@ -98,6 +96,8 @@ function getLineAndPosition(code, offset) {
 obj.compileFile = async (code, file, env, force, warnings) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
+  // When there is no user configuration for the owner
+  // we force change the object owner to default user
   obj.owner = connCfg.user.toUpperCase();
 
   code = simpleParse(code);
@@ -129,7 +129,7 @@ obj.compileFile = async (code, file, env, force, warnings) => {
     // console.log(msg);
     errors = db.getErrorSystem(msg, 1, line, position);
   } finally {
-    conn && conn.close();
+    db.closeConnection(conn);
   }
   // Return results, errors array, file and env params
   return {
@@ -165,7 +165,7 @@ obj.compileSelection = async (code, file, env, lineOffset) => {
     let msg = error.message;
     errors = db.getErrorSystem(msg, lineOffset, line, position);
   } finally {
-    conn && conn.close();
+    db.closeConnection(conn);
   }
   // Return results, errors array, file and env params
   // dbmsoutput lines
@@ -207,7 +207,7 @@ obj.getObjectsInfoByType = async (env, owner, objectTypes) => {
   } catch (error) {
     throw error;
   } finally {
-    conn && conn.close();
+    db.closeConnection(conn);
   }
   return result;
 };
@@ -242,7 +242,7 @@ obj.resolveObjectInfo = async (env, { name }) => {
 
     if (!objectName) throw Error(`object ${name} does not exist`);
 
-    await conn.close();
+    db.closeConnection(conn);
     // Get connection to object schema
     connCfg = db.config.getConfiguration(env, schema);
     conn = await db.getConnection(connCfg);
@@ -253,7 +253,7 @@ obj.resolveObjectInfo = async (env, { name }) => {
   } catch (error) {
     throw error;
   } finally {
-    conn && conn.close();
+    db.closeConnection(conn);
   }
   return result;
 };
@@ -261,7 +261,6 @@ obj.resolveObjectInfo = async (env, { name }) => {
 obj.getGenerator = async ({ func, file, env, object }) => {
   const obj = utils.getDBObjectFromPath(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
-  obj.owner = connCfg.user.toUpperCase();
 
   let result = {};
   let conn;
@@ -271,7 +270,7 @@ obj.getGenerator = async ({ func, file, env, object }) => {
   } catch (error) {
     throw error;
   } finally {
-    conn && conn.close();
+    db.closeConnection(conn);
   }
   return {
     obj,

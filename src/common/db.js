@@ -37,6 +37,8 @@ export class DBConfig {
 
   /**
    * Get all users (schemas) for envoronment
+   * *If User has no objects, default schema must be specified
+   *
    *  @param {string} env
    *  @returns {string} user
    */
@@ -44,7 +46,7 @@ export class DBConfig {
     return _.pipe(
       _.get(env),
       _.get("users"),
-      _.map(v => v.user.toUpperCase()),
+      _.map(v => (v.schema ? v.schema.toUpperCase() : v.user.toUpperCase())),
       _.uniq
     )(this.object);
   };

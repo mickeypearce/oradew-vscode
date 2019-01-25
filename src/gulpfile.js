@@ -403,7 +403,7 @@ const createProjectFiles = () => {
   // Create scripts dir for every user
   // and copy scripts templates
   db.config.load();
-  const scriptsDirs = db.config.getUsers().map(v => `./scripts/${v}`);
+  const scriptsDirs = db.config.getSchemas().map(v => `./scripts/${v}`);
   gulp
     .src([
       path.join(__dirname, "/templates/scripts/initial*.sql"),
@@ -540,11 +540,11 @@ gulp.task("compileEverywhereOnSave", function() {
 const createSrcEmpty = done => {
   try {
     const source = globBase(config.get("source")[0]).base;
-    const users = db.config.getUsers();
+    const schemas = db.config.getSchemas();
     const dirs = utils.getDirTypes();
-    for (const user of users) {
+    for (const owner of schemas) {
       for (const dir of dirs) {
-        fs.ensureDirSync(`./${source}/${user}/${dir}`);
+        fs.ensureDirSync(`./${source}/${owner}/${dir}`);
       }
     }
     done();
@@ -557,10 +557,10 @@ const createSrcEmpty = done => {
 const createSrcFromDbObjects = async ({ env = argv.env }) => {
   // TODO source is array, taking first element
   const source = globBase(config.get("source")[0]).base;
-  const users = db.config.getUsers();
+  const schemas = db.config.getSchemas();
   const objectTypes = utils.getObjectTypes();
   try {
-    for (const owner of users) {
+    for (const owner of schemas) {
       const objs = await base.getObjectsInfoByType(env, owner, objectTypes);
       for (const obj of objs) {
         const type = utils.getDirFromObjectType(obj.OBJECT_TYPE);

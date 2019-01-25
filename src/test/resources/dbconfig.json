@@ -9,7 +9,14 @@
       {
         "user": "dev1",
         "password": "welcome1",
-        "default": true
+        "default": true,
+        "disabled": false
+      },
+      {
+        "user": "dev2",
+        "password": "welcome2",
+        "default": false,
+        "disabled": true
       }
     ]
   }

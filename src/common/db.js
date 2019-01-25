@@ -14,6 +14,7 @@ export class DBConfig {
       "../../resources/dbconfig-schema.json"
     );
     this.fileBase = fileBase || "./dbconfig.json";
+    // DB config JSON Object
     this.object = null;
     this.load();
   }
@@ -32,20 +33,29 @@ export class DBConfig {
     }
   }
 
-  // getConnectString = (env = "DEV") => this.object[env].connectString;
-  // getUserObjects = (env = "DEV") => this.object[env].users;
+  // _getConnectString = (env = "DEV") => this.object[env].connectString;
+  // _getUserObjects = (env = "DEV") => this.object[env].users;
 
-  /**
-   * Get all users (schemas) for envoronment
-   * *If User has no objects, default schema must be specified
-   *
-   *  @param {string} env
-   *  @returns {string} user
-   */
-  getUsers = (env = "DEV") => {
+  // Get "users" object array from json
+  // filter out disabled
+  _getAllUsersByEnv = env => data => {
     return _.pipe(
       _.get(env),
       _.get("users"),
+      _.filter(v => !v.disabled)
+    )(data);
+  };
+
+  /**
+   * Get all schemas for envoronment.
+   * *If User has no objects, default schema must be specified
+   *
+   *  @param {string} env
+   *  @returns {string[]} user
+   */
+  getSchemas = (env = "DEV") => {
+    return _.pipe(
+      this._getAllUsersByEnv(env),
       _.map(v => (v.schema ? v.schema.toUpperCase() : v.user.toUpperCase())),
       _.uniq
     )(this.object);
@@ -53,7 +63,7 @@ export class DBConfig {
 
   /**
    * Connection config object from dbConfig.json
-   * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean}} ConnectionConfig
+   * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean, schema: ?string, disabled: ?boolean}} ConnectionConfig
    */
 
   /**
@@ -70,7 +80,7 @@ export class DBConfig {
     const head = { env, connectString: this.object[env].connectString };
 
     // First filter by env, if only one config return
-    let byEnv = this.object[env].users;
+    let byEnv = this._getAllUsersByEnv(env)(this.object);
 
     if (!byEnv) throw Error("dbconfig.json: Invalid structure.");
 
@@ -83,7 +93,7 @@ export class DBConfig {
 
     // If user exist filter env by user, if only one return
     let byUser = user
-      ? _.filter(v => v.user.toUpperCase() === user)(byEnv)
+      ? _.filter(v => v.user.toUpperCase() === user.toUpperCase())(byEnv)
       : byEnv;
 
     if (byUser.length === 1) {

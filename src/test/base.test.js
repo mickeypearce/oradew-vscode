@@ -3,7 +3,7 @@ const db = require("../common/base");
 
 // describe("#db", function() {
 //   it("should return all distinct dev users", function() {
-//     let users = db.getUsers();
+//     let users = db.getSchemas();
 //     assert.deepEqual(users, ["HR", "HR1"]);
 //   });
 

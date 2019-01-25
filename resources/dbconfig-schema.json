@@ -71,8 +71,14 @@
                 "type": "string"
               },
               "default": {
-                "description": "Default user for environment. \nWhenever user can't be extracted from path, default user (\"default\": true) will be used for connection. (ex. for deploy)",
-                "type": "boolean"
+                "description": "Default user for environment? \nWhenever user can't be extracted from path, default user (\"default\": true) will be used for connection. (ex. for deploy)",
+                "type": "boolean",
+                "default": false
+              },
+              "disabled": {
+                "description": "User disabled? \nDisabled user is not available for connection.",
+                "type": "boolean",
+                "default": false
               }
             },
             "required": ["user", "password"],

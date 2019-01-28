@@ -51,42 +51,54 @@ describe("#DBConfig", function() {
   //   assert.deepEqual(connectString, defaults.DEV.users);
   // });
 
-  it("should get configuration from Custom file", function() {
-    const dbConfigInstance1 = new db.DBConfig(
-      "./src/test/resources/dbconfig.json"
-    );
-    let users = dbConfigInstance1.getSchemas();
-    assert.deepEqual(users, ["DEV", "DEV1"]);
+  let cfgDefault = {
+    env: "DEV",
+    connectString: "oradew",
+    user: "dev1",
+    password: "welcome1",
+    default: true,
+    disabled: false
+  };
 
-    let cfgDefault = {
-      env: "DEV",
-      connectString: "oradew",
-      user: "dev1",
-      password: "welcome1",
-      default: true,
-      disabled: false
-    };
+  let cfgUser = {
+    env: "DEV",
+    connectString: "oradew",
+    user: "dev",
+    password: "welcome",
+    schemas: ["schema1", "schema2"]
+  };
+
+  const dbConfigInstance1 = new db.DBConfig(
+    "./src/test/resources/dbconfig.json"
+  );
+
+  it("should get all schemas from Custom file", function() {
+    let users = dbConfigInstance1.getSchemas();
+    assert.deepEqual(users, ["SCHEMA1", "SCHEMA2", "DEV1"]);
+  });
+
+  it("should get default different configurations", function() {
+    // get default, null user
     let cfgDefaultActual = dbConfigInstance1.getConfiguration("DEV");
     assert.deepEqual(cfgDefaultActual, cfgDefault);
 
-    // dev2 is disabled, get default
+    // get default, non existing user
+    cfgDefaultActual = dbConfigInstance1.getConfiguration("DEV", "bla");
+    assert.deepEqual(cfgDefaultActual, cfgDefault);
+
+    // get default, disabled user
     let cfgUserActualDisabled = dbConfigInstance1.getConfiguration(
       "DEV",
       "dev2"
     );
     assert.deepEqual(cfgUserActualDisabled, cfgDefault);
 
-    let cfgUser = {
-      env: "DEV",
-      connectString: "oradew",
-      user: "dev",
-      password: "welcome"
-    };
+    // get configuration by existing user
     let cfgUserActual = dbConfigInstance1.getConfiguration("DEV", "dev");
     assert.deepEqual(cfgUserActual, cfgUser);
+
+    // get configuration by schema - case insensitive!
+    let cfgSchemaActual = dbConfigInstance1.getConfiguration("DEV", "schEma2");
+    assert.deepEqual(cfgSchemaActual, cfgUser);
   });
 });
-
-// describe("#DBConfig:getSchemas", function() {
-
-// });

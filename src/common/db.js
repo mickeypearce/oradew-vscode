@@ -3,7 +3,7 @@ const _ = require("lodash/fp");
 const { readJsonSync, outputJsonSync } = require("fs-extra");
 
 const dbLoc = require("./nedb");
-const { getDefaultsFromSchema } = require("./utility");
+const { getDefaultsFromSchema, IncludesCaseInsensitive } = require("./utility");
 
 oracledb.fetchAsString = [oracledb.DATE, oracledb.CLOB];
 
@@ -47,8 +47,8 @@ export class DBConfig {
   };
 
   /**
-   * Get all schemas for envoronment.
-   * *If User has no objects, default schema must be specified
+   * Get all schemas for environment.
+   * *If User has no objects, Schemas are used
    *
    *  @param {string} env
    *  @returns {string[]} user
@@ -56,19 +56,21 @@ export class DBConfig {
   getSchemas = (env = "DEV") => {
     return _.pipe(
       this._getAllUsersByEnv(env),
-      _.map(v => (v.schema ? v.schema.toUpperCase() : v.user.toUpperCase())),
+      _.flatMap(v => (v.schemas ? v.schemas : [v.user])),
+      _.map(_.toUpper),
       _.uniq
     )(this.object);
   };
 
   /**
    * Connection config object from dbConfig.json
-   * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean, schema: ?string, disabled: ?boolean}} ConnectionConfig
+   * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean, schemas: ?string[], disabled: ?boolean}} ConnectionConfig
    */
 
   /**
-   ** Get connection configuration from dbConfig.
-   * It gets default config for user if it cannot be determined, for ex. if is non existent or null
+   ** Get connection configuration. Extracted from DB config file.
+   * Filter by env and user
+   * User parameter is optional, return default configuration if cannot be determined (user non existent)
    * @param {string} env
    * @param {?string} user
    * @returns {ConnectionConfig} Connection config
@@ -79,10 +81,13 @@ export class DBConfig {
     // Head of flattened object that we return
     const head = { env, connectString: this.object[env].connectString };
 
-    // First filter by env, if only one config return
+    // First filter by env param, if only one config return
     let byEnv = this._getAllUsersByEnv(env)(this.object);
 
-    if (!byEnv) throw Error("dbconfig.json: Invalid structure.");
+    if (!byEnv)
+      throw Error(
+        `dbconfig.json: Invalid structure. Cannot find "${env}" env.`
+      );
 
     if (byEnv.length === 0) {
       throw Error(`dbconfig.json: No user for "${env}" env.`);
@@ -91,9 +96,14 @@ export class DBConfig {
       return { ...head, ...byEnv[0] };
     }
 
-    // If user exist filter env by user, if only one return
+    // If user param exists, filter by v.user or v.schema
     let byUser = user
-      ? _.filter(v => v.user.toUpperCase() === user.toUpperCase())(byEnv)
+      ? _.filter(
+          v =>
+            v.user.toUpperCase() === user.toUpperCase() ||
+            // IncludesCaseInsensitive([v.user], user) ||
+            (v.schemas && IncludesCaseInsensitive(v.schemas, user))
+        )(byEnv)
       : byEnv;
 
     if (byUser.length === 1) {

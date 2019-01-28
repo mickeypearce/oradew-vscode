@@ -121,9 +121,9 @@ const createDeployInputFromGit = async () => {
     // Save new input to config
     config.set("package.input", newInput);
     console.log(
-      `${newInput.join("\n")} \n./oradewrc.json ${chalk.green(
-        "Saved to package input."
-      )}`
+      `${newInput.join("\n")} \n${chalk.green(
+        "Saved to package input"
+      )} => ./oradewrc.json`
     );
   } catch (error) {
     console.error(error.message);

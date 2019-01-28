@@ -66,12 +66,12 @@
               "password": {
                 "type": "string"
               },
-              "schema": {
-                "description": "Principal schema for user. \nIf \"user\" doesn't own any object, schema must be specified.",
-                "type": "string"
+              "schemas": {
+                "description": "User's schemas. \nIf \"user\" doesn't own any object, at least one schema must be specified.",
+                "type": "array"
               },
               "default": {
-                "description": "Default user for environment? \nWhenever user can't be extracted from path, default user (\"default\": true) will be used for connection. (ex. for deploy)",
+                "description": "Default user for environment? \nWhenever user can't be extracted from path, default user configuration (\"default\": true) will be used for connection. (ex. for deploy)",
                 "type": "boolean",
                 "default": false
               },

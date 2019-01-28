@@ -4,7 +4,8 @@
     "users": [
       {
         "user": "dev",
-        "password": "welcome"
+        "password": "welcome",
+        "schemas": ["schema1", "schema2"]
       },
       {
         "user": "dev1",

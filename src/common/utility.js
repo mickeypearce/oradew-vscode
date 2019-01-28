@@ -218,3 +218,15 @@ export const removeNewlines = str => str.replace(/\r\n|\r|\n/gi, " ");
 
 // alternative /\r?\n/
 export const splitLines = str => str.split(/\r\n|\r|\n/);
+
+/**
+ * Includes - case insensitive.
+ * * arr includes str?
+ * @param {array} arr
+ * @param {string} str
+ * @returns {boolean}
+ */
+export const IncludesCaseInsensitive = (arr, str) => {
+  let upp = arr.map(v => v.toUpperCase());
+  return upp.includes(str.toUpperCase());
+};

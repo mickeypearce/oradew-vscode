@@ -1,5 +1,9 @@
 const assert = require("assert");
-import { WorkspaceConfig, getDefaultsFromSchema } from "../common/utility";
+import {
+  WorkspaceConfig,
+  getDefaultsFromSchema,
+  IncludesCaseInsensitive
+} from "../common/utility";
 
 const configDefault = new WorkspaceConfig();
 const configCustomrc = new WorkspaceConfig(
@@ -50,5 +54,15 @@ describe("#Utility Config", function() {
   it("should get package.templating from TEST, actually from default", function() {
     let tmp = configCustomrc.get({ field: "package.templating", env: "TEST" });
     assert.equal(tmp, false);
+  });
+});
+
+describe("#IncludesCaseInsensitive", function() {
+  it("should return whether array contains string - case insensitive", function() {
+    assert.equal(IncludesCaseInsensitive(["A"], "a"), true);
+    assert.equal(IncludesCaseInsensitive(["A", "b"], "a"), true);
+    assert.equal(IncludesCaseInsensitive(["A", "b"], "A"), true);
+    assert.equal(IncludesCaseInsensitive(["A"], "1"), false);
+    assert.equal(IncludesCaseInsensitive([], "1"), false);
   });
 });

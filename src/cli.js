@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { resolve } = require("path");
-import { TaskManager } from "./TaskManager";
+import { TaskManager } from "./task-manager";
 import * as program from "commander";
 
 // ENVironment variables:

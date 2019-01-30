@@ -87,8 +87,7 @@ Configuraton files are not required. Default values will be assumed in case they
   "version.description": "New feature",
   "version.releaseDate": "2099-01-01",
   "test.input": ["./test/**/*.test.sql"],
-  "import.getDdlFunction": "dbms_metadata.get_ddl",
-  "generator.define": []
+  "import.getDdlFunction": "dbms_metadata.get_ddl"
 }
 ```
 
@@ -111,9 +110,26 @@ Configuraton files are not required. Default values will be assumed in case they
 
 ### Code Generator
 
-Configure the setting `generator.define` to define code generators. Then use `Generate...` command to generate your PL/SQL code.
+Write a PL/SQL function on database, add a definition to configuration file (`oradewrc-generate.json`) and then use `Generate...` command to execute your generator. A new file with the generated content will be created in your workspace.
 
-The `label` and `function` properties are required for a generator to be succesfully defined but a `description` is optional. You can also use `output` property to define a file path of the generated content (also optional). If the `output` is omitted a file with unique filename is created in ./scripts directory. A generator definition example follows:
+#### Function specificaton
+
+The generator function on DB has to have the following specification (parameters):
+
+```sql
+FUNCTION updateStatement(
+  object_type IN VARCHAR2,    -- derived from path of currently open ${file}
+  name IN VARCHAR2,           -- derived from path of currently open ${file}
+  schema IN VARCHAR2,         -- derived from path of currently open ${file}
+  selected_object IN VARCHAR2 -- ${selectedText} in editor
+) RETURN CLOB;
+```
+
+Function parameters are derived from currently opened file and selected text in your editor when the generator is executed. The first three parameters (`object_type`, `name`, `schema`) are deconstructed from the path of the currently opened \${file} as `./src/${schema}/${object_type}/${name}.sql`, whereas `selected_object` is the currently \${selectedText} in editor.
+
+#### Generator definition
+
+Create a configuration file `oradewrc-generate.json` in your workspace root with a definiton:
 
 ```json
   "generator.define": [
@@ -125,7 +141,9 @@ The `label` and `function` properties are required for a generator to be succesf
   ]
 ```
 
-You can find generator's source code (including `updateStatement` from previous example) and additional information about writing generators over here: [Oradew Code Generators](https://github.com/mickeypearce/oradew-generators).
+The `label` and `function` properties are required for a generator to be succesfully defined (`description` is optional). Use `output` property to specify a file path of the generated content (also optional). If the `output` is omitted a file with unique filename will be created in ./scripts directory.
+
+<b>NOTE</b>: Generators have a separate repository over here: [Oradew Code Generators](https://github.com/mickeypearce/oradew-generators). Your contributions are welcomed!
 
 ## Installation
 

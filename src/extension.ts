@@ -1,16 +1,11 @@
 "use strict";
 
 import * as vscode from "vscode";
-import { WorkspaceConfig } from "./common/utility";
-import { TaskManager } from "./TaskManager";
-import path = require("path");
 
-interface IGenerator {
-  label: string;
-  function: string;
-  description?: string;
-  output?: string;
-}
+const { resolve } = require("path");
+
+import { TaskManager } from "./task-manager";
+import { GeneratorManager } from "./generator-manager";
 
 let taskProvider: vscode.Disposable | undefined;
 
@@ -23,21 +18,24 @@ export function activate(context: vscode.ExtensionContext) {
   const storagePath = context.storagePath || context.extensionPath;
   const isSilent = (process.env.silent || "true") === "true";
 
+  const configParamWsConfigPath: string = vscode.workspace
+    .getConfiguration("oradew")
+    .get("workspaceConfigFile");
+
+  const wsConfigPath = resolve(
+    configParamWsConfigPath.replace("${workspaceFolder}", workspacePath)
+  );
+
   const taskManager = new TaskManager({
     workspacePath,
     contextPath,
     storagePath,
+    wsConfigPath,
     isSilent,
     isColor: true
   });
 
-  const wsConfig = new WorkspaceConfig(
-    path.resolve(workspacePath, "oradewrc.json")
-  );
-  const getGenerators = (): Array<IGenerator> => {
-    wsConfig.load();
-    return wsConfig.get("generator.define");
-  };
+  const generatorManager = new GeneratorManager();
 
   const createOradewTask = ({
     name,
@@ -63,7 +61,7 @@ export function activate(context: vscode.ExtensionContext) {
     let result: vscode.Task[] = [];
 
     // Register generators as tasks
-    for (let generator of getGenerators()) {
+    for (let generator of generatorManager.getDefinitions()) {
       if (generator.label && generator.function) {
         result.push(
           createOradewTask({
@@ -317,9 +315,11 @@ export function activate(context: vscode.ExtensionContext) {
   let cmdTaskGenerate = vscode.commands.registerCommand(
     "oradew.generateTask",
     async () => {
-      // Reload registering
+      // Reload registering of generators
       registerOradewTasks();
-      let generator = await vscode.window.showQuickPick(getGenerators());
+      let generator = await vscode.window.showQuickPick(
+        generatorManager.getDefinitions()
+      );
       if (generator && generator.label && generator.function) {
         vscode.commands.executeCommand(
           "workbench.action.tasks.runTask",

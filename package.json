@@ -290,12 +290,44 @@
     ],
     "jsonValidation": [
       {
-        "fileMatch": "oradewrc*.json",
+        "fileMatch": "dbconfig.json",
+        "url": "./resources/dbconfig-schema.json"
+      },
+      {
+        "fileMatch": "oradewrc.json",
         "url": "./resources/oradewrc-schema.json"
       },
       {
-        "fileMatch": "dbconfig.json",
-        "url": "./resources/dbconfig-schema.json"
+        "fileMatch": "oradewrc.test.json",
+        "url": "./resources/oradewrc-schema.json"
+      },
+      {
+        "fileMatch": "oradewrc.uat.json",
+        "url": "./resources/oradewrc-schema.json"
+      },
+      {
+        "fileMatch": "oradewrc-generate.json",
+        "url": "./resources/oradewrc-generate-schema.json"
+      }
+    ],
+    "configuration": [
+      {
+        "type": "object",
+        "title": "Oradew Settings",
+        "properties": {
+          "oradew.generatorConfigFile": {
+            "type": "string",
+            "default": "${workspaceFolder}/oradewrc-generate.json",
+            "required": false,
+            "description": "The path to the code generator configuration file"
+          },
+          "oradew.workspaceConfigFile": {
+            "type": "string",
+            "default": "${workspaceFolder}/oradewrc.json",
+            "required": false,
+            "description": "The path to the workspace configuration file"
+          }
+        }
       }
     ]
   },

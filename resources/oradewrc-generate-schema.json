@@ -1,0 +1,39 @@
+{
+  "title": "JSON schema for Oradew Generator configuration file",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "type": "object",
+  "properties": {
+    "generator.define": {
+      "default": [
+        {
+          "label": "#1",
+          "description": "Define your generator in oradewrc-generate.json",
+          "function": ""
+        }
+      ],
+      "description": "Array of generator definitions.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Generator identifier"
+          },
+          "function": {
+            "type": "string",
+            "description": "Generator function name on DB. \nex.DB func.spec.: FUNCTION genUpdateStatement(object_type IN VARCHAR2, name IN VARCHAR2, schema IN VARCHAR2, selected_object IN VARCHAR2) RETURN CLOB;"
+          },
+          "description": {
+            "string": "string"
+          },
+          "output": {
+            "description": "File path with generated content. If omitted generated filename is created.",
+            "string": "string"
+          }
+        },
+        "required": ["label", "function"]
+      }
+    }
+  }
+}

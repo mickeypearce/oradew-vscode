@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "mp",
   "engines": {
     "vscode": "^1.24.0"
@@ -342,10 +342,10 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "npm run compile && node ./node_modules/vscode/bin/test",
     "utest": "npm run compile && node ./node_modules/mocha/bin/mocha --ui tdd out/test/*test.js",
-    "build": "vsce package",
-    "publish": "vsce publish",
+    "build": "vsce package --yarn",
+    "publish": "vsce publish --yarn",
     "precompile": "node ./scripts/precompile.js",
-    "install-cli": "npm install -g ./",
+    "install-cli": "yarn global add file:$PWD",
     "fix": "rd node_modules /S /Q & del package-lock.json & npm install --no-optional"
   },
   "devDependencies": {

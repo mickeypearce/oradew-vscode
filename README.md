@@ -149,20 +149,15 @@ The `label` and `function` properties are required for a generator to be succesf
 
 ### Prerequisites
 
-- Node.js
+- Node.js 6, 8, 10 or 11
 - Git
 - SQLPlus
 
 ### Important
 
-> `Oracle driver (node-oracledb) in extension is precompiled with "node-v59 (Node.js 9) - win32 - x64 (64bit)" binary package.`
+> `Extension uses Oracle driver (node-oracledb v3.1.1) that includes pre-built binaries for Node 6, 8, 10 and 11 on: Windows 64-bit (x64), macOS 64-bit (Intel x64) and Linux 64-bit (x86-64) (built on Oracle Linux 6).`
 
-Oracle client library architecture (instantclient), Node.js version, OS and architecture must match precompiled configuration otherwise node-oracledb drivers have to be re-installed.
-
-```bash
-## Re-install Oracle drivers (in ext folder %USERPROFILE%/.vscode/extensions/mp.oradew-vscode-...):
-> npm install
-```
+For other environments, please refer to [INSTALL](https://github.com/oracle/node-oracledb/blob/master/INSTALL.md) (Oracle) on building from source code.
 
 ### Included extensions:
 

@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.2.0] - 2019-02-06
+
+- !!! Upgraded node-oracledb to v3.1.1 which INCLUDES pre-built binaries for Node 6, 8, 10 and 11. [#15](https://github.com/mickeypearce/oradew-vscode/issues/15)
+  - You may have to upgrade Node, if your version (e.g. 9) is no longer supported.
+- Generators have a separate config file (oradewrc-generate.json)
+- Added "disabled" and "schemas" properties to DB users (dbconfig.json)
+
 ## [0.1.8] - 2019-01-17
 
 - Generate BOL instead of ChangeLog file

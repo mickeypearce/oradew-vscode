@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "mp",
   "engines": {
     "vscode": "^1.24.0"
@@ -353,16 +353,15 @@
     "@types/mocha": "^2.2.42",
     "@types/node": "^10.3.2",
     "@types/oracledb": "^1.11.34",
-    "commander": "^2.19.0",
-    "electron-rebuild": "^1.7.3",
     "mocha": "^5.2.0",
     "tslint": "^5.8.0",
     "typescript": "^2.8.3",
     "vsce": "^1.40.0",
-    "vscode": "^1.1.22"
+    "vscode": "^1.1.29"
   },
   "dependencies": {
     "cli-table": "^0.3.1",
+    "commander": "^2.19.0",
     "del": "^2.2.2",
     "fs-extra": "^2.1.2",
     "glob": "^7.1.1",

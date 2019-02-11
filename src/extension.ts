@@ -46,6 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
   }) => {
     return new vscode.Task(
       { type: "gulp", name },
+      vscode.TaskScope.Workspace,
       name,
       "Oradew",
       new vscode.ProcessExecution(

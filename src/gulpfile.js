@@ -25,7 +25,7 @@ const db = require("./common/db");
 
 let config = utils.workspaceConfig;
 
-const timestampHeader = `-- File created: ${new Date()}
+const timestampHeader = `-- File created: ${new Date()} with Oradew for VS Code
 `;
 
 const addDBObjectPrompt = (code, file, done) => {
@@ -52,6 +52,7 @@ const packageSrcFromFile = ({ env = argv.env }) => {
   const src = config.get({ field: "package.input", env });
   const encoding = config.get({ field: "package.encoding", env });
   const templating = config.get({ field: "package.templating", env });
+  const version = config.get({ field: "version.number", env });
 
   const templateObject = {
     config: config.get({ env }),
@@ -75,6 +76,10 @@ COMMIT;
 SPOOL OFF
 `;
 
+  const deployVersionPrepend = `
+PROMPT INFO: Deploying version ${version} ...
+`;
+
   return (
     gulp
       .src(src)
@@ -83,6 +88,7 @@ SPOOL OFF
       // Adds object prompt to every file
       .pipe(map(addDBObjectPrompt))
       .pipe(concat(outputFileName))
+      .pipe(insert.prepend(deployVersionPrepend))
       .pipe(insert.wrap(deployPrepend, deployAppend))
       .pipe(insert.prepend(timestampHeader))
       .pipe(convertEncoding({ to: encoding }))

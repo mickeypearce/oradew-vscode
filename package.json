@@ -326,6 +326,12 @@
             "default": "${workspaceFolder}/oradewrc.json",
             "required": false,
             "description": "The path to the workspace configuration file"
+          },
+          "oradew.databaseConfigFile": {
+            "type": "string",
+            "default": "${workspaceFolder}/dbconfig.json",
+            "required": false,
+            "description": "The path to the database configuration file"
           }
         }
       }

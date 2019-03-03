@@ -4,6 +4,8 @@ import * as vscode from "vscode";
 
 const { resolve } = require("path");
 
+const { readJsonSync, readJson } = require("fs-extra");
+
 import { TaskManager } from "./task-manager";
 import { GeneratorManager } from "./generator-manager";
 
@@ -26,10 +28,19 @@ export function activate(context: vscode.ExtensionContext) {
     configParamWsConfigPath.replace("${workspaceFolder}", workspacePath)
   );
 
+  const configParamDbConfigPath: string = vscode.workspace
+    .getConfiguration("oradew")
+    .get("databaseConfigFile");
+
+  const dbConfigPath = resolve(
+    configParamDbConfigPath.replace("${workspaceFolder}", workspacePath)
+  );
+
   const taskManager = new TaskManager({
     workspacePath,
     contextPath,
     storagePath,
+    dbConfigPath,
     wsConfigPath,
     isSilent,
     isColor: true
@@ -108,7 +119,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "compile--file",
-        params: ["compileFiles", "--env", "DEV", "--file", "${file}"]
+        params: ["compileFiles", "--env", "${command:oradew.listEnv}", "--file", "${file}"]
       })
     );
 
@@ -311,7 +322,31 @@ export function activate(context: vscode.ExtensionContext) {
     });
   };
 
+
   registerOradewTasks();
+
+  const listEnv = (ports?): Thenable<string | null> => {
+
+    return new Promise(async function (resolve, reject) {
+      // return readJson(dbConfigPath, { throws: false }).then(config => {
+      // console.log(config);
+      // return listProcesses(ports).then(items => {
+      let options: vscode.QuickPickOptions = {
+        placeHolder: "Pick DB environment to execute to",
+        matchOnDescription: true,
+        matchOnDetail: true
+      };
+      const config = await readJsonSync(dbConfigPath);// require(dbConfigPath);
+      let envs = Object.keys(config);
+      return vscode.window.showQuickPick(envs, options);
+      // return resolve(item);
+    }).catch(err => {
+      return vscode.window.showErrorMessage(
+        "Environment picker failed", { modal: true }).then(_ => null);
+    });
+  }
+
+  let cmdListEnv = vscode.commands.registerCommand("oradew.listEnv", listEnv);
 
   let cmdTaskGenerate = vscode.commands.registerCommand(
     "oradew.generateTask",
@@ -559,6 +594,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskDeployFile);
   context.subscriptions.push(cmdTaskDeployFileTest);
   context.subscriptions.push(cmdTaskTest);
+
+  context.subscriptions.push(cmdListEnv);
 }
 
 // this method is called when your extension is deactivated

@@ -4,12 +4,13 @@ import * as vscode from "vscode";
 
 const { resolve } = require("path");
 
-const { readJsonSync, readJson } = require("fs-extra");
+const { readJsonSync, existsSync } = require("fs-extra");
 
 import { TaskManager } from "./task-manager";
 import { GeneratorManager } from "./generator-manager";
 
 let taskProvider: vscode.Disposable | undefined;
+let defaultEnv: string | null = 'DEV';
 
 export function activate(context: vscode.ExtensionContext) {
   vscode.commands.executeCommand("setContext", "inOradewProject", true);
@@ -35,6 +36,9 @@ export function activate(context: vscode.ExtensionContext) {
   const dbConfigPath = resolve(
     configParamDbConfigPath.replace("${workspaceFolder}", workspacePath)
   );
+
+  if (!existsSync(dbConfigPath)) return;
+
 
   const taskManager = new TaskManager({
     workspacePath,
@@ -270,7 +274,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "deploy:TEST",
-        params: ["runFile", "--env", "TEST"]
+        params: ["runFile", "--env", "${command:oradew.listEnv}"]
       })
     );
 
@@ -325,7 +329,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   registerOradewTasks();
 
-  const listEnv = (ports?): Thenable<string | null> => {
+  const listEnv = (none?: boolean): Thenable<string | null> => {
 
     return new Promise(async function (resolve, reject) {
       // return readJson(dbConfigPath, { throws: false }).then(config => {
@@ -338,15 +342,30 @@ export function activate(context: vscode.ExtensionContext) {
       };
       const config = await readJsonSync(dbConfigPath);// require(dbConfigPath);
       let envs = Object.keys(config);
-      return vscode.window.showQuickPick(envs, options);
-      // return resolve(item);
+
+      if (none === true) {
+        envs.push("NONE");
+        return vscode.window.showQuickPick(envs, options)
+          .then(item => resolve(item));
+      } else if (defaultEnv === "NONE") {
+        return vscode.window.showQuickPick(envs, options)
+          .then(item => resolve(item));
+      } else
+        return resolve(defaultEnv);
     }).catch(err => {
       return vscode.window.showErrorMessage(
         "Environment picker failed", { modal: true }).then(_ => null);
     });
   }
 
+  const selectDefEnv = async (): Promise<void> => {
+    const defaultEnv1 = await listEnv(true);
+    console.log("ddd" + defaultEnv1);
+    defaultEnv = defaultEnv1;
+  };
+
   let cmdListEnv = vscode.commands.registerCommand("oradew.listEnv", listEnv);
+  let cmdSelectDefEnv = vscode.commands.registerCommand("oradew.selectDefEnv", selectDefEnv);
 
   let cmdTaskGenerate = vscode.commands.registerCommand(
     "oradew.generateTask",
@@ -596,6 +615,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskTest);
 
   context.subscriptions.push(cmdListEnv);
+  context.subscriptions.push(cmdSelectDefEnv);
 }
 
 // this method is called when your extension is deactivated

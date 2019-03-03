@@ -32,7 +32,8 @@
   "icon": "images/oradew_icon_128.png",
   "activationEvents": [
     "workspaceContains:dbconfig.json",
-    "onCommand:oradew.initProjectTask"
+    "onCommand:oradew.initProjectTask",
+    "*"
   ],
   "main": "./out/extension",
   "contributes": {
@@ -159,6 +160,11 @@
       }
     ],
     "commands": [
+      {
+        "command": "oradew.selectDefEnv",
+        "title": "Set DB Enviroment",
+        "category": "Oradew"
+      },
       {
         "command": "oradew.initProjectTask",
         "title": "Initialize Workspace/Version",

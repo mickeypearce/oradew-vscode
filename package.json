@@ -181,11 +181,6 @@
         "category": "Oradew"
       },
       {
-        "command": "oradew.deployTaskFileTest",
-        "title": "TEST: Run Current File As Script",
-        "category": "Oradew"
-      },
-      {
         "command": "oradew.compileTask",
         "title": "Compile Changes to DB",
         "category": "Oradew"
@@ -214,26 +209,6 @@
         }
       },
       {
-        "command": "oradew.compileFileTaskTest",
-        "title": "TEST: Compile Current File",
-        "category": "Oradew"
-      },
-      {
-        "command": "oradew.compileObjectTaskTest",
-        "title": "TEST: Run Selected Statement",
-        "category": "Oradew"
-      },
-      {
-        "command": "oradew.compileFileTaskUat",
-        "title": "UAT: Compile Current File",
-        "category": "Oradew"
-      },
-      {
-        "command": "oradew.compileObjectTaskUat",
-        "title": "UAT: Run Selected Statement",
-        "category": "Oradew"
-      },
-      {
         "command": "oradew.exportTask",
         "title": "Import Changes from DB",
         "category": "Oradew"
@@ -249,11 +224,6 @@
         "category": "Oradew"
       },
       {
-        "command": "oradew.exportFileTaskTest",
-        "title": "TEST: Import Current File",
-        "category": "Oradew"
-      },
-      {
         "command": "oradew.testTask",
         "title": "Run Tests",
         "category": "Oradew"
@@ -264,28 +234,13 @@
         "category": "Oradew"
       },
       {
-        "command": "oradew.packageTaskTest",
-        "title": "TEST: Package",
-        "category": "Oradew"
-      },
-      {
-        "command": "oradew.packageTaskUat",
-        "title": "UAT: Package",
-        "category": "Oradew"
-      },
-      {
         "command": "oradew.populateChangesTask",
         "title": "Populate Package Input",
         "category": "Oradew"
       },
       {
-        "command": "oradew.deployTaskTest",
-        "title": "Deploy to TEST",
-        "category": "Oradew"
-      },
-      {
-        "command": "oradew.deployTaskUat",
-        "title": "Deploy to UAT",
+        "command": "oradew.deployTask",
+        "title": "Deploy",
         "category": "Oradew"
       },
       {
@@ -375,7 +330,7 @@
     "cli-table": "^0.3.1",
     "commander": "^2.19.0",
     "del": "^2.2.2",
-    "fs-extra": "^2.1.2",
+    "fs-extra": "^7.0.1",
     "glob": "^7.1.1",
     "glob-base": "^0.3.0",
     "gulp": "^4.0.0",

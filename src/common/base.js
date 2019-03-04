@@ -37,7 +37,7 @@ obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
   try {
     conn = await db.getConnection(connCfg);
     // try {
-    if (!ease || (await db.isDifferentDdlTime(conn, obj))) {
+    if (!ease || (await db.isDifferentDdlTime(conn, obj, env))) {
       // Get Db object code as string
       let lob = await db.getObjectDdl(conn, getFunctionName, obj);
       lob = _.pipe(
@@ -51,7 +51,7 @@ obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
       // Return a value async with callback
       done(null, lob);
       // Mark object as exported
-      await db.syncDdlTime(conn, obj);
+      await db.syncDdlTime(conn, obj, env);
       exported = true;
     } else {
       // Return local code to continue gulp pipe
@@ -112,13 +112,13 @@ obj.compileFile = async (code, file, env, force, warnings) => {
     conn = await db.getConnection(connCfg);
     // Generate error if we havent the latest obj version
     // and we arent forcing compile
-    if ((await db.isDifferentDdlTime(conn, obj)) && !force) {
+    if ((await db.isDifferentDdlTime(conn, obj, env)) && !force) {
       errors = db.getErrorObjectChanged();
     } else {
       // Otherwise compile object to Db with warning scope
       result = await db.compile(conn, code.toString(), warnings);
       // Mark object as exported as we have the latest version
-      if (!force) await db.syncDdlTime(conn, obj);
+      if (!force) await db.syncDdlTime(conn, obj, env);
       // Getting errors for this object from Db
       errors = await db.getErrors(conn, obj);
       lines = await db.getDbmsOutput(conn);

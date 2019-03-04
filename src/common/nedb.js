@@ -10,11 +10,11 @@ const db = new Datastore({
 
 const user = process.env.username;
 
-const upsertDdlTime = ({ owner, objectName, objectType }, lastDdlTime) =>
+const upsertDdlTime = ({ owner, objectName, objectType }, lastDdlTime, env) =>
   new Promise((res, rej) => {
     db.update(
       // Where
-      { owner, objectName, objectType },
+      { owner, objectName, objectType, env },
       // Set
       { $set: { lastDdlTime, savedTime: new Date(), user } },
       // Options
@@ -27,9 +27,9 @@ const upsertDdlTime = ({ owner, objectName, objectType }, lastDdlTime) =>
     );
   });
 
-const getDdlTime = ({ owner, objectName, objectType }) =>
+const getDdlTime = ({ owner, objectName, objectType }, env) =>
   new Promise((res, rej) => {
-    db.find({ owner, objectName, objectType }, (err, findObj) => {
+    db.find({ owner, objectName, objectType, env }, (err, findObj) => {
       if (err) rej(err);
       res(findObj.length !== 0 ? findObj[0].lastDdlTime : null);
     });

@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.3.0] - 2019-03-05
+
+- Added "Set DB Environment" command and status bar indicator [#17](https://github.com/mickeypearce/oradew-vscode/issues/17)
+- Added setting for global dbconfig file: "oradew.databaseConfigFile" [#17](https://github.com/mickeypearce/oradew-vscode/issues/17)
+- Added version number to deployment package
+
 ## [0.2.0] - 2019-02-06
 
 - !!! Upgraded node-oracledb to v3.1.1 which INCLUDES pre-built binaries for Node 6, 8, 10 and 11. [#15](https://github.com/mickeypearce/oradew-vscode/issues/15)

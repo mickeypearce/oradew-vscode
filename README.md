@@ -31,11 +31,11 @@ oradewrc.json           Workspace configuration
 **Setup**
 
 - `Initialize Workspace/Version` - Init config files (dbconfig.json, oradewrc.json), Create workspace structure (./scripts, ./src, ./test dirs) and Init git repo when starting from scratch (new workspace). Clear logs, package and scripts: prepare workspace for a new version/feature when executed in a non-empty workspace.
-- `Import All Source from DB` - Create Source files from DB objects from DEV environment
+- `Import All Source from DB` - Create Source files from DB objects
 
 **Build**
 
-- `Compile Changes to DB` (F6) - Compile changed Source objects (working tree) to DEV. Succesfully compiled files are added to Staging area.
+- `Compile Changes to DB` (F6) - Compile changed Source objects (working tree). Succesfully compiled files are added to Staging area.
 - `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
 - `Run Current File as Script` (F5) - Execute a SQL script (with SQLPlus)
 - `Run Selected Statement` (Ctrl+Enter) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
@@ -43,7 +43,7 @@ oradewrc.json           Workspace configuration
 **Install**
 
 - `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
-- `Deploy to TEST / UAT` - Run SQL deployment script on TEST or UAT environment (with SQLPlus)
+- `Deploy` - Run SQL deployment script on selected environment (with SQLPlus). Command always prompts with environment pick.
 
 ### Additional
 
@@ -54,7 +54,9 @@ oradewrc.json           Workspace configuration
 - `Populate Package Input` (Shift+F9) with changed files from Git history using latest tagged commit as a starting point.
 - `Generate...` PL/SQL code with a code generator.
 
-_All commands execute to `DEV` environment by default (except for Install commands). Environment specific commands start with prefix: `TEST:` or `UAT:`._
+### Environments
+
+- `Set DB Environment` - Pick DB environment that is then used for executing commands. When option `<None>` is selected, you choose DB environment every time you execute command. Environment list is generated from `dbconfig.json` file. There are three envs by default (DEV, TEST, UAT), which can be extended with additional environments. The default value is `DEV`.
 
 ## Configuration
 

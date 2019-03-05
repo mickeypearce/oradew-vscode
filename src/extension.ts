@@ -2,21 +2,47 @@
 
 import * as vscode from "vscode";
 
-const { resolve } = require("path");
+import { resolve } from "path";
+import { readJson, existsSync } from "fs-extra";
 
 import { TaskManager } from "./task-manager";
 import { GeneratorManager } from "./generator-manager";
 
 let taskProvider: vscode.Disposable | undefined;
 
-export function activate(context: vscode.ExtensionContext) {
-  vscode.commands.executeCommand("setContext", "inOradewProject", true);
+// Enviroment where tasks are executed
+let defaultEnv: string | null = "DEV";
 
+let statusBar = vscode.window.createStatusBarItem(
+  vscode.StatusBarAlignment.Left,
+  10
+);
+
+const updateStatusBar = () => {
+  statusBar.tooltip = "Oradew: Set DB Environment";
+  statusBar.command = `oradew.selectDefEnv`;
+  statusBar.text = `$(gear) ${defaultEnv}`;
+  statusBar.show();
+};
+
+const initExtension = () => {
+  // Variable is then used in package.json to enable bookmarks...
+  vscode.commands.executeCommand("setContext", "inOradewProject", true);
+  updateStatusBar();
+};
+
+export function activate(context: vscode.ExtensionContext) {
   const workspacePath =
     vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
   const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
   const isSilent = (process.env.silent || "true") === "true";
+
+  // Reactive extension when settings.json changes as databaseConfigPath file
+  // which is activation trigger can be defined in settings
+  vscode.workspace.onDidChangeConfiguration(() => {
+    activate(context);
+  });
 
   const configParamWsConfigPath: string = vscode.workspace
     .getConfiguration("oradew")
@@ -26,10 +52,23 @@ export function activate(context: vscode.ExtensionContext) {
     configParamWsConfigPath.replace("${workspaceFolder}", workspacePath)
   );
 
+  const configParamDbConfigPath: string = vscode.workspace
+    .getConfiguration("oradew")
+    .get("databaseConfigFile");
+
+  const dbConfigPath = resolve(
+    configParamDbConfigPath.replace("${workspaceFolder}", workspacePath)
+  );
+
+  if (existsSync(dbConfigPath)) {
+    initExtension();
+  }
+
   const taskManager = new TaskManager({
     workspacePath,
     contextPath,
     storagePath,
+    dbConfigPath,
     wsConfigPath,
     isSilent,
     isColor: true
@@ -70,7 +109,7 @@ export function activate(context: vscode.ExtensionContext) {
             params: [
               "generate",
               "--env",
-              "DEV",
+              "${command:oradew.listEnv}",
               "--func",
               generator.function,
               "--file",
@@ -94,34 +133,18 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "create",
-        params: ["createSource", "--env", "DEV"]
+        params: ["createSource", "--env", "${command:oradew.listEnv}"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "compile",
-        params: ["compileFiles", "--env", "DEV", "--changed", "true"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "compile--file",
-        params: ["compileFiles", "--env", "DEV", "--file", "${file}"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "compile--file:TEST",
         params: [
           "compileFiles",
           "--env",
-          "TEST",
-          "--file",
-          "${file}",
-          "--force",
+          "${command:oradew.listEnv}",
+          "--changed",
           "true"
         ]
       })
@@ -129,15 +152,13 @@ export function activate(context: vscode.ExtensionContext) {
 
     result.push(
       createOradewTask({
-        name: "compile--file:UAT",
+        name: "compile--file",
         params: [
           "compileFiles",
           "--env",
-          "UAT",
+          "${command:oradew.listEnv}",
           "--file",
-          "${file}",
-          "--force",
-          "true"
+          "${file}"
         ]
       })
     );
@@ -145,7 +166,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "compile--all",
-        params: ["compileFiles", "--env", "DEV"]
+        params: ["compileFiles", "--env", "${command:oradew.listEnv}"]
       })
     );
 
@@ -155,41 +176,7 @@ export function activate(context: vscode.ExtensionContext) {
         params: [
           "compileObject",
           "--env",
-          "DEV",
-          "--file",
-          "${file}",
-          "--object",
-          "${selectedText}",
-          "--line",
-          "${lineNumber}"
-        ]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "compile--object:TEST",
-        params: [
-          "compileObject",
-          "--env",
-          "TEST",
-          "--file",
-          "${file}",
-          "--object",
-          "${selectedText}",
-          "--line",
-          "${lineNumber}"
-        ]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "compile--object:UAT",
-        params: [
-          "compileObject",
-          "--env",
-          "UAT",
+          "${command:oradew.listEnv}",
           "--file",
           "${file}",
           "--object",
@@ -203,49 +190,46 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "export",
-        params: ["importFiles", "--env", "DEV", "--ease", "true"]
+        params: [
+          "importFiles",
+          "--env",
+          "${command:oradew.listEnv}",
+          "--ease",
+          "true"
+        ]
       })
     );
 
     result.push(
       createOradewTask({
         name: "export--file",
-        params: ["importFiles", "--env", "DEV", "--file", "${file}"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "export--file:TEST",
-        params: ["importFiles", "--env", "TEST", "--file", "${file}"]
+        params: [
+          "importFiles",
+          "--env",
+          "${command:oradew.listEnv}",
+          "--file",
+          "${file}"
+        ]
       })
     );
 
     result.push(
       createOradewTask({
         name: "export--object",
-        params: ["importObject", "--env", "DEV", "--object", "${selectedText}"]
+        params: [
+          "importObject",
+          "--env",
+          "${command:oradew.listEnv}",
+          "--object",
+          "${selectedText}"
+        ]
       })
     );
 
     result.push(
       createOradewTask({
         name: "package",
-        params: ["package", "--env", "DEV"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "package:TEST",
-        params: ["package", "--env", "TEST"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "package:UAT",
-        params: ["package", "--env", "UAT"]
+        params: ["package", "--env", "${command:oradew.listEnv}"]
       })
     );
 
@@ -258,29 +242,21 @@ export function activate(context: vscode.ExtensionContext) {
 
     result.push(
       createOradewTask({
-        name: "deploy:TEST",
-        params: ["runFile", "--env", "TEST"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "deploy:UAT",
-        params: ["runFile", "--env", "UAT"]
+        name: "deploy",
+        params: ["runFile", "--env", "${command:oradew.listEnvAlways}"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "deploy--file",
-        params: ["runFile", "--env", "DEV", "--file", "${file}"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "deploy--file:TEST",
-        params: ["runFile", "--env", "TEST", "--file", "${file}"]
+        params: [
+          "runFile",
+          "--env",
+          "${command:oradew.listEnv}",
+          "--file",
+          "${file}"
+        ]
       })
     );
 
@@ -313,6 +289,93 @@ export function activate(context: vscode.ExtensionContext) {
 
   registerOradewTasks();
 
+  const createEnvList = (config): vscode.QuickPickItem[] => {
+    return Object.keys(config).reduce((acc, value) => {
+      return [
+        ...acc,
+        {
+          label: value,
+          description: config[value].connectString,
+          picked: defaultEnv === value
+        }
+      ];
+    }, []);
+  };
+
+  const listEnv = (): Thenable<string | null> => {
+    return readJson(dbConfigPath)
+      .then(config => {
+        let options: vscode.QuickPickOptions = {
+          placeHolder: "Pick DB environment to execute to",
+          matchOnDescription: true,
+          matchOnDetail: true
+        };
+        let envs: vscode.QuickPickItem[] = createEnvList(config);
+
+        if (defaultEnv === "<None>") {
+          return vscode.window
+            .showQuickPick(envs, options)
+            .then(item => (item ? item.label : null));
+        } else {
+          return defaultEnv;
+        }
+      })
+      .catch(err => {
+        return vscode.window
+          .showErrorMessage(`Environment picker failed: ${err.message}`)
+          .then(_ => null);
+      });
+  };
+
+  const listEnvAlways = (addNoneOption?: boolean): Thenable<string | null> => {
+    return readJson(dbConfigPath)
+      .then(config => {
+        let options: vscode.QuickPickOptions = {
+          placeHolder: "Pick DB environment",
+          matchOnDescription: true,
+          matchOnDetail: true
+        };
+        let envs: vscode.QuickPickItem[] = createEnvList(config);
+        if (addNoneOption === true) {
+          envs.push({
+            label: "<None>",
+            description: "Select environment when executing command"
+          });
+        }
+        return vscode.window
+          .showQuickPick(envs, options)
+          .then(item => (item ? item.label : null));
+      })
+      .catch(err => {
+        return vscode.window
+          .showErrorMessage(`Environment picker failed: ${err.message}`, {
+            modal: true
+          })
+          .then(_ => null);
+      });
+  };
+
+  const selectDefEnv = async (): Promise<void> => {
+    const pickEnv = await listEnvAlways(true);
+    if (pickEnv) {
+      defaultEnv = pickEnv;
+      updateStatusBar();
+    }
+  };
+
+  // In task command exucution
+  let cmdListEnv = vscode.commands.registerCommand("oradew.listEnv", listEnv);
+  // Used for deploy task command
+  let cmdListEnvAlways = vscode.commands.registerCommand(
+    "oradew.listEnvAlways",
+    listEnvAlways
+  );
+  // Select DB environment command
+  let cmdSelectDefEnv = vscode.commands.registerCommand(
+    "oradew.selectDefEnv",
+    selectDefEnv
+  );
+
   let cmdTaskGenerate = vscode.commands.registerCommand(
     "oradew.generateTask",
     async () => {
@@ -332,11 +395,12 @@ export function activate(context: vscode.ExtensionContext) {
   /************** */
   let cmdTaskInitProject = vscode.commands.registerCommand(
     "oradew.initProjectTask",
-    () => {
-      vscode.commands.executeCommand(
+    async () => {
+      await vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
         "Oradew: init"
       );
+      initExtension();
     }
   );
   let cmdTaskCreateProject = vscode.commands.registerCommand(
@@ -375,48 +439,12 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
-  let cmdTaskCompileFileTest = vscode.commands.registerCommand(
-    "oradew.compileFileTaskTest",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "Oradew: compile--file:TEST"
-      );
-    }
-  );
-  let cmdTaskCompileFileUat = vscode.commands.registerCommand(
-    "oradew.compileFileTaskUat",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "Oradew: compile--file:UAT"
-      );
-    }
-  );
   let cmdTaskCompileObject = vscode.commands.registerCommand(
     "oradew.compileObjectTask",
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
         "Oradew: compile--object"
-      );
-    }
-  );
-  let cmdTaskCompileObjectTest = vscode.commands.registerCommand(
-    "oradew.compileObjectTaskTest",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "Oradew: compile--object:TEST"
-      );
-    }
-  );
-  let cmdTaskCompileObjectUat = vscode.commands.registerCommand(
-    "oradew.compileObjectTaskUat",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "Oradew: compile--object:UAT"
       );
     }
   );
@@ -438,15 +466,6 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
-  let cmdTaskExportFileTest = vscode.commands.registerCommand(
-    "oradew.exportFileTaskTest",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "Oradew: export--file:TEST"
-      );
-    }
-  );
   let cmdTaskExportObject = vscode.commands.registerCommand(
     "oradew.exportObjectTask",
     () => {
@@ -465,24 +484,6 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
-  let cmdTaskPackageTest = vscode.commands.registerCommand(
-    "oradew.packageTaskTest",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "Oradew: package:TEST"
-      );
-    }
-  );
-  let cmdTaskPackageUat = vscode.commands.registerCommand(
-    "oradew.packageTaskUat",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "Oradew: package:UAT"
-      );
-    }
-  );
   let cmdTaskPopulateChanges = vscode.commands.registerCommand(
     "oradew.populateChangesTask",
     () => {
@@ -492,21 +493,12 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
-  let cmdTaskDeployTest = vscode.commands.registerCommand(
-    "oradew.deployTaskTest",
+  let cmdTaskDeploy = vscode.commands.registerCommand(
+    "oradew.deployTask",
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: deploy:TEST"
-      );
-    }
-  );
-  let cmdTaskDeployUat = vscode.commands.registerCommand(
-    "oradew.deployTaskUat",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "Oradew: deploy:UAT"
+        "Oradew: deploy"
       );
     }
   );
@@ -516,15 +508,6 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
         "Oradew: deploy--file"
-      );
-    }
-  );
-  let cmdTaskDeployFileTest = vscode.commands.registerCommand(
-    "oradew.deployTaskFileTest",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "Oradew: deploy--file:TEST"
       );
     }
   );
@@ -541,24 +524,19 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskCompile);
   context.subscriptions.push(cmdTaskCompileAll);
   context.subscriptions.push(cmdTaskCompileFile);
-  context.subscriptions.push(cmdTaskCompileFileTest);
-  context.subscriptions.push(cmdTaskCompileFileUat);
   context.subscriptions.push(cmdTaskCompileObject);
-  context.subscriptions.push(cmdTaskCompileObjectTest);
-  context.subscriptions.push(cmdTaskCompileObjectUat);
   context.subscriptions.push(cmdTaskExport);
   context.subscriptions.push(cmdTaskExportFile);
-  context.subscriptions.push(cmdTaskExportFileTest);
   context.subscriptions.push(cmdTaskExportObject);
   context.subscriptions.push(cmdTaskPackage);
-  context.subscriptions.push(cmdTaskPackageTest);
-  context.subscriptions.push(cmdTaskPackageUat);
   context.subscriptions.push(cmdTaskPopulateChanges);
-  context.subscriptions.push(cmdTaskDeployTest);
-  context.subscriptions.push(cmdTaskDeployUat);
+  context.subscriptions.push(cmdTaskDeploy);
   context.subscriptions.push(cmdTaskDeployFile);
-  context.subscriptions.push(cmdTaskDeployFileTest);
   context.subscriptions.push(cmdTaskTest);
+
+  context.subscriptions.push(cmdListEnv);
+  context.subscriptions.push(cmdListEnvAlways);
+  context.subscriptions.push(cmdSelectDefEnv);
 }
 
 // this method is called when your extension is deactivated

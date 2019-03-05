@@ -130,9 +130,6 @@ export const config = new DBConfig(process.env.dbConfigPath);
 
 // Each env has its own pool with users
 let _pool = {};
-_pool.DEV = {};
-_pool.TEST = {};
-_pool.UAT = {};
 
 /**
  ** Return existing connection from pool or creates a new one.
@@ -140,6 +137,9 @@ _pool.UAT = {};
  */
 const getConnection = connCfg => {
   let { env, user, password, connectString } = connCfg;
+  if (!_pool[env]) {
+    _pool[env] = {};
+  }
   if (_pool[env][user]) {
     return _pool[env][user].getConnection();
   }
@@ -271,9 +271,9 @@ const getLastDdlTime = async (conn, obj) => {
   return all.length !== 0 ? all[0].LAST_DDL_TIME : null;
 };
 
-const isDifferentDdlTime = async (conn, obj) => {
+const isDifferentDdlTime = async (conn, obj, env) => {
   let timeOracle = await getLastDdlTime(conn, obj);
-  let timeLocal = await dbLoc.getDdlTime(obj);
+  let timeLocal = await dbLoc.getDdlTime(obj, env);
   return (
     timeOracle &&
     timeLocal &&
@@ -281,9 +281,9 @@ const isDifferentDdlTime = async (conn, obj) => {
   );
 };
 
-const syncDdlTime = async (conn, obj) => {
+const syncDdlTime = async (conn, obj, env) => {
   let timeOracle = await getLastDdlTime(conn, obj);
-  return await dbLoc.upsertDdlTime(obj, timeOracle);
+  return await dbLoc.upsertDdlTime(obj, timeOracle, env);
 };
 
 const createError = ({ LINE, POSITION, ATTRIBUTE, TEXT, _ID }) => ({

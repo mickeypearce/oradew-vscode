@@ -20,7 +20,7 @@ This extension allows you to develop your Oracle (PL/SQL) project in Visual Stud
 ./scripts               SQL Scripts (DDL, DML, etc)
 ./src                   Source with PL/SQL objects (FUNCTIONS, PACKAGES, PROCEDURES, TABLES, TRIGGERS, TYPES, VIEWS)
 ./test                  Unit tests
-dbconfig.json           DB connection configuration (required)
+dbconfig.json           DB environments configuration (required)
 oradewrc.json           Workspace configuration
 ```
 
@@ -43,7 +43,7 @@ oradewrc.json           Workspace configuration
 **Install**
 
 - `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
-- `Deploy` - Run SQL deployment script on selected environment (with SQLPlus). Command always prompts with environment pick.
+- `Deploy` - Run SQL deployment script on selected environment (with SQLPlus). Command prompts with environment selection.
 
 ### Additional
 
@@ -56,11 +56,11 @@ oradewrc.json           Workspace configuration
 
 ### Environments
 
-- `Set DB Environment` - Pick DB environment that is then used for executing commands. When option `<None>` is selected, you choose DB environment every time you execute command. Environment list is generated from `dbconfig.json` file. There are three envs by default (DEV, TEST, UAT), which can be extended with additional environments. The default value is `DEV`.
+- `Set DB Environment` - Select DB environment for command execution. When option `<None>` is selected, you choose DB environment every time you execute command. Environment list is generated from `dbconfig.json` file. Three default environments (DEV, TEST, UAT) can be extended with custom environments. The default value is `DEV`.
 
 ## Configuration
 
-Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.test.json`, `oradewrc.uat.json`). The base configuration contains settings that are usually common across all environments but can be extended (overloaded) optionally by environment specific configurations for environment-specific commands.
+Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.dev.json`, `oradewrc.test.json`, `oradewrc.uat.json`, ...). The base configuration contains settings that are usually common across all environments but can be extended (overloaded) optionally by environment specific configurations.
 
 Configuraton files are not required. Default values will be assumed in case they are not present. The following settings are available (`oradewrc*.json`):
 
@@ -99,7 +99,7 @@ Configuraton files are not required. Default values will be assumed in case they
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging (`Package` command). The default value is `false`.
 - `source` - Glob pattern for source files.
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
-- `compile.force` - Conflict detection (on DEV environment). If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.
+- `compile.force` - Conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.
 - `version.number` - Version number.
 - `version.description` - Version description.
 - `version.releaseDate` - Version release date.

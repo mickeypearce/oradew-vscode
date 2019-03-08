@@ -259,11 +259,7 @@
         "url": "./resources/oradewrc-schema.json"
       },
       {
-        "fileMatch": "oradewrc.test.json",
-        "url": "./resources/oradewrc-schema.json"
-      },
-      {
-        "fileMatch": "oradewrc.uat.json",
+        "fileMatch": "oradewrc.*.json",
         "url": "./resources/oradewrc-schema.json"
       },
       {

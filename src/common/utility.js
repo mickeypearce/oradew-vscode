@@ -121,13 +121,21 @@ export const getDefaultsFromSchema = schema => {
 };
 
 /**
- * Workspace configuration (one for each environment.)
+ * Workspace configuration
  *
- * Config file extending sequence: defaults <== DEV (base) <== (TEST, UAT)
+ * * Base config applies to all environemnts.
+ * But can be exteneded with env specific configs
  *
- * DEV (base): ./oradewrc.json
+ * Config file extending sequence: defaults <== (BASE) <== (DEV, TEST, UAT, ...)
+ *
+ * (base): ./oradewrc.json
+ *
+ * Env specific configs:
+ * DEV: ./oradewrc.dev.json (optional)
  * TEST: ./oradewrc.test.json (optional)
  * UAT: ./oradewrc.uat.json (optional)
+ * ...
+ * customEnv: ./oradewrc.customEnv.json (optional)
  */
 export class WorkspaceConfig {
   constructor(fileBase) {
@@ -135,38 +143,45 @@ export class WorkspaceConfig {
     this.defaults = getDefaultsFromSchema(
       "../../resources/oradewrc-schema.json"
     );
-    this.fileBase = fileBase || "./oradewrc.json";
+    this.filePathBase = fileBase || "./oradewrc.json";
 
-    let parsed = parse(this.fileBase);
-    this.fileTest = resolve(parsed.dir, `${parsed.name}.test${parsed.ext}`);
-    this.fileUat = resolve(parsed.dir, `${parsed.name}.uat${parsed.ext}`);
+    this.object = {};
 
-    this.objectBase = null;
-    this.objectTest = null;
-    this.objectUat = null;
+    // Base default config file
+    this.object["BASE"] = null;
+    this.getConfigObject("BASE");
+
+    // env objects are created on demand: this.object["DEV"], ....
   }
 
-  read() {
-    return {
-      objectBase: existsSync(this.fileBase)
-        ? readJsonSync(this.fileBase, "utf8")
-        : {},
-      objectTest: existsSync(this.fileTest)
-        ? readJsonSync(this.fileTest, "utf8")
-        : {},
-      objectUat: existsSync(this.fileUat)
-        ? readJsonSync(this.fileUat, "utf8")
-        : {}
-    };
+  getFileEnv(env) {
+    if (env === "BASE") return this.filePathBase;
+    let parsed = parse(this.filePathBase);
+    return resolve(parsed.dir, `${parsed.name}.${env}${parsed.ext}`);
   }
-  load() {
-    const { objectBase, objectTest, objectUat } = this.read();
-    this.objectBase = { ...this.defaults, ...objectBase };
-    this.objectTest = { ...this.objectBase, ...objectTest };
-    this.objectUat = { ...this.objectBase, ...objectUat };
+
+  readFile(env) {
+    let filename = this.getFileEnv(env);
+    let res = existsSync(filename) ? readJsonSync(filename, "utf8") : {};
+    return res;
   }
+
+  getConfigObject(env) {
+    // Base configs extends from defaults..
+    if (!this.object["BASE"]) {
+      const objectBase = this.readFile("BASE");
+      this.object["BASE"] = { ...this.defaults, ...objectBase };
+    }
+
+    // Create object for env - extended with base configs
+    if (!this.object[env]) {
+      const object = this.readFile(env);
+      this.object[env] = { ...this.object["BASE"], ...object };
+    }
+  }
+
   // Input param can be object: { field, env }
-  // or just string "field" (env is DEV by default)
+  // or just string "field" (env is BASE by default)
   // If Field is empty whole config object is returned
   get(param) {
     let field, env;
@@ -174,25 +189,23 @@ export class WorkspaceConfig {
       ({ field, env } = param);
     } else {
       field = param;
-      env = "DEV";
+      env = "BASE";
     }
-    switch (env) {
-      case "TEST":
-        if (!this.objectTest) this.load();
-        return field ? this.objectTest[field] : this.objectTest;
-      case "UAT":
-        if (!this.objectUat) this.load();
-        return field ? this.objectUat[field] : this.objectUat;
-      default:
-        if (!this.objectBase) this.load();
-        return field ? this.objectBase[field] : this.objectBase;
-    }
+
+    this.getConfigObject(env);
+    return field ? this.object[env][field] : this.object[env];
   }
-  set(field, value) {
-    this.objectBase[field] = value;
-    const { objectBase } = this.read();
-    return outputJsonSync(this.fileBase, {
-      ...objectBase,
+
+  set(field, value, env = "BASE") {
+    if (this.object[env])
+      // Update local object
+      this.object[env][field] = value;
+
+    // Add property to env file
+    const filename = this.getFileEnv(env);
+    const object = this.readFile(env);
+    return outputJsonSync(filename, {
+      ...object,
       ...{ [field]: value }
     });
   }

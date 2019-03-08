@@ -95,9 +95,7 @@ PROMPT INFO: Deploying version ${version} ...
       .pipe(gulp.dest(outputDirectory))
       .on("end", () =>
         console.log(
-          `${outputDirectory}/${outputFileName} ${chalk.green(
-            "Script packaged."
-          )}`
+          `${outputDirectory}/${outputFileName} ${chalk.green("Script packaged.")}`
         )
       )
   );
@@ -116,7 +114,6 @@ const createDeployInputFromGit = async () => {
     }
 
     // Get saved package input from config file
-    config.load();
     let savedInput = _.clone(config.get("package.input") || []).sort();
 
     if (_.isEqual(savedInput, newInput)) {
@@ -127,9 +124,7 @@ const createDeployInputFromGit = async () => {
     // Save new input to config
     config.set("package.input", newInput);
     console.log(
-      `${newInput.join("\n")} \n${chalk.green(
-        "Saved to package input"
-      )} => ./oradewrc.json`
+      `${newInput.join("\n")} \n${chalk.green("Saved to package input")} => ./oradewrc.json`
     );
   } catch (error) {
     console.error(error.message);
@@ -164,10 +159,7 @@ const generateBOLContent = function(paths) {
   let o = _.pipe(
     _.groupBy("owner"),
     _.mapValues(
-      _.pipe(
-        _.groupBy("objectType"),
-        _.mapValues(_.map("objectName"))
-      )
+      _.pipe(_.groupBy("objectType"), _.mapValues(_.map("objectName")))
     )
   )(dbo);
 
@@ -248,6 +240,7 @@ const exportFilesFromDb = async ({
     .src(src, { base: "./", allowEmpty: true })
     .pipe(map(processFile))
     .pipe(gulp.dest("."));
+
   // .on('end', () => ((!quiet) && console.log('Done.')))
 };
 
@@ -268,9 +261,8 @@ const printResults = resp => {
   if (resp.result.rowsAffected) {
     console.log(
       // chalk.magenta(
-      `${resp.result.rowsAffected} ${
-        resp.result.rowsAffected === 1 ? "row" : "rows"
-      } affected.`
+      `${resp.result.rowsAffected} ${resp.result.rowsAffected === 1 ? "row" : "rows"} affected.`
+
       // )
     );
   }
@@ -344,6 +336,7 @@ const compileFilesToDb = async ({
       .pipe(data(processFile))
       // End stream as there is no destination
       .on("data", gutil.noop)
+
     // .on('end', () => console.log('Done.'));
   );
 };
@@ -498,8 +491,6 @@ const initConfigFile = async ({ prompt = argv.prompt || false }) => {
       message: "Version release date [YYYY-MM-DD]?"
     }
   ]);
-  // Reload config obj
-  config.load();
   // Save prompts to config file, leave defaults if empty
   config.set("version.number", res.number || config.get("version.number"));
   config.set(
@@ -554,6 +545,7 @@ const createSrcEmpty = done => {
       }
     }
     done();
+
     // console.log(chalk.green("Src empty structure created."));
   } catch (err) {
     console.error(err);
@@ -634,7 +626,9 @@ const compileAndMergeFilesToDb = async ({
     // Merge unstaged (if any dirty file)
     if (results.some(file => file.errors && file.errors.hasDirt()))
       mergeLocalAndDbChanges({ file, env, changed });
+
     // Update todo.md
+
     // extractTodos();
   } catch (error) {
     throw error;
@@ -715,9 +709,7 @@ const generate = async ({
     const outputPath = output
       ? path.resolve(output)
       : path.resolve(
-          `./scripts/${
-            resp.obj.owner
-          }/file_${object}_${new Date().getTime()}.sql`
+          `./scripts/${resp.obj.owner}/file_${object}_${new Date().getTime()}.sql`
         );
 
     await utils.outputFilePromise(outputPath, resp.result);

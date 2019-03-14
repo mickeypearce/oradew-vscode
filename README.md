@@ -51,7 +51,7 @@ oradewrc.json           Workspace configuration
 - `Import Current File / Import Selected Object`
 - `Compile All Source to DB`
 - `Run tests`
-- `Populate Package Input` (Shift+F9) with changed files from Git history using latest tagged commit as a starting point.
+- `Populate Package Input` (Shift+F9) - Populate `package.input` setting with changed file paths from Git history. Latest tagged commit is used as a starting point for changes.
 - `Generate...` PL/SQL code with a code generator.
 
 ### Environments
@@ -60,7 +60,7 @@ oradewrc.json           Workspace configuration
 
 ## Configuration
 
-Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.DEV.json`, `oradewrc.TEST.json`, `oradewrc.UAT.json`, ...). The base configuration contains settings that are usually common across all environments but can be extended (overloaded) optionally by environment specific configurations.
+Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.DEV.json`, `oradewrc.TEST.json`, `oradewrc.UAT.json`, ...). The base configuration settings apply to all environments, unless an environment specific configuration file exists that extends the base.
 
 Configuraton files are not required. Default values will be assumed in case they are not present. The following settings are available (`oradewrc*.json`):
 

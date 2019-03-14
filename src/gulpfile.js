@@ -82,7 +82,7 @@ PROMPT INFO: Deploying version ${version} ...
 
   return (
     gulp
-      .src(src)
+      .src(src, { allowEmpty: true })
       // Replace template variables, ex. config["config.variable"]
       .pipe(templating ? template(templateObject) : gutil.noop())
       // Adds object prompt to every file

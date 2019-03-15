@@ -263,7 +263,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "runTest",
-        params: ["runTest"]
+        params: ["runTest", "--env", "${command:oradew.listEnv}"]
       })
     );
 

@@ -660,8 +660,9 @@ const extractTodos = () => {
     .on("end", () => console.log("./TODO.md created"));
 };
 
-const runTest = () => {
-  return compileFilesToDbAsync({ file: config.get("test.input"), env: "DEV" });
+const runTest = ({ env = argv.env || "DEV" }) => {
+  const input = config.get({ field: "test.input", env });
+  return compileFilesToDbAsync({ file: input, env });
 };
 
 const exportObjectFromDb = async ({

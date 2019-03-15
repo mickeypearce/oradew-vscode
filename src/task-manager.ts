@@ -14,8 +14,8 @@ export class TaskManager {
     storagePath: string; // Storage folder
     dbConfigPath?: string; // ./dbconfig.json by default
     wsConfigPath?: string; // ./oradewrc.json by default
-    isSilent?: boolean;
-    isColor?: boolean;
+    isSilent?: boolean; //gulp option: --silent
+    isColor?: boolean; //gulp option:--color
   }) {
     const {
       workspacePath,

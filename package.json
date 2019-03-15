@@ -289,6 +289,12 @@
             "default": "${workspaceFolder}/dbconfig.json",
             "required": false,
             "description": "The path to the database configuration file"
+          },
+          "oradew.chatty": {
+            "type": "boolean",
+            "default": false,
+            "required": false,
+            "description": "Enable informational output (in Gulp tasks)"
           }
         }
       }

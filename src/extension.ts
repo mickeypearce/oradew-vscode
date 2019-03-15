@@ -36,13 +36,19 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
   const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
-  const isSilent = (process.env.silent || "true") === "true";
 
   // Reactive extension when settings.json changes as databaseConfigPath file
   // which is activation trigger can be defined in settings
   vscode.workspace.onDidChangeConfiguration(() => {
     activate(context);
   });
+
+  // Oradew configurations
+  const configParamChatty: boolean = vscode.workspace
+    .getConfiguration("oradew")
+    .get("chatty");
+
+  const isSilent = !configParamChatty;
 
   const configParamWsConfigPath: string = vscode.workspace
     .getConfiguration("oradew")
@@ -60,6 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
     configParamDbConfigPath.replace("${workspaceFolder}", workspacePath)
   );
 
+  // Esisting DbConfigPath is ext activation point
   if (existsSync(dbConfigPath)) {
     initExtension();
   }

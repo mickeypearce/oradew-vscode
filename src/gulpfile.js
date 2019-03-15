@@ -95,7 +95,9 @@ PROMPT INFO: Deploying version ${version} ...
       .pipe(gulp.dest(outputDirectory))
       .on("end", () =>
         console.log(
-          `${outputDirectory}/${outputFileName} ${chalk.green("Script packaged.")}`
+          `${outputDirectory}/${outputFileName} ${chalk.green(
+            "Script packaged."
+          )}`
         )
       )
   );
@@ -124,7 +126,9 @@ const createDeployInputFromGit = async () => {
     // Save new input to config
     config.set("package.input", newInput);
     console.log(
-      `${newInput.join("\n")} \n${chalk.green("Saved to package input")} => ./oradewrc.json`
+      `${newInput.join("\n")} \n${chalk.green(
+        "Saved to package input"
+      )} => ./oradewrc.json`
     );
   } catch (error) {
     console.error(error.message);
@@ -159,7 +163,10 @@ const generateBOLContent = function(paths) {
   let o = _.pipe(
     _.groupBy("owner"),
     _.mapValues(
-      _.pipe(_.groupBy("objectType"), _.mapValues(_.map("objectName")))
+      _.pipe(
+        _.groupBy("objectType"),
+        _.mapValues(_.map("objectName"))
+      )
     )
   )(dbo);
 
@@ -261,7 +268,9 @@ const printResults = resp => {
   if (resp.result.rowsAffected) {
     console.log(
       // chalk.magenta(
-      `${resp.result.rowsAffected} ${resp.result.rowsAffected === 1 ? "row" : "rows"} affected.`
+      `${resp.result.rowsAffected} ${
+        resp.result.rowsAffected === 1 ? "row" : "rows"
+      } affected.`
 
       // )
     );
@@ -343,6 +352,11 @@ const compileFilesToDb = async ({
 
 const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   const src = file || config.get({ field: "package.output", env });
+
+  if (!fs.existsSync(src)) {
+    console.log(`File does not exist: ${src}`);
+    return;
+  }
 
   const outputFileName = path.basename(src);
   const outputDirectory = path.dirname(src);
@@ -709,7 +723,9 @@ const generate = async ({
     const outputPath = output
       ? path.resolve(output)
       : path.resolve(
-          `./scripts/${resp.obj.owner}/file_${object}_${new Date().getTime()}.sql`
+          `./scripts/${
+            resp.obj.owner
+          }/file_${object}_${new Date().getTime()}.sql`
         );
 
     await utils.outputFilePromise(outputPath, resp.result);

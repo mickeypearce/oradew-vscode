@@ -48,7 +48,12 @@
     },
     "compile.force": {
       "default": false,
-      "description": "Ignore conflict detection and auto-merge local file changes with DB object when compiling to DEV environment. \nCompilation on other envs is always done with force.",
+      "description": "Ignore the conflict detection and merge of local file changes with object stored on DB.",
+      "type": "boolean"
+    },
+    "compile.stageFile": {
+      "default": true,
+      "description": "Automatically stage file after is succesfully compiled (git add).",
       "type": "boolean"
     },
     "version.number": {

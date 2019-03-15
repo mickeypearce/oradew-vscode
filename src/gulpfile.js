@@ -310,6 +310,7 @@ const compileFilesToDb = async ({
   const source = config.get({ field: "source", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
   const warnings = config.get({ field: "compile.warnings", env });
+  const stageFile = config.get({ field: "compile.stageFile", env });
 
   const processFile = async (file, done) => {
     let resp;
@@ -324,7 +325,7 @@ const compileFilesToDb = async ({
       );
       printResults(resp);
       // Stage file if no errors
-      if (!force && !resp.errors.hasErrors()) {
+      if (stageFile && !resp.errors.hasErrors()) {
         await git.exec({ args: `add "${resp.file}"` });
       }
     } catch (error) {

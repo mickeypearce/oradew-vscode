@@ -85,6 +85,7 @@ Configuraton files are not required. Default values will be assumed in case they
   "source": ["./src/**/*.sql"],
   "compile.warnings": "NONE",
   "compile.force": false,
+  "compile.stageFile": true,
   "version.number": "0.0.1",
   "version.description": "New feature",
   "version.releaseDate": "2099-01-01",
@@ -100,10 +101,11 @@ Configuraton files are not required. Default values will be assumed in case they
 - `source` - Glob pattern for source files.
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.
+- `compile.stageFile` - Automatically stage file after is succesfully compiled (git add). Default value is `true`.
 - `version.number` - Version number.
 - `version.description` - Version description.
 - `version.releaseDate` - Version release date.
-- `test.input` - Array of globs for test files.
+- `test.input` - Array of globs for test files. Executed with `Run tests` command.
 - `import.getDdlFunction` - Custom Get_DDL function name. Use your own DB function to customize import of object's DDL. It is used by `Import` commands. The default value is `DBMS_METADATA.GET_DDL`.
   ```sql
   -- Example of a DB function specification:

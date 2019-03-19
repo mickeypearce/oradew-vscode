@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.3.1] - 2019-03-19
+
+- Added "Toggle Compile Watch" command for compiling on save.
+- Added "compile.stageFile" configuration
+- Added setting to print additional info from tasks: "oradew.chatty"
+
 ## [0.3.0] - 2019-03-05
 
 - Added "Set DB Environment" command and status bar indicator [#17](https://github.com/mickeypearce/oradew-vscode/issues/17)

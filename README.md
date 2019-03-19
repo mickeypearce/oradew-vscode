@@ -53,6 +53,7 @@ oradewrc.json           Workspace configuration
 - `Run tests`
 - `Populate Package Input` (Shift+F9) - Populate `package.input` setting with changed file paths from Git history. Latest tagged commit is used as a starting point for changes.
 - `Generate...` PL/SQL code with a code generator.
+- `Toggle Compile Watch` - Start/end compilaton on save. Watching Source files and compile whenever a file change is detected.
 
 ### Environments
 
@@ -98,7 +99,7 @@ Configuraton files are not required. Default values will be assumed in case they
 - `package.output` - Deploy script file path. Created with `Package` command from concatenated input files and prepared for SQLPlus execution. (wrapped with "SPOOL deploy.log", "COMMIT;", etc )
 - `package.encoding` - Encoding of deploy script file. (ex.: utf8, win1250, ...) The default value is `utf8`.
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging (`Package` command). The default value is `false`.
-- `source` - Glob pattern for source files.
+- `source` - Glob pattern for Source files.
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.
 - `compile.stageFile` - Automatically stage file after is succesfully compiled (git add). Default value is `true`.
@@ -170,6 +171,7 @@ For other environments, please refer to [INSTALL](https://github.com/oracle/node
 
 ### Recommended extensions:
 
+- SQLTools
 - GitLens
 - Numbered bookmarks
 - Better comments

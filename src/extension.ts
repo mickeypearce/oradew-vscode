@@ -90,7 +90,7 @@ export function activate(context: vscode.ExtensionContext) {
     name: string;
     params: Array<string>;
   }) => {
-    return new vscode.Task(
+    let _task = new vscode.Task(
       { type: "gulp", name },
       vscode.TaskScope.Workspace,
       name,
@@ -102,6 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
       ),
       "$oracle-plsql"
     );
+    return _task;
   };
 
   function getTasks(): vscode.Task[] {
@@ -523,7 +524,36 @@ export function activate(context: vscode.ExtensionContext) {
       "workbench.action.tasks.runTask",
       "Oradew: runTest"
     );
+    // let _task = createOradewTask({
+    //   name: "runTest",
+    //   params: ["runTest", "--env", "${command:oradew.listEnv}"],
+    //   isBackground: false
+    // });
+    // vscode.tasks.executeTask(_task);
   });
+  let cmdTaskCompileOnSave = vscode.commands.registerCommand(
+    "oradew.compileOnSaveTask",
+    () => {
+      // Get our task from active executions
+      let taskExec = vscode.tasks.taskExecutions.filter(
+        t => t.task.name === "compileOnSave"
+      )[0];
+      // If if doesn't exist - execute, otherwise terminate.
+      if (!taskExec) {
+        let _task = createOradewTask({
+          name: "compileOnSave",
+          params: ["compileOnSave", "--env", "${command:oradew.listEnv}"]
+        });
+        _task.isBackground = true;
+        _task.presentationOptions = {
+          reveal: vscode.TaskRevealKind.Silent
+        };
+        vscode.tasks.executeTask(_task);
+      } else {
+        taskExec.terminate();
+      }
+    }
+  );
 
   context.subscriptions.push(cmdTaskGenerate);
   context.subscriptions.push(cmdTaskInitProject);
@@ -540,6 +570,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskDeploy);
   context.subscriptions.push(cmdTaskDeployFile);
   context.subscriptions.push(cmdTaskTest);
+  context.subscriptions.push(cmdTaskCompileOnSave);
 
   context.subscriptions.push(cmdListEnv);
   context.subscriptions.push(cmdListEnvAlways);

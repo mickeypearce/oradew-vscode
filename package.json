@@ -156,7 +156,12 @@
             "message": 4,
             "loop": true
           }
-        ]
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*Starting compilation...$",
+          "endsPattern": "Compilation complete."
+        }
       }
     ],
     "commands": [
@@ -207,6 +212,11 @@
           "light": "images/compile_icon_alt.png",
           "dark": "images/compile_icon.png"
         }
+      },
+      {
+        "command": "oradew.compileOnSaveTask",
+        "title": "Toggle Compile Watch",
+        "category": "Oradew"
       },
       {
         "command": "oradew.exportTask",
@@ -318,6 +328,7 @@
     "fix": "rd node_modules /S /Q & del package-lock.json & npm install --no-optional"
   },
   "devDependencies": {
+    "@types/gulp": "^4.0.6",
     "@types/lodash": "^4.14.108",
     "@types/mocha": "^2.2.42",
     "@types/node": "^10.3.2",

@@ -519,10 +519,10 @@ const initConfigFile = async ({ prompt = argv.prompt || false }) => {
   console.log(chalk.magenta("Workspace config saved."));
 };
 
-const compileEverywhere = async ({ file = argv.file }) => {
+const compileEverywhere = async ({ file, env }) => {
   if (!file) throw Error("File cannot be empty.");
-  // Compile to DEV
-  const results = await compileFilesToDbAsync({ file, env: "DEV" });
+  // Compile to env
+  const results = await compileFilesToDbAsync({ file, env });
   // If no errors deploy
   if (!results.some(file => file.errors.hasErrors())) {
     await compileFilesToDbAsync({ file, env: "TEST", force: true });
@@ -536,16 +536,16 @@ compileEverywhere.flags = {
 };
 gulp.task("compileEverywhere", compileEverywhere);
 
-gulp.task("compileEverywhereOnSave", function() {
-  console.log(chalk.magenta("Compile-insync mode is running."));
+gulp.task("compileOnSave", ({ env = argv.env || "DEV" }) => {
   // Watch for files changes in source dir
-  gulp.watch(config.get("source"), event => {
-    // Watching task begins pattern for problem matching
-    console.log(`\nFile ${event.type}. Starting compilation...`);
-    // Compile and deploy file
-    compileEverywhere({ file: event.path }).then(() =>
-      console.log("Compilation complete.")
-    );
+  const source = config.get("source");
+  const watcher = gulp.watch(source);
+  console.log(chalk.magenta(`Watching for file changes in ${source} ...`));
+  watcher.on("change", async file => {
+    // Print pattern for start problem matching
+    console.log(`\nStarting compilation...`);
+    const results = await compileFilesToDbAsync({ file, env, force: true });
+    console.log("Compilation complete.");
   });
 });
 

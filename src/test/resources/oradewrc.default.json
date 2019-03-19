@@ -18,6 +18,7 @@
   "source": ["./src/**/*.sql"],
   "compile.warnings": "NONE",
   "compile.force": false,
+  "compile.stageFile": true,
   "version.number": "0.0.1",
   "version.description": "New feature",
   "version.releaseDate": "2099-01-01",

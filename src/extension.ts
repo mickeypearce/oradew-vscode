@@ -531,13 +531,14 @@ export function activate(context: vscode.ExtensionContext) {
     // });
     // vscode.tasks.executeTask(_task);
   });
+  let taskExec: Thenable<vscode.TaskExecution>;
   let cmdTaskCompileOnSave = vscode.commands.registerCommand(
     "oradew.compileOnSaveTask",
     () => {
-      // Get our task from active executions
-      let taskExec = vscode.tasks.taskExecutions.filter(
-        t => t.task.name === "compileOnSave"
-      )[0];
+      // Get our task from active executions (terminate doesn't delete from taskexecution!)
+      // let taskExec = vscode.tasks.taskExecutions.filter(
+      //   t => t.task.name === "compileOnSave"
+      // )[0];
       // If if doesn't exist - execute, otherwise terminate.
       if (!taskExec) {
         let _task = createOradewTask({
@@ -548,9 +549,10 @@ export function activate(context: vscode.ExtensionContext) {
         _task.presentationOptions = {
           reveal: vscode.TaskRevealKind.Silent
         };
-        vscode.tasks.executeTask(_task);
+        taskExec = vscode.tasks.executeTask(_task);
       } else {
-        taskExec.terminate();
+        taskExec.then(task => task.terminate());
+        taskExec = null;
       }
     }
   );

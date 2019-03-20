@@ -42,8 +42,13 @@
         {
           "command": "oradew.compileFileTask",
           "when": "inOradewProject && resourceLangId == plsql",
-          "group": "navigation",
+          "group": "navigation@1",
           "alt": "oradew.compileObjectTask"
+        },
+        {
+          "command": "oradew.deployTaskFile",
+          "when": "inOradewProject && resourceLangId == plsql",
+          "group": "navigation@2"
         }
       ],
       "editor/context": [
@@ -183,7 +188,11 @@
       {
         "command": "oradew.deployTaskFile",
         "title": "Run Current File As Script",
-        "category": "Oradew"
+        "category": "Oradew",
+        "icon": {
+          "light": "images/run_icon.png",
+          "dark": "images/run_icon.png"
+        }
       },
       {
         "command": "oradew.compileTask",

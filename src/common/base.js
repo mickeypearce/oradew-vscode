@@ -118,7 +118,7 @@ obj.compileFile = async (code, file, env, force, warnings) => {
       // Otherwise compile object to Db with warning scope
       result = await db.compile(conn, code.toString(), warnings);
       // Mark object as exported as we have the latest version
-      if (!force) await db.syncDdlTime(conn, obj, env);
+      await db.syncDdlTime(conn, obj, env);
       // Getting errors for this object from Db
       errors = await db.getErrors(conn, obj);
       lines = await db.getDbmsOutput(conn);

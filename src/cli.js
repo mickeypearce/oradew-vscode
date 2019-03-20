@@ -65,7 +65,6 @@ program
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .option("--file <file>", "Path of file. all 'source' if not specified.")
   .option("--changed", "Only changed files from working tree")
-  .option("--force", "Overwrite changes on DB")
   .action(() => execute());
 
 program

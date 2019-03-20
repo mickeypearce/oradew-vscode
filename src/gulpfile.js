@@ -304,13 +304,13 @@ const getOnlyChangedFiles = async source => {
 const compileFilesToDb = async ({
   file = argv.file,
   env = argv.env || "DEV",
-  changed = argv.changed || false,
-  force = argv.force || false
+  changed = argv.changed || false
 }) => {
   const source = config.get({ field: "source", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
   const warnings = config.get({ field: "compile.warnings", env });
   const stageFile = config.get({ field: "compile.stageFile", env });
+  const force = config.get({ field: "compile.force", env });
 
   const processFile = async (file, done) => {
     let resp;
@@ -525,8 +525,8 @@ const compileEverywhere = async ({ file, env }) => {
   const results = await compileFilesToDbAsync({ file, env });
   // If no errors deploy
   if (!results.some(file => file.errors.hasErrors())) {
-    await compileFilesToDbAsync({ file, env: "TEST", force: true });
-    await compileFilesToDbAsync({ file, env: "UAT", force: true });
+    await compileFilesToDbAsync({ file, env: "TEST" });
+    await compileFilesToDbAsync({ file, env: "UAT" });
   }
 };
 
@@ -596,10 +596,10 @@ const exportFilesFromDbAsync = async ({ file, env, changed, ease, quiet }) =>
     p.on("error", rej);
   });
 
-const compileFilesToDbAsync = async ({ file, env, changed, force }) => {
+const compileFilesToDbAsync = async ({ file, env, changed }) => {
   let results = [];
   return new Promise(async (res, rej) => {
-    const p = await compileFilesToDb({ file, env, changed, force });
+    const p = await compileFilesToDb({ file, env, changed });
     // Collect results
     p.on("data", resp => results.push(resp.data));
     // Return results
@@ -631,13 +631,11 @@ const mergeLocalAndDbChanges = async ({
 const compileAndMergeFilesToDb = async ({
   file = argv.file,
   env = argv.env || "DEV",
-  changed = argv.changed || false,
-  force = argv.force || false
+  changed = argv.changed || false
 }) => {
-  force = force || config.get({ field: "compile.force", env });
   try {
     // Compile and get error results
-    const results = await compileFilesToDbAsync({ file, env, changed, force });
+    const results = await compileFilesToDbAsync({ file, env, changed });
     // Merge unstaged (if any dirty file)
     if (results.some(file => file.errors && file.errors.hasDirt()))
       mergeLocalAndDbChanges({ file, env, changed });
@@ -758,8 +756,7 @@ compileFilesToDbAsync.description = "Compile files to DB.";
 compileFilesToDbAsync.flags = {
   "--env": "DB Environment. [DEV, TEST, UAT]",
   "--file": "(optional) Absolute path of file",
-  "--changed": "(optional) Only changed files (in working tree)",
-  "--force": "(optional) Overwrite DB changes"
+  "--changed": "(optional) Only changed files (in working tree)"
 };
 gulp.task("compileFilesToDbAsync", compileFilesToDbAsync);
 

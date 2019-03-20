@@ -539,12 +539,12 @@ gulp.task("compileEverywhere", compileEverywhere);
 gulp.task("compileOnSave", ({ env = argv.env || "DEV" }) => {
   // Watch for files changes in source dir
   const source = config.get("source");
-  const watcher = gulp.watch(source);
+  const watcher = gulp.watch(source, { awaitWriteFinish: true });
   console.log(chalk.magenta(`Watching for file changes in ${source} ...`));
   watcher.on("change", async file => {
     // Print pattern for start problem matching
     console.log(`\nStarting compilation...`);
-    const results = await compileFilesToDbAsync({ file, env, force: true });
+    await compileFilesToDbAsync({ env, changed: true });
     console.log("Compilation complete.");
   });
 });

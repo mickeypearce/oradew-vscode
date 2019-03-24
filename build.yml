@@ -17,7 +17,6 @@ jobs:
         inputs:
           versionSpec: 10.x
 
-      - script: npm install -g yarn@latest
-      - script: yarn install
-      - script: yarn run compile
-      - script: yarn run utest
+      - script: npm install
+      - script: npm run compile
+      - script: npm run utest

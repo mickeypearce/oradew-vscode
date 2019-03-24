@@ -315,16 +315,16 @@
     "mp.vscode-oracle-format"
   ],
   "scripts": {
-    "vscode:prepublish": "yarn run compile",
-    "compile": "yarn run precompile && tsc -p ./",
-    "watch": "yarn run precompile && tsc -watch -p ./",
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm run precompile && tsc -p ./",
+    "watch": "npm run precompile && tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "yarn run compile && node ./node_modules/vscode/bin/test",
-    "utest": "yarn run compile && node ./node_modules/mocha/bin/mocha --ui tdd out/test/*test.js",
-    "build": "vsce package --yarn",
-    "publish": "vsce publish --yarn",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "utest": "npm run compile && node ./node_modules/mocha/bin/mocha --ui tdd out/test/*test.js",
+    "build": "vsce package",
+    "publish": "vsce publish",
     "precompile": "node ./scripts/precompile.js",
-    "install-cli": "yarn global add file:$PWD",
+    "install-cli": "npm install -g ./",
     "fix": "rd node_modules /S /Q & del package-lock.json & npm install --no-optional"
   },
   "devDependencies": {
@@ -342,7 +342,7 @@
   "dependencies": {
     "cli-table": "^0.3.1",
     "commander": "^2.19.0",
-    "del": "^2.2.2",
+    "del": "4.0.0",
     "fs-extra": "^7.0.1",
     "glob": "^7.1.1",
     "glob-base": "^0.3.0",

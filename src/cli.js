@@ -132,4 +132,10 @@ program
   )
   .action(() => execute());
 
+program
+  .command("compileOnSave")
+  .description("Compile watch source")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
+  .action(() => execute());
+
 program.parse(process.argv);

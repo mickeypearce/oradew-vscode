@@ -91,7 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
     params: Array<string>;
   }) => {
     let _task = new vscode.Task(
-      { type: "gulp", name },
+      { type: "shell", name },
       vscode.TaskScope.Workspace,
       name,
       "Oradew",

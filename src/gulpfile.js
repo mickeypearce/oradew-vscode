@@ -544,7 +544,13 @@ gulp.task("compileOnSave", ({ env = argv.env || "DEV" }) => {
   watcher.on("change", async file => {
     // Print pattern for start problem matching
     console.log(`\nStarting compilation...`);
-    await compileFilesToDbAsync({ env, changed: true });
+    // Compile changes in working tree
+    const files = await getOnlyChangedFiles(source);
+    await compileFilesToDbAsync({ env, file: files });
+    // Always compile saved path (even if nothing changes)
+    if (!utils.IncludesPaths(files, file))
+      await compileFilesToDbAsync({ env, file });
+    // Print pattern that ends problem matching
     console.log("Compilation complete.");
   });
 });

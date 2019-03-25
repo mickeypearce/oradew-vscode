@@ -53,7 +53,7 @@ oradewrc.json           Workspace configuration
 - `Run tests`
 - `Populate Package Input` (Shift+F9) - Populate `package.input` setting with changed file paths from Git history. Latest tagged commit is used as a starting point for changes.
 - `Generate...` PL/SQL code with a code generator.
-- `Toggle Compile Watch` - Start/end compilaton on save. Watching Source files and compile whenever a file change is detected.
+- `Toggle Compile Watch` <sup>New</sup> - Start/end compilaton on save. Compile working tree automatically whenever a Source file changes.
 
 ### Environments
 

@@ -243,3 +243,16 @@ export const IncludesCaseInsensitive = (arr, str) => {
   let upp = arr.map(v => v.toUpperCase());
   return upp.includes(str.toUpperCase());
 };
+
+/**
+ * Includes paths - absolute or relative.
+ * * arrPaths includes path?
+ * @param {array} arrPaths
+ * @param {string} path
+ * @returns {boolean}
+ */
+export const IncludesPaths = (arrPaths, path) => {
+  let absPaths = arrPaths.map(p => resolve(p));
+  let absPath = resolve(path);
+  return absPaths.includes(absPath);
+};

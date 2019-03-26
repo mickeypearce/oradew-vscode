@@ -519,6 +519,7 @@ const initConfigFile = async ({ prompt = argv.prompt || false }) => {
   console.log(chalk.magenta("Workspace config saved."));
 };
 
+// unused
 const compileEverywhere = async ({ file, env }) => {
   if (!file) throw Error("File cannot be empty.");
   // Compile to env
@@ -530,13 +531,7 @@ const compileEverywhere = async ({ file, env }) => {
   }
 };
 
-compileEverywhere.description = "Compile file to all environments.";
-compileEverywhere.flags = {
-  "--file": "Absolute path of file"
-};
-gulp.task("compileEverywhere", compileEverywhere);
-
-gulp.task("compileOnSave", ({ env = argv.env || "DEV" }) => {
+const compileOnSave = ({ env = argv.env || "DEV" }) => {
   // Watch for files changes in source dir
   const source = config.get("source");
   const watcher = gulp.watch(source, { awaitWriteFinish: true });
@@ -553,7 +548,7 @@ gulp.task("compileOnSave", ({ env = argv.env || "DEV" }) => {
     // Print pattern that ends problem matching
     console.log("Compilation complete.");
   });
-});
+};
 
 const createSrcEmpty = done => {
   try {
@@ -573,7 +568,7 @@ const createSrcEmpty = done => {
   }
 };
 
-const createSrcFromDbObjects = async ({ env = argv.env }) => {
+const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
   // TODO source is array, taking first element
   const source = globBase(config.get("source")[0]).base;
   const schemas = db.config.getSchemas();
@@ -742,7 +737,7 @@ const generate = async ({
 };
 
 gulp.task(
-  "initWorkspace",
+  "init",
   gulp.series(
     createDbConfigFile,
     cleanProject,
@@ -754,7 +749,7 @@ gulp.task(
 );
 
 gulp.task(
-  "createSource",
+  "create",
   gulp.series(createSrcFromDbObjects, exportFilesFromDbAsync)
 );
 
@@ -764,12 +759,11 @@ compileFilesToDbAsync.flags = {
   "--file": "(optional) Absolute path of file",
   "--changed": "(optional) Only changed files (in working tree)"
 };
-gulp.task("compileFilesToDbAsync", compileFilesToDbAsync);
 
 compileAndMergeFilesToDb.description = "Compile with merge.";
-gulp.task("compileFiles", compileAndMergeFilesToDb);
 
-gulp.task("compileObject", compileObjectToDb);
+gulp.task("compileOnSave", compileOnSave);
+gulp.task("watch", compileOnSave);
 
 exportFilesFromDb.description = "Export files from DB.";
 exportFilesFromDb.flags = {
@@ -779,9 +773,6 @@ exportFilesFromDb.flags = {
   "--ease": "(optional) Export only if DB object changed",
   "--quiet": "(optional) Suppress console output"
 };
-gulp.task("importFiles", exportFilesFromDbAsync);
-
-gulp.task("importObject", exportObjectFromDb);
 
 gulp.task(
   "package",
@@ -799,12 +790,42 @@ runFileOnDb.flags = {
   "--env": "DB Environment. [DEV, TEST, UAT]",
   "--file": "(optional) Absolute path of file"
 };
-gulp.task("runFile", runFileOnDb);
+gulp.task("run", runFileOnDb);
 gulp.task("deploy", runFileOnDb); // Alias
 
 runTest.description = "Simple unit testing.";
-gulp.task("runTest", runTest);
+gulp.task("test", runTest);
 
 // gulp.task("default", "package");
 
 gulp.task("generate", generate);
+
+// Composed tasks - @todo refactor
+gulp.task(
+  "compile",
+  ({
+    env = argv.env || "DEV",
+    file = argv.file,
+    changed = argv.changed || false,
+    object = argv.object,
+    line = argv.line
+  }) => {
+    if (object) return compileObjectToDb({ file, env, object, line });
+    else return compileAndMergeFilesToDb({ file, env, changed });
+  }
+);
+
+gulp.task(
+  "import",
+  ({
+    env = argv.env || "DEV",
+    file = argv.file,
+    changed = argv.changed || false,
+    ease = argv.ease || false,
+    quiet = argv.quiet || false,
+    object = argv.object
+  }) => {
+    if (object) return exportObjectFromDb({ env, object });
+    else return exportFilesFromDbAsync({ file, env, changed, ease, quiet });
+  }
+);

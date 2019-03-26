@@ -134,14 +134,14 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "init",
-        params: ["initWorkspace", "--prompt", "true"]
+        params: ["init", "--prompt", "true"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "create",
-        params: ["createSource", "--env", "${command:oradew.listEnv}"]
+        params: ["create", "--env", "${command:oradew.listEnv}"]
       })
     );
 
@@ -149,7 +149,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "compile",
         params: [
-          "compileFiles",
+          "compile",
           "--env",
           "${command:oradew.listEnv}",
           "--changed",
@@ -162,7 +162,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "compile--file",
         params: [
-          "compileFiles",
+          "compile",
           "--env",
           "${command:oradew.listEnv}",
           "--file",
@@ -174,7 +174,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "compile--all",
-        params: ["compileFiles", "--env", "${command:oradew.listEnv}"]
+        params: ["compile", "--env", "${command:oradew.listEnv}"]
       })
     );
 
@@ -182,7 +182,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "compile--object",
         params: [
-          "compileObject",
+          "compile",
           "--env",
           "${command:oradew.listEnv}",
           "--file",
@@ -199,7 +199,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "export",
         params: [
-          "importFiles",
+          "import",
           "--env",
           "${command:oradew.listEnv}",
           "--ease",
@@ -212,7 +212,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "export--file",
         params: [
-          "importFiles",
+          "import",
           "--env",
           "${command:oradew.listEnv}",
           "--file",
@@ -225,7 +225,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "export--object",
         params: [
-          "importObject",
+          "import",
           "--env",
           "${command:oradew.listEnv}",
           "--object",
@@ -251,7 +251,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "deploy",
-        params: ["runFile", "--env", "${command:oradew.listEnvAlways}"]
+        params: ["run", "--env", "${command:oradew.listEnvAlways}"]
       })
     );
 
@@ -259,7 +259,7 @@ export function activate(context: vscode.ExtensionContext) {
       createOradewTask({
         name: "deploy--file",
         params: [
-          "runFile",
+          "run",
           "--env",
           "${command:oradew.listEnv}",
           "--file",
@@ -270,8 +270,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     result.push(
       createOradewTask({
-        name: "runTest",
-        params: ["runTest", "--env", "${command:oradew.listEnv}"]
+        name: "test",
+        params: ["test", "--env", "${command:oradew.listEnv}"]
       })
     );
 
@@ -522,11 +522,11 @@ export function activate(context: vscode.ExtensionContext) {
   let cmdTaskTest = vscode.commands.registerCommand("oradew.testTask", () => {
     vscode.commands.executeCommand(
       "workbench.action.tasks.runTask",
-      "Oradew: runTest"
+      "Oradew: test"
     );
     // let _task = createOradewTask({
-    //   name: "runTest",
-    //   params: ["runTest", "--env", "${command:oradew.listEnv}"],
+    //   name: "test",
+    //   params: ["test", "--env", "${command:oradew.listEnv}"],
     //   isBackground: false
     // });
     // vscode.tasks.executeTask(_task);

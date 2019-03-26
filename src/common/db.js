@@ -29,6 +29,7 @@ export class DBConfig {
       this.object = readJsonSync(this.fileBase);
     } catch (e) {
       // Defaults
+      console.log("Cannot find dbconfig.json file...");
       this.object = this.defaults;
     }
   }
@@ -76,7 +77,9 @@ export class DBConfig {
    * @returns {ConnectionConfig} Connection config
    */
   getConfiguration = (env, user) => {
-    if (!env) throw Error(`No env.`);
+    if (!env) throw Error(`No env parameter.`);
+    if (!this.object[env])
+      throw Error(`Cannot find ${env} environment in dbconfig.json.`);
 
     // Head of flattened object that we return
     const head = { env, connectString: this.object[env].connectString };

@@ -44,71 +44,58 @@ const execute = () => taskManager.executeOradewTask(process.argv);
 
 program
   .name("oradew")
-  .version("0.0.2")
+  .version("0.1.0")
   .usage("<command> [options]");
 
 program
-  .command("initWorkspace")
+  .command("init")
   .description("Initialize a new workspace")
   .option("--prompt", "With input prompts")
   .action(() => execute());
 
 program
-  .command("createSource")
+  .command("create")
   .description("Import All Objects from Db to Source")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .action(() => execute());
 
 program
-  .command("compileFiles")
-  .description("Compile files")
+  .command("compile")
+  .description("Compile Source files to DB")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--file <file>", "Path of file. all 'source' if not specified.")
-  .option("--changed", "Only changed files from working tree")
+  .option("--changed", "Only files in working tree (changes)")
+  .option("--file <file>", "Path of file.")
+  .option("--object <object>", "DB statement (query or block)")
+  .option("--line <line>", "Line offset of statement in file. 1 by default")
   .action(() => execute());
 
 program
-  .command("compileObject")
-  .description("Compile object (statement)")
-  .option("--object <object>", "DB statement (query or block) (required)")
+  .command("import")
+  .description("Import Source files from DB")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--file <file>", "Path of file")
-  .option("--line <line>", "Line offset of statement in file")
-  .action(() => execute());
-
-program
-  .command("importFiles")
-  .description("Import source files from DB")
-  .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--file <file>", "Path of file. all 'source' if not specified.")
-  .option("--changed", "Only changed files from working tree")
-  .option("--ease", "Skip files (objects) that hasn't changed on DB")
+  .option("--changed", "Only files in working tree (changes")
+  .option("--ease", "Only files (objects) that changed on DB")
+  .option("--file <file>", "Path of file.")
   .option("--quiet", "Suppress console output")
-  .action(() => execute());
-
-program
-  .command("importObject")
-  .description("Import object from DB")
-  .option("--object <object>", "DB object name (required)")
-  .option("--env <env>", "DB Environment. DEV if not specified.")
+  .option("--object <object>", "DB object name")
   .action(() => execute());
 
 program
   .command("package")
-  .description("Package files to deploy script")
+  .description("Package files to deployment script")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .action(() => execute());
 
 program
   .command("deploy")
-  .alias("runFile")
+  .alias("run")
   .description("Run script (with SQLPlus)")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .option("--file <file>", "Path of file. 'package.output' if not specified.")
   .action(() => execute());
 
 program
-  .command("runTest")
+  .command("test")
   .description("Run unit tests")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .action(() => execute());
@@ -133,8 +120,8 @@ program
   .action(() => execute());
 
 program
-  .command("compileOnSave")
-  .description("Compile watch source")
+  .command("watch")
+  .description("Compile when Source file changes")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .action(() => execute());
 

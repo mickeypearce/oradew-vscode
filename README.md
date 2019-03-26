@@ -177,9 +177,9 @@ For other environments, please refer to [INSTALL](https://github.com/oracle/node
 - Better comments
 - Multiple clipboards
 
-## Command Line <sup>Preview</sup>
+## Command Line
 
-You can now execute Oradew commands (gulp tasks) also from the command line (CLI).
+You can execute Oradew commands (gulp tasks) directly from the command line (CLI).
 
 ### Installation
 
@@ -205,22 +205,26 @@ If you are installing from the repository you must first compile the source code
 Usage: oradew <command> [options]
 
 Commands:
-  initWorkspace [options]   Initialize a new workspace
-  createSource [options]    Import All Objects from Db to Source
-  compileFiles [options]    Compile files
-  compileObject [options]   Compile object (statement)
-  importFiles [options]     Import source files from DB
-  importObject [options]    Import object from DB
-  package [options]         Package files to deploy script
-  deploy|runFile [options]  Run script (with SQLPlus)
-  runTest [options]         Run unit tests
+  init [options]            Initialize a new workspace
+  create [options]          Import All Objects from Db to Source
+  compile [options]         Compile Source files to DB
+  import [options]          Import Source files from DB
+  package [options]         Package files to deployment script
+  deploy|run [options]      Run script (with SQLPlus)
+  test [options]            Run unit tests
   generate [options]        Code generator
+  watch [options]           Compile when Source file changes
 ```
 
 ### Example
 
 ```bash
-# Create simple dbconfig file and run commmand on DEV environment
+# Create simple dbconfig file and run "Hello World" on DEV environment
 > echo {"DEV": {"connectString": "localhost/orclpdb", "users": [{"user": "hr", "password": "welcome"}]}} > dbconfig.json
-> oradew compileObject --object "select 'world' as hello from dual"
+> oradew compile --object "select 'world' as hello from dual"
+
+# Simple Dev Workflow
+> oradew watch
+> oradew package
+> oradew deploy --env TEST
 ```

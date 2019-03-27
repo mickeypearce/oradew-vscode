@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Oracle (PL/SQL) Development Workspace",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "publisher": "mp",
   "engines": {
     "vscode": "^1.24.0"

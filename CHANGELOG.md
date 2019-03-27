@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.3] - 2019-03-27
+
+- Simplify CLI commands
+
 ## [0.3.1] - 2019-03-19
 
 - Added "Toggle Compile Watch" command for compiling on save.

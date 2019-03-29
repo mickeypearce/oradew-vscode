@@ -232,6 +232,9 @@ export const removeNewlines = str => str.replace(/\r\n|\r|\n/gi, " ");
 // alternative /\r?\n/
 export const splitLines = str => str.split(/\r\n|\r|\n/);
 
+// Add ./ if it doesn't already exists
+export const addRootPath = val => (val.startsWith("./") ? val : `./${val}`);
+
 /**
  * Includes - case insensitive.
  * * arr includes str?

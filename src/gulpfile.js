@@ -49,10 +49,13 @@ const packageSrcFromFile = ({ env = argv.env }) => {
   const outputFile = config.get({ field: "package.output", env });
   const outputFileName = path.basename(outputFile);
   const outputDirectory = path.dirname(outputFile);
-  const src = config.get({ field: "package.input", env });
+  const input = config.get({ field: "package.input", env });
+  const exclude = config.get({ field: "package.exclude", env });
   const encoding = config.get({ field: "package.encoding", env });
   const templating = config.get({ field: "package.templating", env });
   const version = config.get({ field: "version.number", env });
+
+  const src = [...input, ...exclude];
 
   const templateObject = {
     config: config.get({ env }),
@@ -103,12 +106,20 @@ PROMPT INFO: Deploying version ${version} ...
   );
 };
 
-const createDeployInputFromGit = async () => {
+const createDeployInputFromGit = async ({ env = argv.env }) => {
   try {
-    // Get changes file paths from git history
+    // Get changed file paths from git history
     let firstCommit = await git.getFirstCommitOnBranch();
     const stdout = await git.getCommitedFilesSincePoint(firstCommit.trim());
-    const newInput = base.fromStdoutToFilesArray(stdout).sort();
+    const changedPaths = base.fromStdoutToFilesArray(stdout).sort();
+
+    // Exclude files that are not generally icluded
+    const includedFiles = base.fromGlobsToFilesArray(["./**/*.sql"]);
+    const all = _.intersection(includedFiles)(changedPaths);
+
+    // Exclude excludes by config
+    const excludeGlobs = config.get({ field: "package.exclude", env });
+    const newInput = base.fromGlobsToFilesArray([...all, ...excludeGlobs]);
 
     if (newInput.length === 0) {
       console.log(`No changed files found or no tagged commit to start from.`);
@@ -774,10 +785,16 @@ exportFilesFromDb.flags = {
   "--quiet": "(optional) Suppress console output"
 };
 
-gulp.task(
-  "package",
-  gulp.series(extractTodos, makeBillOfLading, packageSrcFromFile)
-);
+gulp.task("package", async ({ changed = argv.changed }) => {
+  // If changed, first populate package input
+  let tasks = [
+    ...[changed ? createDeployInputFromGit : []],
+    extractTodos,
+    makeBillOfLading,
+    packageSrcFromFile
+  ];
+  return gulp.series(...tasks)();
+});
 
 gulp.task(
   "createDeployInputFromGit",

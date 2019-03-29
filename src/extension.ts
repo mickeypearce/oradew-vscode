@@ -243,8 +243,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     result.push(
       createOradewTask({
-        name: "populateChanges",
-        params: ["createDeployInputFromGit"]
+        name: "package--changes",
+        params: ["package", "--env", "${command:oradew.listEnv}", "--changed"]
       })
     );
 
@@ -492,12 +492,12 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
-  let cmdTaskPopulateChanges = vscode.commands.registerCommand(
-    "oradew.populateChangesTask",
+  let cmdTaskPackageChanges = vscode.commands.registerCommand(
+    "oradew.packageChangesTask",
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: populateChanges"
+        "Oradew: package--changes"
       );
     }
   );
@@ -568,7 +568,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskExportFile);
   context.subscriptions.push(cmdTaskExportObject);
   context.subscriptions.push(cmdTaskPackage);
-  context.subscriptions.push(cmdTaskPopulateChanges);
+  context.subscriptions.push(cmdTaskPackageChanges);
   context.subscriptions.push(cmdTaskDeploy);
   context.subscriptions.push(cmdTaskDeployFile);
   context.subscriptions.push(cmdTaskTest);

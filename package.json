@@ -131,7 +131,7 @@
         "when": "inOradewProject"
       },
       {
-        "command": "oradew.populateChangesTask",
+        "command": "oradew.packageChangesTask",
         "key": "shift+f9",
         "when": "inOradewProject"
       },
@@ -253,8 +253,8 @@
         "category": "Oradew"
       },
       {
-        "command": "oradew.populateChangesTask",
-        "title": "Populate Package Input",
+        "command": "oradew.packageChangesTask",
+        "title": "Package Changes",
         "category": "Oradew"
       },
       {
@@ -353,8 +353,8 @@
     "commander": "^2.19.0",
     "del": "4.0.0",
     "fs-extra": "^7.0.1",
-    "glob": "^7.1.1",
     "glob-base": "^0.3.0",
+    "globby": "^9.1.0",
     "gulp": "^4.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-convert-encoding": "^1.0.0",

@@ -2,7 +2,7 @@ const assert = require("assert");
 import {
   WorkspaceConfig,
   getDefaultsFromSchema,
-  IncludesCaseInsensitive
+  includesCaseInsensitive
 } from "../common/utility";
 
 const configDefault = new WorkspaceConfig();
@@ -57,12 +57,12 @@ describe("#Utility Config", function() {
   });
 });
 
-describe("#IncludesCaseInsensitive", function() {
+describe("#includesCaseInsensitive", function() {
   it("should return whether array contains string - case insensitive", function() {
-    assert.equal(IncludesCaseInsensitive(["A"], "a"), true);
-    assert.equal(IncludesCaseInsensitive(["A", "b"], "a"), true);
-    assert.equal(IncludesCaseInsensitive(["A", "b"], "A"), true);
-    assert.equal(IncludesCaseInsensitive(["A"], "1"), false);
-    assert.equal(IncludesCaseInsensitive([], "1"), false);
+    assert.equal(includesCaseInsensitive(["A"], "a"), true);
+    assert.equal(includesCaseInsensitive(["A", "b"], "a"), true);
+    assert.equal(includesCaseInsensitive(["A", "b"], "A"), true);
+    assert.equal(includesCaseInsensitive(["A"], "1"), false);
+    assert.equal(includesCaseInsensitive([], "1"), false);
   });
 });

@@ -1,7 +1,7 @@
 {
   "name": "oradew-vscode",
-  "displayName": "Oradew",
-  "description": "Oracle (PL/SQL) Development Workspace",
+  "displayName": "Oracle (PL/SQL) Development Workspace",
+  "description": "Develop PL/SQL project in VS Code.",
   "version": "0.3.3",
   "publisher": "mp",
   "engines": {
@@ -131,7 +131,7 @@
         "when": "inOradewProject"
       },
       {
-        "command": "oradew.packageChangesTask",
+        "command": "oradew.packageDeltaTask",
         "key": "shift+f9",
         "when": "inOradewProject"
       },
@@ -253,8 +253,8 @@
         "category": "Oradew"
       },
       {
-        "command": "oradew.packageChangesTask",
-        "title": "Package Changes",
+        "command": "oradew.packageDeltaTask",
+        "title": "Package Delta",
         "category": "Oradew"
       },
       {

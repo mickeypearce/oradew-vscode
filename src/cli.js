@@ -84,7 +84,7 @@ program
   .command("package")
   .description("Package files to deployment script")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--changed", "Only changed files")
+  .option("--delta", "Only changed files")
   .action(() => execute());
 
 program

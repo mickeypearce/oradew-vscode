@@ -197,9 +197,15 @@ export class WorkspaceConfig {
   }
 
   set(field, value, env = "BASE") {
-    if (this.object[env])
-      // Update local object
-      this.object[env][field] = value;
+    // Update local object
+    if (this.object[env]) this.object[env][field] = value;
+
+    // If BASE changes discard all other env because are inherited
+    if (env === "BASE") {
+      let _base = this.object["BASE"];
+      this.object = {};
+      this.object["BASE"] = _base;
+    }
 
     // Add property to env file
     const filename = this.getFileEnv(env);
@@ -232,8 +238,14 @@ export const removeNewlines = str => str.replace(/\r\n|\r|\n/gi, " ");
 // alternative /\r?\n/
 export const splitLines = str => str.split(/\r\n|\r|\n/);
 
+// Conditionally prepends char if it doesn't starts already
+// prependCheck("a")("aabc") => 'aabc'
+// prependCheck("a")("bbc") => 'abbc'
+export const prependCheck = val => str =>
+  str.startsWith(val) ? str : `${val}${str}`;
+
 // Add ./ if it doesn't already exists
-export const addRootPath = val => (val.startsWith("./") ? val : `./${val}`);
+// export const addRootPath = utils.prependCheck("./");
 
 /**
  * Includes - case insensitive.
@@ -242,7 +254,7 @@ export const addRootPath = val => (val.startsWith("./") ? val : `./${val}`);
  * @param {string} str
  * @returns {boolean}
  */
-export const IncludesCaseInsensitive = (arr, str) => {
+export const includesCaseInsensitive = (arr, str) => {
   let upp = arr.map(v => v.toUpperCase());
   return upp.includes(str.toUpperCase());
 };
@@ -254,7 +266,7 @@ export const IncludesCaseInsensitive = (arr, str) => {
  * @param {string} path
  * @returns {boolean}
  */
-export const IncludesPaths = (arrPaths, path) => {
+export const includesPaths = (arrPaths, path) => {
   let absPaths = arrPaths.map(p => resolve(p));
   let absPath = resolve(path);
   return absPaths.includes(absPath);

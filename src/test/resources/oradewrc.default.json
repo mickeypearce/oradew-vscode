@@ -9,9 +9,9 @@
     "./src/**/PACKAGE_BODIES/*.sql",
     "./src/**/FUNCTIONS/*.sql",
     "./src/**/PROCEDURES/*.sql",
-    "./scripts/**/final*.sql",
-    "!./**/*EXCLUDE*.sql"
+    "./scripts/**/final*.sql"
   ],
+  "package.exclude": ["./**/*EXCLUDE*.sql", "./scripts/**/file*.sql"],
   "package.output": "./deploy/Run.sql",
   "package.encoding": "utf8",
   "package.templating": false,

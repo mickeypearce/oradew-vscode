@@ -50,10 +50,11 @@ const packageSrcFromFile = ({ env = argv.env }) => {
   const outputFileName = path.basename(outputFile);
   const outputDirectory = path.dirname(outputFile);
   const input = config.get({ field: "package.input", env });
-  const exclude = config.get({ field: "package.exclude", env });
   const encoding = config.get({ field: "package.encoding", env });
   const templating = config.get({ field: "package.templating", env });
   const version = config.get({ field: "version.number", env });
+  let exclude = config.get({ field: "package.exclude", env });
+  exclude = exclude.map(utils.prependCheck("!"));
 
   const src = [...input, ...exclude];
 
@@ -108,6 +109,7 @@ PROMPT INFO: Deploying version ${version} ...
 
 const createDeployInputFromGit = async ({ env = argv.env }) => {
   try {
+    console.log("Retrieving changed paths from git history...");
     // Get changed file paths from git history
     let firstCommit = await git.getFirstCommitOnBranch();
     const stdout = await git.getCommitedFilesSincePoint(firstCommit.trim());
@@ -118,7 +120,8 @@ const createDeployInputFromGit = async ({ env = argv.env }) => {
     const all = _.intersection(includedFiles)(changedPaths);
 
     // Exclude excludes by config
-    const excludeGlobs = config.get({ field: "package.exclude", env });
+    let excludeGlobs = config.get({ field: "package.exclude", env });
+    excludeGlobs = excludeGlobs.map(utils.prependCheck("!"));
     const newInput = base.fromGlobsToFilesArray([...all, ...excludeGlobs]);
 
     if (newInput.length === 0) {
@@ -137,9 +140,9 @@ const createDeployInputFromGit = async ({ env = argv.env }) => {
     // Save new input to config
     config.set("package.input", newInput);
     console.log(
-      `${newInput.join("\n")} \n${chalk.green(
-        "Saved to package input"
-      )} => ./oradewrc.json`
+      `${newInput.join("\n")} \n./oradewrc.json ${chalk.magenta(
+        "package.input updated."
+      )}`
     );
   } catch (error) {
     console.error(error.message);
@@ -554,7 +557,7 @@ const compileOnSave = ({ env = argv.env || "DEV" }) => {
     const files = await getOnlyChangedFiles(source);
     await compileFilesToDbAsync({ env, file: files });
     // Always compile saved path (even if nothing changes)
-    if (!utils.IncludesPaths(files, file))
+    if (!utils.includesPaths(files, file))
       await compileFilesToDbAsync({ env, file });
     // Print pattern that ends problem matching
     console.log("Compilation complete.");
@@ -785,10 +788,10 @@ exportFilesFromDb.flags = {
   "--quiet": "(optional) Suppress console output"
 };
 
-gulp.task("package", async ({ changed = argv.changed }) => {
-  // If changed, first populate package input
+gulp.task("package", async ({ delta = argv.delta }) => {
+  // If delta, first populate package input
   let tasks = [
-    ...[changed ? createDeployInputFromGit : []],
+    ...(delta && [createDeployInputFromGit]), // ...[delta ? createDeployInputFromGit : []],
     extractTodos,
     makeBillOfLading,
     packageSrcFromFile

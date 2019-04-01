@@ -3,7 +3,7 @@ const _ = require("lodash/fp");
 const { readJsonSync, outputJsonSync } = require("fs-extra");
 
 const dbLoc = require("./nedb");
-const { getDefaultsFromSchema, IncludesCaseInsensitive } = require("./utility");
+const { getDefaultsFromSchema, includesCaseInsensitive } = require("./utility");
 
 oracledb.fetchAsString = [oracledb.DATE, oracledb.CLOB];
 
@@ -104,8 +104,8 @@ export class DBConfig {
       ? _.filter(
           v =>
             v.user.toUpperCase() === user.toUpperCase() ||
-            // IncludesCaseInsensitive([v.user], user) ||
-            (v.schemas && IncludesCaseInsensitive(v.schemas, user))
+            // includesCaseInsensitive([v.user], user) ||
+            (v.schemas && includesCaseInsensitive(v.schemas, user))
         )(byEnv)
       : byEnv;
 

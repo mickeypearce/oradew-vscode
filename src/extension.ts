@@ -243,8 +243,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     result.push(
       createOradewTask({
-        name: "package--changes",
-        params: ["package", "--env", "${command:oradew.listEnv}", "--changed"]
+        name: "package--delta",
+        params: ["package", "--env", "${command:oradew.listEnv}", "--delta"]
       })
     );
 
@@ -492,12 +492,12 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
-  let cmdTaskPackageChanges = vscode.commands.registerCommand(
-    "oradew.packageChangesTask",
+  let cmdTaskPackageDelta = vscode.commands.registerCommand(
+    "oradew.packageDeltaTask",
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: package--changes"
+        "Oradew: package--delta"
       );
     }
   );
@@ -568,7 +568,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskExportFile);
   context.subscriptions.push(cmdTaskExportObject);
   context.subscriptions.push(cmdTaskPackage);
-  context.subscriptions.push(cmdTaskPackageChanges);
+  context.subscriptions.push(cmdTaskPackageDelta);
   context.subscriptions.push(cmdTaskDeploy);
   context.subscriptions.push(cmdTaskDeployFile);
   context.subscriptions.push(cmdTaskTest);

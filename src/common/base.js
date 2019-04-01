@@ -20,12 +20,12 @@ obj.fromStdoutToFilesArray = stdout =>
     // Scripts first
     _.sortBy(_.identity),
     // Add ./ if it doesn't already exists
-    _.map(utils.addRootPath)
+    _.map(utils.prependCheck("./"))
   )(stdout);
 
 // Get array of files matched by glob patterns array
 obj.fromGlobsToFilesArray = globArray => {
-  return globby.sync(globArray).map(utils.addRootPath);
+  return globby.sync(globArray).map(utils.prependCheck("./"));
 };
 
 obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {

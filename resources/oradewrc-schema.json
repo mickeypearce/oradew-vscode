@@ -35,7 +35,7 @@
       "type": "boolean"
     },
     "package.exclude": {
-      "default": ["!./**/*EXCLUDE*.sql", "!./scripts/**/file*.sql"],
+      "default": ["./**/*EXCLUDE*.sql", "./scripts/**/file*.sql"],
       "description": "Glob pattern to exclude files from package input.",
       "type": "array"
     },

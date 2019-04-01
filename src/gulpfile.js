@@ -53,6 +53,7 @@ const packageSrcFromFile = ({ env = argv.env }) => {
   const encoding = config.get({ field: "package.encoding", env });
   const templating = config.get({ field: "package.templating", env });
   const version = config.get({ field: "version.number", env });
+
   let exclude = config.get({ field: "package.exclude", env });
   exclude = exclude.map(utils.prependCheck("!"));
 
@@ -121,8 +122,9 @@ const createDeployInputFromGit = async ({ env = argv.env }) => {
 
     // Exclude excludes by config
     let excludeGlobs = config.get({ field: "package.exclude", env });
-    excludeGlobs = excludeGlobs.map(utils.prependCheck("!"));
-    const newInput = base.fromGlobsToFilesArray([...all, ...excludeGlobs]);
+    const newInput = base.fromGlobsToFilesArrayGlobby(all, {
+      ignore: excludeGlobs
+    });
 
     if (newInput.length === 0) {
       console.log(`No changed files found or no tagged commit to start from.`);
@@ -203,10 +205,17 @@ const generateBOLContent = function(paths) {
 
 const makeBillOfLading = ({ env = argv.env }) => {
   const file = path.join(__dirname, "/templates/BOL*.md");
+
   // Generate change log from deploy input array
-  const all = base.fromGlobsToFilesArray(
-    config.get({ field: "package.input", env })
-  );
+  const input = config.get({ field: "package.input", env });
+  const allInput = base.fromGlobsToFilesArray(input);
+
+  // @todo GLobby gives "no such file or directory" if not existent dir...:{}
+  let excludeGlobs = config.get({ field: "package.exclude", env });
+  const all = base.fromGlobsToFilesArrayGlobby(allInput, {
+    ignore: excludeGlobs
+  });
+
   const content = generateBOLContent(all); // await git.getChangeLog();
   const templateObject = {
     config: config.get({ env }),
@@ -791,7 +800,7 @@ exportFilesFromDb.flags = {
 gulp.task("package", async ({ delta = argv.delta }) => {
   // If delta, first populate package input
   let tasks = [
-    ...(delta && [createDeployInputFromGit]), // ...[delta ? createDeployInputFromGit : []],
+    ...[delta ? createDeployInputFromGit : []],
     extractTodos,
     makeBillOfLading,
     packageSrcFromFile

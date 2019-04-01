@@ -33,6 +33,7 @@ oradewrc.json           Workspace configuration
 
 **Build**
 
+- `Toggle Compile Watch` <sup>New</sup> - Start/End compilaton on save. Compile working tree automatically whenever a Source file changes.
 - `Compile Changes to DB` (F6) - Compile changed Source objects (working tree). Succesfully compiled files are added to Staging area.
 - `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
 - `Run Current File as Script` (F5) - Execute a SQL script (with SQLPlus)
@@ -41,6 +42,7 @@ oradewrc.json           Workspace configuration
 
 **Install**
 
+- `Package Delta` <sup>New</sup> (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD), and then generates SQL deployment script, TODO and BOL file.
 - `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
 - `Package Delta` <sup>New</sup> (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD).
 - `Deploy` - Run SQL deployment script on selected environment (with SQLPlus). Command prompts with environment selection.
@@ -53,7 +55,7 @@ oradewrc.json           Workspace configuration
 - `Run tests`
 - `Generate...` PL/SQL code with a code generator.
 
-### Environments
+### DB Environments
 
 - `Set DB Environment` - Select DB environment for command execution. When option `<None>` is selected, you choose DB environment every time you execute command. Environment list is generated from `dbconfig.json` file. Three default environments (DEV, TEST, UAT) can be extended with custom environments. The default value is `DEV`.
 
@@ -97,7 +99,7 @@ Configuraton files are not required. Default values will be assumed in case they
 - `package.output` - Deployment script file path. Created with `Package` command from concatenated input files and prepared for SQLPlus execution. (wrapped with "SPOOL deploy.log", "COMMIT;", etc )
 - `package.exclude` - Array of globs for excluding files from package.input array.
 - `package.encoding` - Encoding of deploy script file. (ex.: utf8, win1250, ...) The default value is `utf8`.
-- `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging (`Package` command). The default value is `false`.
+- `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging. The default value is `false`.
 - `source` - Glob pattern for Source files.
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.

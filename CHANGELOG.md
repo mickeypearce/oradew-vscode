@@ -1,12 +1,17 @@
 # Change Log
 
+## [0.3.4] - 2019-04-04
+
+- Added "Package Delta" command for packaging version changes
+- Added "package.exclude" config parameter
+
 ## [0.3.3] - 2019-03-27
 
 - Simplify CLI commands
 
 ## [0.3.1] - 2019-03-19
 
-- Added "Toggle Compile Watch" command for compiling on save.
+- Added "Toggle Compile Watch" command for compiling on save
 - Added "compile.stageFile" configuration
 - Added setting to print additional info from tasks: "oradew.chatty"
 

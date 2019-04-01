@@ -1,8 +1,8 @@
 {
   "name": "oradew-vscode",
-  "displayName": "Oracle (PL/SQL) Development Workspace",
-  "description": "Develop PL/SQL project in VS Code.",
-  "version": "0.3.3",
+  "displayName": "Oradew",
+  "description": "Develop Oracle (PL/SQL) project in VS Code.",
+  "version": "0.3.4",
   "publisher": "mp",
   "engines": {
     "vscode": "^1.24.0"

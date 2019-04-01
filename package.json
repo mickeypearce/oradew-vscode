@@ -355,6 +355,7 @@
     "fs-extra": "^7.0.1",
     "glob-base": "^0.3.0",
     "globby": "^9.1.0",
+    "glob": "^7.1.1",
     "gulp": "^4.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-convert-encoding": "^1.0.0",

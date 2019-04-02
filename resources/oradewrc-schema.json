@@ -16,17 +16,17 @@
         "./src/**/PROCEDURES/*.sql",
         "./scripts/**/final*.sql"
       ],
-      "description": "Glob pattern for packaging files into deploy script file. \nPreserving order, prefix with ! for excluding.",
+      "description": "Glob pattern for packaging files into deployment script.",
       "type": "array"
     },
     "package.output": {
       "default": "./deploy/Run.sql",
-      "description": "Deploy package output file.",
+      "description": "Deployment script file path.",
       "type": "string"
     },
     "package.encoding": {
       "default": "utf8",
-      "description": "Deploy file encoding. \n(utf8, win1250, ...)",
+      "description": "Deployment script encoding. \n(utf8, win1250, ...)",
       "type": "string"
     },
     "package.templating": {
@@ -35,13 +35,13 @@
       "type": "boolean"
     },
     "package.exclude": {
-      "default": ["./**/*EXCLUDE*.sql", "./scripts/**/file*.sql"],
+      "default": ["./scripts/**/+(file|run)*.sql"],
       "description": "Glob pattern to exclude files from package input.",
       "type": "array"
     },
     "source": {
       "default": ["./src/**/*.sql"],
-      "description": "Glob pattern for source files.",
+      "description": "Glob pattern for Source files.",
       "type": "array"
     },
     "compile.warnings": {

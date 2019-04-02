@@ -122,7 +122,7 @@ const createDeployInputFromGit = async ({ env = argv.env }) => {
 
     // Exclude excludes by config
     let excludeGlobs = config.get({ field: "package.exclude", env });
-    const newInput = base.fromGlobsToFilesArrayGlobby(all, {
+    const newInput = base.fromGlobsToFilesArray(all, {
       ignore: excludeGlobs
     });
 
@@ -208,11 +208,8 @@ const makeBillOfLading = ({ env = argv.env }) => {
 
   // Generate change log from deploy input array
   const input = config.get({ field: "package.input", env });
-  const allInput = base.fromGlobsToFilesArray(input);
-
-  // @todo GLobby gives "no such file or directory" if not existent dir...:{}
-  let excludeGlobs = config.get({ field: "package.exclude", env });
-  const all = base.fromGlobsToFilesArrayGlobby(allInput, {
+  const excludeGlobs = config.get({ field: "package.exclude", env });
+  const all = base.fromGlobsToFilesArray(input, {
     ignore: excludeGlobs
   });
 

@@ -11,7 +11,7 @@
     "./src/**/PROCEDURES/*.sql",
     "./scripts/**/final*.sql"
   ],
-  "package.exclude": ["./**/*EXCLUDE*.sql", "./scripts/**/file*.sql"],
+  "package.exclude": ["./scripts/**/+(file|run)*.sql"],
   "package.output": "./deploy/Run.sql",
   "package.encoding": "utf8",
   "package.templating": false,

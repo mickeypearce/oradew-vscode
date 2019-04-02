@@ -1,4 +1,4 @@
-# Oracle (PL/SQL) Development Workspace
+# Oradew - Oracle (PL/SQL) Development Workspace
 
 [![Build Status](https://dev.azure.com/mickeypearce0384/Oradew/_apis/build/status/mickeypearce.oradew-vscode)](https://dev.azure.com/mickeypearce0384/Oradew/_build/latest?definitionId=1)
 
@@ -28,7 +28,7 @@ oradewrc.json           Workspace configuration
 
 **Setup**
 
-- `Initialize Workspace/Version` - Init config files (dbconfig.json, oradewrc.json), Create workspace structure (./scripts, ./src, ./test dirs) and Init git repo when starting from scratch (new workspace). Clear logs, package and scripts: prepare workspace for a new version/feature when executed in a non-empty workspace.
+- `Initialize Workspace/Version` - Create configuration files: `dbconfig.json` and `oradewrc.json`, create workspace folder structure and initialize git repository when starting from scratch (new workspace). Clear logs, package and scripts: prepare workspace for a new version/feature when executed in a non-empty workspace.
 - `Import All Source from DB` - Create Source files from DB objects
 
 **Build**
@@ -41,7 +41,7 @@ oradewrc.json           Workspace configuration
 
 **Install**
 
-- `Package Delta` <sup>New</sup> (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD), and then generates SQL deployment script, TODO and BOL file.
+- `Package Delta` <sup>New</sup> (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD), and then generates SQL deployment script from those paths, TODO and BOL file.
 - `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
 - `Deploy` - Run SQL deployment script on selected environment (with SQLPlus). Command prompts with environment selection.
 
@@ -53,13 +53,30 @@ oradewrc.json           Workspace configuration
 - `Run tests`
 - `Generate...` PL/SQL code with a code generator.
 
-### DB Environments
+### Environment
 
-- `Set DB Environment` - Select DB environment for command execution. When option `<None>` is selected, you choose DB environment every time you execute command. Environment list is generated from `dbconfig.json` file. Three default environments (DEV, TEST, UAT) can be extended with custom environments. The default value is `DEV`.
+- `Set DB Environment` - Select DB environment for command execution. When option `<None>` is selected, you choose DB environment every time you execute command. Environment list is generated from `dbconfig.json` file. Standard environments (DEV, TEST, UAT) can be extended with custom environments. The default value is `DEV`.
 
 ## Configuration
 
-Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.DEV.json`, `oradewrc.TEST.json`, `oradewrc.UAT.json`, ...). The base configuration settings apply to all environments, unless an environment specific configuration file exists that extends the base.
+### Database
+
+Extension requires `dbconfig.json` file for successful activation. Schema supports different DB environment configurations. A minimal example setup with `DEV` environment follows:
+
+```json
+{
+  "DEV": {
+    "connectString": "localhost/orclpdb",
+    "users": [{ "user": "hr", "password": "welcome" }]
+  }
+}
+```
+
+Create `dbconfig.json` manually in the root folder of your workspace or use `Init Workspace/Version` command.
+
+### Workspace
+
+Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.DEV.json`, `oradewrc.TEST.json`, `oradewrc.UAT.json`, etc.). The base configuration settings apply to all environments, unless an environment specific configuration file exists that extends the base.
 
 Configuraton files are not required. Default values will be assumed in case they are not present. The following settings are available (`oradewrc*.json`):
 
@@ -77,7 +94,7 @@ Configuraton files are not required. Default values will be assumed in case they
     "./src/**/PROCEDURES/*.sql",
     "./scripts/**/final*.sql"
   ],
-  "package.exclude": ["./**/*EXCLUDE*.sql", "./scripts/**/file*.sql"],
+  "package.exclude": ["./scripts/**/+(file|run)*.sql"],
   "package.output": "./deploy/Run.sql",
   "package.encoding": "utf8",
   "package.templating": false,
@@ -95,8 +112,8 @@ Configuraton files are not required. Default values will be assumed in case they
 
 - `package.input` - Array of globs for packaging files into deployment script file (package.output). `Package Delta` command populates setting with changed file paths.
 - `package.output` - Deployment script file path. Created with `Package` commands from concatenated input files and prepared for SQLPlus execution. (wrapped with "SPOOL deploy.log", "COMMIT;", etc )
-- `package.exclude` - Array of globs for excluding files from package.input array.
-- `package.encoding` - Encoding of deploy script file. (ex.: utf8, win1250, ...) The default value is `utf8`.
+- `package.exclude` - Array of globs for excluding files from "package.input" array. Scripts that start with "file" or "run" by default.
+- `package.encoding` - Encoding of deployment script file. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging. The default value is `false`.
 - `source` - Glob pattern for Source files.
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.

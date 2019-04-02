@@ -1,7 +1,7 @@
 const fs = require("fs-extra");
 const _ = require("lodash/fp");
 const glob = require("glob");
-const globby = require("globby");
+// const globby = require("globby");
 // var glob = require("glob-stream");
 import { parse, resolve } from "path";
 
@@ -25,18 +25,18 @@ obj.fromStdoutToFilesArray = stdout =>
   )(stdout);
 
 // Get array of files matched by glob patterns array
-obj.fromGlobsToFilesArray = globArray => {
+obj.fromGlobsToFilesArray = (globArray, options) => {
   return globArray
-    .reduce((acc, path) => acc.concat(glob.sync(path)), [])
+    .reduce((acc, path) => acc.concat(glob.sync(path, options)), [])
     .map(utils.prependCheck("./"));
 };
 
 // Get array of files matched by glob patterns array
 // I get "no such file or directory" if unexisting dir ? inside gulp?
 // Globby can input can be an array
-obj.fromGlobsToFilesArrayGlobby = (globArray, options) => {
-  return globby.sync(globArray, options).map(utils.prependCheck("./"));
-};
+// obj.fromGlobsToFilesArrayGlobby = (globArray, options) => {
+//   return globby.sync(globArray, options).map(utils.prependCheck("./"));
+// };
 
 obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
   const obj = utils.getDBObjectFromPath(file);

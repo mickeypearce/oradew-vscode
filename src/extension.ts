@@ -10,7 +10,7 @@ import { GeneratorManager } from "./generator-manager";
 
 let taskProvider: vscode.Disposable | undefined;
 
-// Enviroment where tasks are executed
+// DB Environment where commands are executed
 let defaultEnv: string | null = "DEV";
 
 let statusBar = vscode.window.createStatusBarItem(
@@ -20,7 +20,7 @@ let statusBar = vscode.window.createStatusBarItem(
 
 const updateStatusBar = () => {
   statusBar.tooltip = "Oradew: Set DB Environment";
-  statusBar.command = `oradew.selectDefEnv`;
+  statusBar.command = `oradew.setDbEnvironment`;
   statusBar.text = `$(gear) ${defaultEnv}`;
   statusBar.show();
 };
@@ -66,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
     configParamDbConfigPath.replace("${workspaceFolder}", workspacePath)
   );
 
-  // Esisting DbConfigPath is ext activation point
+  // Existing DbConfigPath is ext activation point
   if (existsSync(dbConfigPath)) {
     initExtension();
   }
@@ -117,7 +117,7 @@ export function activate(context: vscode.ExtensionContext) {
             params: [
               "generate",
               "--env",
-              "${command:oradew.listEnv}",
+              "${command:oradew.getEnvironment}",
               "--func",
               generator.function,
               "--file",
@@ -141,7 +141,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "create",
-        params: ["create", "--env", "${command:oradew.listEnv}"]
+        params: ["create", "--env", "${command:oradew.getEnvironment}"]
       })
     );
 
@@ -151,7 +151,7 @@ export function activate(context: vscode.ExtensionContext) {
         params: [
           "compile",
           "--env",
-          "${command:oradew.listEnv}",
+          "${command:oradew.getEnvironment}",
           "--changed",
           "true"
         ]
@@ -164,7 +164,7 @@ export function activate(context: vscode.ExtensionContext) {
         params: [
           "compile",
           "--env",
-          "${command:oradew.listEnv}",
+          "${command:oradew.getEnvironment}",
           "--file",
           "${file}"
         ]
@@ -174,7 +174,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "compile--all",
-        params: ["compile", "--env", "${command:oradew.listEnv}"]
+        params: ["compile", "--env", "${command:oradew.getEnvironment}"]
       })
     );
 
@@ -184,7 +184,7 @@ export function activate(context: vscode.ExtensionContext) {
         params: [
           "compile",
           "--env",
-          "${command:oradew.listEnv}",
+          "${command:oradew.getEnvironment}",
           "--file",
           "${file}",
           "--object",
@@ -201,7 +201,7 @@ export function activate(context: vscode.ExtensionContext) {
         params: [
           "import",
           "--env",
-          "${command:oradew.listEnv}",
+          "${command:oradew.getEnvironment}",
           "--ease",
           "true"
         ]
@@ -214,7 +214,7 @@ export function activate(context: vscode.ExtensionContext) {
         params: [
           "import",
           "--env",
-          "${command:oradew.listEnv}",
+          "${command:oradew.getEnvironment}",
           "--file",
           "${file}"
         ]
@@ -227,7 +227,7 @@ export function activate(context: vscode.ExtensionContext) {
         params: [
           "import",
           "--env",
-          "${command:oradew.listEnv}",
+          "${command:oradew.getEnvironment}",
           "--object",
           "${selectedText}"
         ]
@@ -237,21 +237,26 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "package",
-        params: ["package", "--env", "${command:oradew.listEnv}"]
+        params: ["package", "--env", "${command:oradew.getEnvironment}"]
       })
     );
 
     result.push(
       createOradewTask({
         name: "package--delta",
-        params: ["package", "--env", "${command:oradew.listEnv}", "--delta"]
+        params: [
+          "package",
+          "--env",
+          "${command:oradew.getEnvironment}",
+          "--delta"
+        ]
       })
     );
 
     result.push(
       createOradewTask({
         name: "deploy",
-        params: ["run", "--env", "${command:oradew.listEnvAlways}"]
+        params: ["run", "--env", "${command:oradew.pickEnvironment}"]
       })
     );
 
@@ -261,7 +266,7 @@ export function activate(context: vscode.ExtensionContext) {
         params: [
           "run",
           "--env",
-          "${command:oradew.listEnv}",
+          "${command:oradew.getEnvironment}",
           "--file",
           "${file}"
         ]
@@ -271,7 +276,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "test",
-        params: ["test", "--env", "${command:oradew.listEnv}"]
+        params: ["test", "--env", "${command:oradew.getEnvironment}"]
       })
     );
 
@@ -297,91 +302,91 @@ export function activate(context: vscode.ExtensionContext) {
 
   registerOradewTasks();
 
-  const createEnvList = (config): vscode.QuickPickItem[] => {
-    return Object.keys(config).reduce((acc, value) => {
-      return [
-        ...acc,
-        {
-          label: value,
-          description: config[value].connectString,
-          picked: defaultEnv === value
-        }
-      ];
-    }, []);
+  // Create environment pick list from dbconfig file
+  const createEnvironmentList = (): vscode.QuickPickItem[] => {
+    return readJson(dbConfigPath).then(config => {
+      return Object.keys(config).reduce((acc, value) => {
+        return [
+          ...acc,
+          {
+            label: value,
+            description: config[value].connectString,
+            picked: defaultEnv === value
+          }
+        ];
+      }, []);
+    });
   };
 
-  const listEnv = (): Thenable<string | null> => {
-    return readJson(dbConfigPath)
-      .then(config => {
-        let options: vscode.QuickPickOptions = {
-          placeHolder: "Pick DB environment to execute to",
-          matchOnDescription: true,
-          matchOnDetail: true
-        };
-        let envs: vscode.QuickPickItem[] = createEnvList(config);
+  // Returns "defaultEnv" if it is set, otherwise let's you pick from the list
+  const getEnvironment = async (): Promise<string | null> => {
+    const envs: vscode.QuickPickItem[] = await createEnvironmentList();
+    const options: vscode.QuickPickOptions = {
+      placeHolder: "Pick DB environment to execute to",
+      matchOnDescription: true,
+      matchOnDetail: true
+    };
+    if (defaultEnv === "<None>") {
+      return vscode.window
+        .showQuickPick(envs, options)
+        .then(item => (item ? item.label : null));
+    } else {
+      return defaultEnv;
+    }
+  };
 
-        if (defaultEnv === "<None>") {
-          return vscode.window
-            .showQuickPick(envs, options)
-            .then(item => (item ? item.label : null));
-        } else {
-          return defaultEnv;
-        }
-      })
-      .catch(err => {
-        return vscode.window
-          .showErrorMessage(`Environment picker failed: ${err.message}`)
-          .then(_ => null);
+  const pickEnvironment = async (
+    addNoneOption?: boolean
+  ): Promise<string | null> => {
+    let envs: vscode.QuickPickItem[] = await createEnvironmentList();
+    const options: vscode.QuickPickOptions = {
+      placeHolder: "Pick DB environment",
+      matchOnDescription: true,
+      matchOnDetail: true
+    };
+    if (addNoneOption === true) {
+      envs.push({
+        label: "<None>",
+        description: "Select environment when executing command"
       });
+    }
+    return vscode.window
+      .showQuickPick(envs, options)
+      .then(item => (item ? item.label : null));
   };
 
-  const listEnvAlways = (addNoneOption?: boolean): Thenable<string | null> => {
-    return readJson(dbConfigPath)
-      .then(config => {
-        let options: vscode.QuickPickOptions = {
-          placeHolder: "Pick DB environment",
-          matchOnDescription: true,
-          matchOnDetail: true
-        };
-        let envs: vscode.QuickPickItem[] = createEnvList(config);
-        if (addNoneOption === true) {
-          envs.push({
-            label: "<None>",
-            description: "Select environment when executing command"
-          });
-        }
-        return vscode.window
-          .showQuickPick(envs, options)
-          .then(item => (item ? item.label : null));
-      })
-      .catch(err => {
-        return vscode.window
-          .showErrorMessage(`Environment picker failed: ${err.message}`, {
-            modal: true
-          })
-          .then(_ => null);
-      });
-  };
-
-  const selectDefEnv = async (): Promise<void> => {
-    const pickEnv = await listEnvAlways(true);
+  const setDbEnvironment = async (): Promise<void> => {
+    const pickEnv = await pickEnvironment(true);
     if (pickEnv) {
       defaultEnv = pickEnv;
       updateStatusBar();
     }
   };
 
-  // In task command exucution
-  let cmdListEnv = vscode.commands.registerCommand("oradew.listEnv", listEnv);
-  // Used for deploy task command
-  let cmdListEnvAlways = vscode.commands.registerCommand(
-    "oradew.listEnvAlways",
-    listEnvAlways
+  const clearDbEnvironment = async (): Promise<void> => {
+    defaultEnv = "<None>";
+    updateStatusBar();
+  };
+
+  // Internal command: env paramater selection in commands
+  let cmdGetEnvironment = vscode.commands.registerCommand(
+    "oradew.getEnvironment",
+    getEnvironment
   );
-  // Select DB environment command
-  let cmdSelectDefEnv = vscode.commands.registerCommand(
-    "oradew.selectDefEnv",
-    selectDefEnv
+  // Internal command: used for deploy task command
+  let cmdPickEnvironment = vscode.commands.registerCommand(
+    "oradew.pickEnvironment",
+    pickEnvironment
+  );
+
+  let cmdSetDbEnvironment = vscode.commands.registerCommand(
+    "oradew.setDbEnvironment",
+    setDbEnvironment
+  );
+
+  let cmdClearDbEnvironment = vscode.commands.registerCommand(
+    "oradew.clearDbEnvironment",
+    clearDbEnvironment
   );
 
   let cmdTaskGenerate = vscode.commands.registerCommand(
@@ -526,7 +531,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
     // let _task = createOradewTask({
     //   name: "test",
-    //   params: ["test", "--env", "${command:oradew.listEnv}"],
+    //   params: ["test", "--env", "${command:oradew.getEnvironment}"],
     //   isBackground: false
     // });
     // vscode.tasks.executeTask(_task);
@@ -543,7 +548,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (!taskExec) {
         let _task = createOradewTask({
           name: "compileOnSave",
-          params: ["compileOnSave", "--env", "${command:oradew.listEnv}"]
+          params: ["compileOnSave", "--env", "${command:oradew.getEnvironment}"]
         });
         _task.isBackground = true;
         _task.presentationOptions = {
@@ -574,9 +579,12 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskTest);
   context.subscriptions.push(cmdTaskCompileOnSave);
 
-  context.subscriptions.push(cmdListEnv);
-  context.subscriptions.push(cmdListEnvAlways);
-  context.subscriptions.push(cmdSelectDefEnv);
+  // Internal
+  context.subscriptions.push(cmdGetEnvironment);
+  context.subscriptions.push(cmdPickEnvironment);
+
+  context.subscriptions.push(cmdSetDbEnvironment);
+  context.subscriptions.push(cmdClearDbEnvironment);
 }
 
 // this method is called when your extension is deactivated

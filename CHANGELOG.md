@@ -4,6 +4,7 @@
 
 - Added "Package Delta" command for packaging version changes
 - Added "package.exclude" config parameter
+- Added "Clear DB Environment" command
 
 ## [0.3.3] - 2019-03-27
 

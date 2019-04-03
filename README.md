@@ -15,10 +15,10 @@ This extension allows you to develop your Oracle (PL/SQL) project in Visual Stud
 
 ```
 ./deploy                Deployment package
-./scripts               SQL Scripts (DDL, DML, etc)
+./scripts               SQL Scripts (DDL, DML, files, etc)
 ./src                   Source with PL/SQL objects (FUNCTIONS, PACKAGES, PROCEDURES, TABLES, TRIGGERS, TYPES, VIEWS)
 ./test                  Unit tests
-dbconfig.json           DB environments configuration (required)
+dbconfig.json           DB environment configuration (required)
 oradewrc.json           Workspace configuration
 ```
 
@@ -50,18 +50,19 @@ oradewrc.json           Workspace configuration
 - `Import Changes from DB` (Shift+F6)
 - `Import Current File / Import Selected Object`
 - `Compile All Source to DB`
-- `Run tests`
-- `Generate...` PL/SQL code with a code generator.
+- `Run tests` - Execute unit test files that are saved in the workspace
+- `Generate...` Generate PL/SQL code with a code generator
 
-### Environment
+### Select DB environment
 
-- `Set DB Environment` - Select DB environment for command execution. When option `<None>` is selected, you choose DB environment every time you execute command. Environment list is generated from `dbconfig.json` file. Standard environments (DEV, TEST, UAT) can be extended with custom environments. The default value is `DEV`.
+- `Set DB Environment` - Select DB environment for executing commands. Pick list is generated from `dbconfig.json` file. The default value is `DEV`.
+- `Clear DB Environment` - Set DB environment to `<None>`. This means that you will choose DB environment every time you execute command.
 
 ## Configuration
 
-### Database
+### DB environment
 
-Extension requires `dbconfig.json` file for successful activation. Schema supports different DB environment configurations. A minimal example setup with `DEV` environment follows:
+Only `dbconfig.json` file is required for the workspace activation and successful connection with your database. Multiple DB environments with multi-users per environment are supported. A minimal example with `DEV` environment and a single schema user follows:
 
 ```json
 {
@@ -72,13 +73,13 @@ Extension requires `dbconfig.json` file for successful activation. Schema suppor
 }
 ```
 
-Create `dbconfig.json` manually in the root folder of your workspace or use `Init Workspace/Version` command.
+Create `dbconfig.json` manually in the root folder of your workspace or execute `Init Workspace/Version` command.
 
 ### Workspace
 
 Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.DEV.json`, `oradewrc.TEST.json`, `oradewrc.UAT.json`, etc.). The base configuration settings apply to all environments, unless an environment specific configuration file exists that extends the base.
 
-Configuraton files are not required. Default values will be assumed in case they are not present. The following settings are available (`oradewrc*.json`):
+Default values will be used in the case workspace configuration file is not present. The following settings are available (defaults):
 
 ```json
 {
@@ -115,13 +116,13 @@ Configuraton files are not required. Default values will be assumed in case they
 - `package.exclude` - Array of globs for excluding files from "package.input" array. Scripts that start with "file" or "run" by default.
 - `package.encoding` - Encoding of deployment script file. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging. The default value is `false`.
-- `source` - Glob pattern for Source files.
+- `source` - Glob pattern for Source files
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.
 - `compile.stageFile` - Automatically stage file after is succesfully compiled (git add). Default value is `true`.
-- `version.number` - Version number.
-- `version.description` - Version description.
-- `version.releaseDate` - Version release date.
+- `version.number` - Version number
+- `version.description` - Version description
+- `version.releaseDate` - Version release date
 - `test.input` - Array of globs for test files. Executed with `Run tests` command.
 - `import.getDdlFunction` - Custom Get_DDL function name. Use your own DB function to customize import of object's DDL. It is used by `Import` commands. The default value is `DBMS_METADATA.GET_DDL`.
   ```sql

@@ -171,8 +171,13 @@
     ],
     "commands": [
       {
-        "command": "oradew.selectDefEnv",
+        "command": "oradew.setDbEnvironment",
         "title": "Set DB Enviroment",
+        "category": "Oradew"
+      },
+      {
+        "command": "oradew.clearDbEnvironment",
+        "title": "Clear DB Enviroment",
         "category": "Oradew"
       },
       {

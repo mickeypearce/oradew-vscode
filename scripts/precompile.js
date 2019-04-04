@@ -1,4 +1,8 @@
 const fs = require("fs-extra");
+const del = require("del");
+
+// Delete .out directory
+del.sync("./out");
 
 // copy templates/*
 fs.copySync("./src/templates", "./out/templates");

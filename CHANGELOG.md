@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.3.5] - 2019-04-04
+## [0.3.6] - 2019-04-04
 
 - Added "Package Delta" command for packaging version changes
 - Added "package.exclude" config parameter

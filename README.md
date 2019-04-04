@@ -43,6 +43,7 @@ oradewrc.json           Workspace configuration
 
 - `Package Delta` <sup>New</sup> (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD), and then generates SQL deployment script from those paths, TODO and BOL file.
 - `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
+- `Deploy` - Run SQL deployment script on selected environment (with SQLPlus). Command prompts with environment selection.
 
 ### Additional
 

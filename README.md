@@ -38,14 +38,11 @@ oradewrc.json           Workspace configuration
 - `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
 - `Run Current File as Script` (F5) - Execute a SQL script (with SQLPlus)
 - `Run Selected Statement` (Ctrl+Enter) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
-- `Toggle Compile Watch` <sup>New</sup> - Start/End compilaton on save. Compile working tree automatically whenever a Source file changes.
 
 **Install**
 
 - `Package Delta` <sup>New</sup> (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD), and then generates SQL deployment script from those paths, TODO and BOL file.
 - `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
-- `Package Delta` <sup>New</sup> (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD).
-- `Deploy` - Run SQL deployment script on selected environment (with SQLPlus). Command prompts with environment selection.
 
 ### Additional
 
@@ -58,7 +55,7 @@ oradewrc.json           Workspace configuration
 ### Select DB environment
 
 - `Set DB Environment` - Select DB environment for executing commands. Pick list is generated from `dbconfig.json` file. The default value is `DEV`.
-- `Clear DB Environment` - Set DB environment to `<None>`. This means that you will choose DB environment every time you execute command.
+- `Clear DB Environment` - Set DB environment to `<None>`. This means that you choose DB environment every time you execute command.
 
 ## Configuration
 

@@ -13,7 +13,6 @@ const data = require("gulp-data");
 const todo = require("gulp-todo");
 const template = require("gulp-template");
 const chalk = require("chalk");
-const globBase = require("glob-base");
 const inquirer = require("inquirer");
 const multiDest = require("gulp-multi-dest");
 const Table = require("cli-table");
@@ -117,8 +116,8 @@ const createDeployInputFromGit = async ({ env = argv.env }) => {
     const changedPaths = base.fromStdoutToFilesArray(stdout).sort();
 
     // Exclude files that are not generally icluded
-    const includedFiles = base.fromGlobsToFilesArray(["./**/*.sql"]);
-    const all = _.intersection(includedFiles)(changedPaths);
+    const includedFiles = ["./**/*.sql"];
+    const all = base.getGlobMatches(includedFiles, changedPaths);
 
     // Exclude excludes by config
     let excludeGlobs = config.get({ field: "package.exclude", env });
@@ -311,13 +310,11 @@ const printResults = resp => {
 };
 
 const getOnlyChangedFiles = async source => {
-  const stdout = await git.getChangesNotStaged();
   // Get array of changed files from git
+  const stdout = await git.getChangesNotStaged();
   const changed = base.fromStdoutToFilesArray(stdout);
   // Get array of files matched by source array parameter
-  const all = base.fromGlobsToFilesArray(source);
-  // Intersection of both arrays
-  const inter = _.intersection(all)(changed);
+  const inter = base.getGlobMatches(source, changed);
   return inter;
 };
 
@@ -572,12 +569,11 @@ const compileOnSave = ({ env = argv.env || "DEV" }) => {
 
 const createSrcEmpty = done => {
   try {
-    const source = globBase(config.get("source")[0]).base;
     const schemas = db.config.getSchemas();
     const dirs = utils.getDirTypes();
     for (const owner of schemas) {
       for (const dir of dirs) {
-        fs.ensureDirSync(`./${source}/${owner}/${dir}`);
+        fs.ensureDirSync(`./src/${owner}/${dir}`);
       }
     }
     done();
@@ -589,8 +585,7 @@ const createSrcEmpty = done => {
 };
 
 const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
-  // TODO source is array, taking first element
-  const source = globBase(config.get("source")[0]).base;
+  const source = config.get({ field: "source", env });
   const schemas = db.config.getSchemas();
   const objectTypes = utils.getObjectTypes();
   try {
@@ -598,11 +593,9 @@ const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
       const objs = await base.getObjectsInfoByType(env, owner, objectTypes);
       for (const obj of objs) {
         const type = utils.getDirFromObjectType(obj.OBJECT_TYPE);
-        // Create empty sql file
-        fs.outputFileSync(
-          `./${source}/${owner}/${type}/${obj.OBJECT_NAME}.sql`,
-          ""
-        );
+        const path = `./src/${owner}/${type}/${obj.OBJECT_NAME}.sql`;
+        // Create empty sql file - if is inside "source" globs
+        if (base.isGlobMatch(source, [path])) fs.outputFileSync(path, "");
       }
     }
   } catch (error) {
@@ -669,8 +662,8 @@ const compileAndMergeFilesToDb = async ({
   }
 };
 
-const extractTodos = () => {
-  const src = config.get("source");
+const extractTodos = ({ env = argv.env }) => {
+  const src = config.get({ field: "source", env });
 
   return gulp
     .src(src, { base: "./" })
@@ -692,7 +685,6 @@ const exportObjectFromDb = async ({
   try {
     if (!object) throw Error("Object cannot be empty.");
 
-    const source = globBase(config.get("source")[0]).base;
     const objs = await base.resolveObjectInfo(env, { name: object });
 
     // Create array of abs file paths
@@ -700,7 +692,7 @@ const exportObjectFromDb = async ({
       const owner = obj.OWNER;
       const type = utils.getDirFromObjectType(obj.OBJECT_TYPE);
       const name = obj.OBJECT_NAME;
-      const relativePath = `./${source}/${owner}/${type}/${name}.sql`;
+      const relativePath = `./src/${owner}/${type}/${name}.sql`;
       return path.resolve(relativePath);
     });
 

@@ -349,7 +349,7 @@
     "@types/oracledb": "^1.11.34",
     "mocha": "^5.2.0",
     "tslint": "^5.8.0",
-    "typescript": "^2.8.3",
+    "typescript": "^2.9.2",
     "vsce": "^1.40.0",
     "vscode": "^1.1.29"
   },
@@ -358,7 +358,6 @@
     "commander": "^2.19.0",
     "del": "4.0.0",
     "fs-extra": "^7.0.1",
-    "glob-base": "^0.3.0",
     "glob": "^7.1.1",
     "gulp": "^4.0.0",
     "gulp-concat": "^2.6.1",

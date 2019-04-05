@@ -1,9 +1,21 @@
+import {
+  pipe,
+  compact,
+  uniq,
+  sortBy,
+  identity,
+  map,
+  intersection,
+  isEqual,
+  replace,
+  trim,
+  trimCharsEnd
+} from "lodash/fp";
+import { parse, resolve } from "path";
+
 const fs = require("fs-extra");
-const _ = require("lodash/fp");
 const glob = require("glob");
 // const globby = require("globby");
-// var glob = require("glob-stream");
-import { parse, resolve } from "path";
 
 const utils = require("./utility");
 const db = require("./db");
@@ -12,16 +24,16 @@ let obj = {};
 
 // Get array of files from output stream string
 obj.fromStdoutToFilesArray = stdout =>
-  _.pipe(
+  pipe(
     // Generate array from lines
     utils.splitLines,
     // Remove empty items and duplicates
-    _.compact,
-    _.uniq,
+    compact,
+    uniq,
     // Scripts first
-    _.sortBy(_.identity),
+    sortBy(identity),
     // Add ./ if it doesn't already exists
-    _.map(utils.prependCheck("./"))
+    map(utils.prependCheck("./"))
   )(stdout);
 
 // Get array of files matched by glob patterns array
@@ -29,6 +41,21 @@ obj.fromGlobsToFilesArray = (globArray, options) => {
   return globArray
     .reduce((acc, path) => acc.concat(glob.sync(path, options)), [])
     .map(utils.prependCheck("./"));
+};
+
+// Returns intersection between globArray matches and matchArray
+obj.getGlobMatches = (globArray, matchArray) => {
+  // Get array of files matched by globArrayparameter
+  const all = obj.fromGlobsToFilesArray(globArray);
+  // Intersection of both arrays
+  const inter = intersection(all)(matchArray);
+  return inter;
+};
+
+// True of matchArray equals globArray matches
+obj.isGlobMatch = (globArray, matchArray) => {
+  const matches = obj.getGlobMatches(globArray, matchArray);
+  return isEqual(matches, matchArray);
 };
 
 // Get array of files matched by glob patterns array
@@ -50,13 +77,13 @@ obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
     if (!ease || (await db.isDifferentDdlTime(conn, obj, env))) {
       // Get Db object code as string
       let lob = await db.getObjectDdl(conn, getFunctionName, obj);
-      lob = _.pipe(
+      lob = pipe(
         // Remove whitespaces
-        _.trim,
+        trim,
         // Remove NUL chars that are added to large files ?!
-        _.replace(/\x00/g, ""),
+        replace(/\x00/g, ""),
         // Remove disable/enable line that is added at the end of the trigger
-        _.replace(/\nALTER TRIGGER+.*/g, "")
+        replace(/\nALTER TRIGGER+.*/g, "")
       )(lob);
       // Return a value async with callback
       done(null, lob);
@@ -83,15 +110,15 @@ obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
 
 function simpleParse(code) {
   // Trim empties and slash (/) from code if it exists
-  code = _.pipe(
-    _.trim,
-    _.trimCharsEnd("/"),
-    _.trim
+  code = pipe(
+    trim,
+    trimCharsEnd("/"),
+    trim
   )(code);
 
   // Trim semicolon (;) if it doesn't end with "END;" or "END <name>; etc"
   if (!/END(\s\w*)*;$/gi.test(code)) {
-    code = _.trimCharsEnd(";")(code);
+    code = trimCharsEnd(";")(code);
   }
   return code;
 }

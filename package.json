@@ -338,7 +338,7 @@
     "build": "vsce package",
     "publish": "vsce publish",
     "precompile": "node ./scripts/precompile.js",
-    "install-cli": "npm install -g ./",
+    "install-cli": "npm install -g ./ --ignore-scripts",
     "fix": "rd node_modules /S /Q & del package-lock.json & npm install --no-optional"
   },
   "devDependencies": {

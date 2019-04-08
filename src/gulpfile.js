@@ -239,7 +239,7 @@ const exportFilesFromDb = async ({
   ease = argv.ease || false,
   quiet = argv.quiet || false
 }) => {
-  const source = config.get({ field: "source", env });
+  const source = config.get({ field: "source.input", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
   const getFunctionName = config.get({
     field: "import.getDdlFunction",
@@ -323,7 +323,7 @@ const compileFilesToDb = async ({
   env = argv.env || "DEV",
   changed = argv.changed || false
 }) => {
-  const source = config.get({ field: "source", env });
+  const source = config.get({ field: "source.input", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
   const warnings = config.get({ field: "compile.warnings", env });
   const stageFile = config.get({ field: "compile.stageFile", env });
@@ -395,7 +395,9 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
       _.replace(/(\n\r)+/g, "\n"),
       _.trim,
       // Color red to the line that contains ERROR
-      _.replace(/^.*ERROR.*$/gm, chalk.red("$&"))
+      _.replace(/^.*ERROR.*$/gm, chalk.red("$&")),
+      // Color orange to the line that contains Warning
+      _.replace(/^.*Warning:.*$/gm, chalk.yellow("$&"))
     )(text);
 
   try {
@@ -550,7 +552,7 @@ const compileEverywhere = async ({ file, env }) => {
 
 const compileOnSave = ({ env = argv.env || "DEV" }) => {
   // Watch for files changes in source dir
-  const source = config.get("source");
+  const source = config.get("source.input");
   const watcher = gulp.watch(source, { awaitWriteFinish: true });
   console.log(chalk.magenta(`Watching for file changes in ${source} ...`));
   watcher.on("change", async file => {
@@ -585,7 +587,7 @@ const createSrcEmpty = done => {
 };
 
 const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
-  const source = config.get({ field: "source", env });
+  const source = config.get({ field: "source.input", env });
   const schemas = db.config.getSchemas();
   const objectTypes = utils.getObjectTypes();
   try {
@@ -594,7 +596,7 @@ const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
       for (const obj of objs) {
         const type = utils.getDirFromObjectType(obj.OBJECT_TYPE);
         const path = `./src/${owner}/${type}/${obj.OBJECT_NAME}.sql`;
-        // Create empty sql file - if is inside "source" globs
+        // Create empty sql file - if is inside "source.input" globs
         if (base.isGlobMatch(source, [path])) fs.outputFileSync(path, "");
       }
     }
@@ -627,7 +629,7 @@ const mergeLocalAndDbChanges = async ({
   env = argv.env,
   changed = argv.changed
 }) => {
-  const source = config.get({ field: "source", env });
+  const source = config.get({ field: "source.input", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
 
   if (src.length !== 0) {
@@ -663,7 +665,7 @@ const compileAndMergeFilesToDb = async ({
 };
 
 const extractTodos = ({ env = argv.env }) => {
-  const src = config.get({ field: "source", env });
+  const src = config.get({ field: "source.input", env });
 
   return gulp
     .src(src, { base: "./" })

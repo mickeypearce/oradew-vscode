@@ -34,7 +34,7 @@ oradewrc.json           Workspace configuration
 **Build**
 
 - `Toggle Compile Watch` <sup>New</sup> - Start/End compilaton on save. Compile working tree automatically whenever a Source file changes.
-- `Compile Changes to DB` (F6) - Compile changed Source objects (working tree). Succesfully compiled files are added to Staging area.
+- `Compile Changes to DB` (F6) - Compile changed Source objects (working tree) to DB
 - `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
 - `Run Current File as Script` (F5) - Execute a SQL script (with SQLPlus)
 - `Run Selected Statement` (Ctrl+Enter) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
@@ -47,16 +47,17 @@ oradewrc.json           Workspace configuration
 
 ### Additional
 
-- `Import Changes from DB` (Shift+F6)
-- `Import Current File / Import Selected Object`
+- `Import Changes from DB` (Shift+F6) - Walk Source files and import DB object content if changed on DB
+- `Import Current File`
+- `Import Selected Object` - Import new object from DB into a Source file
 - `Compile All Source to DB`
 - `Run tests` - Execute unit test files that are saved in the workspace
 - `Generate...` Generate PL/SQL code with a code generator
 
-### Select DB environment
+### Switch DB environment
 
-- `Set DB Environment` - Select DB environment for executing commands. Pick list is generated from `dbconfig.json` file. The default value is `DEV`.
-- `Clear DB Environment` - Set DB environment to `<None>`. This means that you choose DB environment every time you execute command.
+- `Set DB Environment` - Set DB environment that is used for executing DB commands. Pick list is generated from `dbconfig.json`. The default value is `DEV`.
+- `Clear DB Environment` - Set DB environment to `<None>`. This means that you choose DB environment every time you execute DB command.
 
 ## Configuration
 
@@ -77,7 +78,7 @@ Create `dbconfig.json` manually in the root folder of your workspace or execute 
 
 ### Workspace
 
-Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.DEV.json`, `oradewrc.TEST.json`, `oradewrc.UAT.json`, etc.). The base configuration settings apply to all environments, unless an environment specific configuration file exists that extends the base.
+Workspace supports a base configuration file (`oradewrc.json`) and an additional configuration file for each environment (`oradewrc.DEV.json`, `oradewrc.TEST.json`, etc.). The base configuration settings apply to all environments, unless an environment specific configuration file exists that extends the base.
 
 Default values will be used in the case workspace configuration file is not present. The following settings are available (defaults):
 
@@ -99,7 +100,7 @@ Default values will be used in the case workspace configuration file is not pres
   "package.output": "./deploy/Run.sql",
   "package.encoding": "utf8",
   "package.templating": false,
-  "source": ["./src/**/*.sql"],
+  "source.input": ["./src/**/*.sql"],
   "compile.warnings": "NONE",
   "compile.force": false,
   "compile.stageFile": true,
@@ -112,18 +113,18 @@ Default values will be used in the case workspace configuration file is not pres
 ```
 
 - `package.input` - Array of globs for packaging files into deployment script file (package.output). `Package Delta` command populates it with changed file paths.
-- `package.output` - Deployment script file path. Created with `Package` commands from concatenated input files and prepared for SQLPlus execution. (wrapped with "SPOOL deploy.log", "COMMIT;", etc )
+- `package.output` - Deployment script file path. Created witsh `Package` commands from concatenated input files and prepared for SQLPlus execution. (wrapped with "SPOOL deploy.log", "COMMIT;", etc )
 - `package.exclude` - Array of globs for excluding files from packaging. Scripts that start with "file" or "run" by default.
 - `package.encoding` - Encoding of deployment script file. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging. The default value is `false`.
-- `source` - Glob pattern for Source files. Used by general `Compile` and `Import` commands to match files affected by these commmands.
+- `source.input` - Glob pattern for Source files. Used by general `Compile` and `Import` commands to match files that are targeted. For example, to compile only "HR" schema and exclude "HR" tables, set: ["./src/HR/**/*.sql", "!./src/HR/TABLES/*.sql"].
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.
 - `compile.stageFile` - Automatically stage file after is succesfully compiled (git add). Default value is `true`.
 - `version.number` - Version number
 - `version.description` - Version description
 - `version.releaseDate` - Version release date
-- `test.input` - Array of globs for test files. Executed with `Run tests` command.
+- `test.input` - Array of globs for matching test files. Executed with `Run tests` command.
 - `import.getDdlFunction` - Custom Get_DDL function name. Use your own DB function to customize import of object's DDL. It is used by `Import` commands. The default value is `DBMS_METADATA.GET_DDL`.
   ```sql
   -- Example of a DB function specification:

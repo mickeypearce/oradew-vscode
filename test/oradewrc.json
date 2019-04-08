@@ -15,7 +15,7 @@
   "package.output": "./deploy/Run.sql",
   "package.encoding": "utf8",
   "package.templating": false,
-  "source": ["./src/**/*.sql"],
+  "source.input": ["./src/**/*.sql"],
   "compile.warnings": "NONE",
   "compile.force": false,
   "version.number": "0.0.1",

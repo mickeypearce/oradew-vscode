@@ -302,6 +302,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   registerOradewTasks();
 
+  /* environments */
   // Create environment pick list from dbconfig file
   const createEnvironmentList = (): vscode.QuickPickItem[] => {
     return readJson(dbConfigPath).then(config => {
@@ -318,23 +319,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
   };
 
-  // Returns "defaultEnv" if it is set, otherwise let's you pick from the list
-  const getEnvironment = async (): Promise<string | null> => {
-    const envs: vscode.QuickPickItem[] = await createEnvironmentList();
-    const options: vscode.QuickPickOptions = {
-      placeHolder: "Pick DB environment to execute to",
-      matchOnDescription: true,
-      matchOnDetail: true
-    };
-    if (defaultEnv === "<None>") {
-      return vscode.window
-        .showQuickPick(envs, options)
-        .then(item => (item ? item.label : null));
-    } else {
-      return defaultEnv;
-    }
-  };
-
+  // Environment picker
   const pickEnvironment = async (
     addNoneOption?: boolean
   ): Promise<string | null> => {
@@ -353,6 +338,15 @@ export function activate(context: vscode.ExtensionContext) {
     return vscode.window
       .showQuickPick(envs, options)
       .then(item => (item ? item.label : null));
+  };
+
+  // Returns "defaultEnv" if it is set, otherwise let's you pick from the list
+  const getEnvironment = async (): Promise<string | null> => {
+    if (defaultEnv === "<None>") {
+      return pickEnvironment(false);
+    } else {
+      return defaultEnv;
+    }
   };
 
   const setDbEnvironment = async (): Promise<void> => {

@@ -39,7 +39,7 @@
       "description": "Glob pattern to exclude files from package input.",
       "type": "array"
     },
-    "source": {
+    "source.input": {
       "default": ["./src/**/*.sql"],
       "description": "Glob pattern for Source files.",
       "type": "array"

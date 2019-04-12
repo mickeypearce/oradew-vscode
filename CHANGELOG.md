@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.3.7] - 2019-04-12
+
+- Rename "source" to "source.input" config
+- Fix "cli-install" when run from extension directory
+
 ## [0.3.6] - 2019-04-04
 
 - Added "Package Delta" command for packaging version changes

@@ -3,32 +3,18 @@
 import * as vscode from "vscode";
 
 import { resolve } from "path";
-import { readJson, existsSync } from "fs-extra";
+import { existsSync } from "fs-extra";
 
 import { TaskManager } from "./task-manager";
 import { GeneratorManager } from "./generator-manager";
+import { EnvironmentController } from "./environment-controller";
 
 let taskProvider: vscode.Disposable | undefined;
-
-// DB Environment where commands are executed
-let defaultEnv: string | null = "DEV";
-
-let statusBar = vscode.window.createStatusBarItem(
-  vscode.StatusBarAlignment.Left,
-  10
-);
-
-const updateStatusBar = () => {
-  statusBar.tooltip = "Oradew: Set DB Environment";
-  statusBar.command = `oradew.setDbEnvironment`;
-  statusBar.text = `$(gear) ${defaultEnv}`;
-  statusBar.show();
-};
+let environmentController: EnvironmentController;
 
 const initExtension = () => {
   // Variable is then used in package.json to enable bookmarks...
   vscode.commands.executeCommand("setContext", "inOradewProject", true);
-  updateStatusBar();
 };
 
 export function activate(context: vscode.ExtensionContext) {
@@ -36,12 +22,6 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
   const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
-
-  // Reactive extension when settings.json changes as databaseConfigPath file
-  // which is activation trigger can be defined in settings
-  vscode.workspace.onDidChangeConfiguration(() => {
-    activate(context);
-  });
 
   // Oradew configurations
   const configParamChatty: boolean = vscode.workspace
@@ -66,10 +46,22 @@ export function activate(context: vscode.ExtensionContext) {
     configParamDbConfigPath.replace("${workspaceFolder}", workspacePath)
   );
 
+  // let watcher = vscode.workspace.createFileSystemWatcher(dbConfigPath);
+  // watcher.onDidCreate(() => {
+  //   activate(context);
+  // });
+
   // Existing DbConfigPath is ext activation point
   if (existsSync(dbConfigPath)) {
     initExtension();
   }
+
+  // Reactivate extension when settings.json changes as databaseConfigPath file
+  // which is activation trigger can be defined in settings
+  vscode.workspace.onDidChangeConfiguration(() => {
+    deactivate();
+    activate(context);
+  });
 
   const taskManager = new TaskManager({
     workspacePath,
@@ -82,6 +74,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   const generatorManager = new GeneratorManager();
+  environmentController = new EnvironmentController(dbConfigPath);
 
   const createOradewTask = ({
     name,
@@ -302,85 +295,25 @@ export function activate(context: vscode.ExtensionContext) {
 
   registerOradewTasks();
 
-  /* environments */
-  // Create environment pick list from dbconfig file
-  const createEnvironmentList = (): vscode.QuickPickItem[] => {
-    return readJson(dbConfigPath).then(config => {
-      return Object.keys(config).reduce((acc, value) => {
-        return [
-          ...acc,
-          {
-            label: value,
-            description: config[value].connectString,
-            picked: defaultEnv === value
-          }
-        ];
-      }, []);
-    });
-  };
-
-  // Environment picker
-  const pickEnvironment = async (
-    addNoneOption?: boolean
-  ): Promise<string | null> => {
-    let envs: vscode.QuickPickItem[] = await createEnvironmentList();
-    const options: vscode.QuickPickOptions = {
-      placeHolder: "Pick DB environment",
-      matchOnDescription: true,
-      matchOnDetail: true
-    };
-    if (addNoneOption === true) {
-      envs.push({
-        label: "<None>",
-        description: "Select environment when executing command"
-      });
-    }
-    return vscode.window
-      .showQuickPick(envs, options)
-      .then(item => (item ? item.label : null));
-  };
-
-  // Returns "defaultEnv" if it is set, otherwise let's you pick from the list
-  const getEnvironment = async (): Promise<string | null> => {
-    if (defaultEnv === "<None>") {
-      return pickEnvironment(false);
-    } else {
-      return defaultEnv;
-    }
-  };
-
-  const setDbEnvironment = async (): Promise<void> => {
-    const pickEnv = await pickEnvironment(true);
-    if (pickEnv) {
-      defaultEnv = pickEnv;
-      updateStatusBar();
-    }
-  };
-
-  const clearDbEnvironment = async (): Promise<void> => {
-    defaultEnv = "<None>";
-    updateStatusBar();
-  };
-
   // Internal command: env paramater selection in commands
   let cmdGetEnvironment = vscode.commands.registerCommand(
     "oradew.getEnvironment",
-    getEnvironment
+    environmentController.getEnvironment
   );
   // Internal command: used for deploy task command
   let cmdPickEnvironment = vscode.commands.registerCommand(
     "oradew.pickEnvironment",
-    pickEnvironment
+    environmentController.pickEnvironment
   );
 
   let cmdSetDbEnvironment = vscode.commands.registerCommand(
     "oradew.setDbEnvironment",
-    setDbEnvironment
+    environmentController.setDbEnvironment
   );
 
   let cmdClearDbEnvironment = vscode.commands.registerCommand(
     "oradew.clearDbEnvironment",
-    clearDbEnvironment
+    environmentController.clearDbEnvironment
   );
 
   let cmdTaskGenerate = vscode.commands.registerCommand(
@@ -585,5 +518,8 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate(): void {
   if (taskProvider) {
     taskProvider.dispose();
+  }
+  if (environmentController) {
+    environmentController.dispose();
   }
 }

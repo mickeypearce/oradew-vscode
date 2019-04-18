@@ -13,23 +13,28 @@ export class EnvironmentController {
     description: "Select environment when executing command"
   };
   private _dbConfigPath: string;
-  private _statusBar: StatusBarItem;
+  private static _statusBar: StatusBarItem;
   private _currentEnvironment: string | null = "DEV";
 
   public constructor(dbConfigPath: string) {
     this._dbConfigPath = dbConfigPath;
-    this._statusBar = window.createStatusBarItem(StatusBarAlignment.Left, 10);
-    this._statusBar.tooltip = "Oradew: Set DB Environment";
-    this._statusBar.command = `oradew.setDbEnvironment`;
+    EnvironmentController._statusBar = window.createStatusBarItem(
+      StatusBarAlignment.Left,
+      10
+    );
+    EnvironmentController._statusBar.tooltip = "Oradew: Set DB Environment";
+    EnvironmentController._statusBar.command = `oradew.setDbEnvironment`;
     this.updateStatusBar();
   }
 
-  public updateStatusBar = () => {
-    this._statusBar.text = `$(gear) ${this._currentEnvironment}`;
+  private updateStatusBar = () => {
+    EnvironmentController._statusBar.text = `$(gear) ${
+      this._currentEnvironment
+    }`;
     if (existsSync(this._dbConfigPath)) {
-      this._statusBar.show();
+      EnvironmentController._statusBar.show();
     } else {
-      this._statusBar.hide();
+      EnvironmentController._statusBar.hide();
     }
   }
 
@@ -55,7 +60,7 @@ export class EnvironmentController {
   ): Promise<string | null> => {
     let envs: QuickPickItem[] = await this.createEnvironmentList();
     const options: QuickPickOptions = {
-      placeHolder: "Pick DB environment",
+      placeHolder: "Select DB environment",
       matchOnDescription: true,
       matchOnDetail: true
     };
@@ -90,6 +95,6 @@ export class EnvironmentController {
   }
 
   public dispose() {
-    this._statusBar.dispose();
+    EnvironmentController._statusBar.dispose();
   }
 }

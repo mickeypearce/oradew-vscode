@@ -1,9 +1,6 @@
-import * as vscode from "vscode";
-
-import { resolve } from "path";
 import { existsSync, readJsonSync } from "fs-extra";
-
 import { getDefaultsFromSchema } from "./common/utility";
+import { ConfigurationController } from "./configuration-controller";
 
 interface IGenerator {
   label: string;
@@ -27,14 +24,7 @@ export class GeneratorManager {
   }
 
   getConfigFile = (): string => {
-    const configPath: string = vscode.workspace
-      .getConfiguration("oradew")
-      .get("generatorConfigFile");
-
-    const workspaceFolder = vscode.workspace.workspaceFolders![0].uri.fsPath;
-    const path = configPath.replace("${workspaceFolder}", workspaceFolder);
-
-    return resolve(path);
+    return ConfigurationController.getInstance().generatorConfigFile;
   }
 
   read = (): void => {

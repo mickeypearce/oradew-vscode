@@ -2,12 +2,12 @@
 
 import * as vscode from "vscode";
 
-import { resolve } from "path";
 import { existsSync } from "fs-extra";
 
 import { TaskManager } from "./task-manager";
 import { GeneratorManager } from "./generator-manager";
 import { EnvironmentController } from "./environment-controller";
+import { ConfigurationController } from "./configuration-controller";
 
 let taskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
@@ -23,28 +23,10 @@ export function activate(context: vscode.ExtensionContext) {
   const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
 
-  // Oradew configurations
-  const configParamChatty: boolean = vscode.workspace
-    .getConfiguration("oradew")
-    .get("chatty");
-
-  const isSilent = !configParamChatty;
-
-  const configParamWsConfigPath: string = vscode.workspace
-    .getConfiguration("oradew")
-    .get("workspaceConfigFile");
-
-  const wsConfigPath = resolve(
-    configParamWsConfigPath.replace("${workspaceFolder}", workspacePath)
-  );
-
-  const configParamDbConfigPath: string = vscode.workspace
-    .getConfiguration("oradew")
-    .get("databaseConfigFile");
-
-  const dbConfigPath = resolve(
-    configParamDbConfigPath.replace("${workspaceFolder}", workspacePath)
-  );
+  let settings = ConfigurationController.getInstance();
+  const isSilent = !settings.chatty;
+  const wsConfigPath = settings.workspaceConfigFile;
+  const dbConfigPath = settings.databaseConfigFile;
 
   // let watcher = vscode.workspace.createFileSystemWatcher(dbConfigPath);
   // watcher.onDidCreate(() => {
@@ -74,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   const generatorManager = new GeneratorManager();
-  environmentController = new EnvironmentController(dbConfigPath);
+  environmentController = new EnvironmentController();
 
   const createOradewTask = ({
     name,

@@ -5,6 +5,8 @@ import {
   StatusBarItem,
   QuickPickOptions
 } from "vscode";
+import { ConfigurationController } from "./configuration-controller";
+
 import { readJson, existsSync } from "fs-extra";
 
 export class EnvironmentController {
@@ -16,8 +18,8 @@ export class EnvironmentController {
   private static _statusBar: StatusBarItem;
   private _currentEnvironment: string | null = "DEV";
 
-  public constructor(dbConfigPath: string) {
-    this._dbConfigPath = dbConfigPath;
+  public constructor() {
+    this._dbConfigPath = ConfigurationController.getInstance().databaseConfigFile;
     EnvironmentController._statusBar = window.createStatusBarItem(
       StatusBarAlignment.Left,
       10

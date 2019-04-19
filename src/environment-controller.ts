@@ -3,7 +3,8 @@ import {
   window,
   StatusBarAlignment,
   StatusBarItem,
-  QuickPickOptions
+  QuickPickOptions,
+  ExtensionContext
 } from "vscode";
 import { ConfigurationController } from "./configuration-controller";
 
@@ -14,11 +15,18 @@ export class EnvironmentController {
     label: "<None>",
     description: "Select environment when executing command"
   };
+  private _context: ExtensionContext;
   private _dbConfigPath: string;
   private static _statusBar: StatusBarItem;
-  private _currentEnvironment: string | null = "DEV";
+  private get currentEnvironment(): string {
+    return this._context.workspaceState.get("currEnv", "DEV");
+  }
+  private set currentEnvironment(env: string) {
+    this._context.workspaceState.update("currEnv", env);
+  }
 
-  public constructor() {
+  public constructor(context: ExtensionContext) {
+    this._context = context;
     this._dbConfigPath = ConfigurationController.getInstance().databaseConfigFile;
     EnvironmentController._statusBar = window.createStatusBarItem(
       StatusBarAlignment.Left,
@@ -31,7 +39,7 @@ export class EnvironmentController {
 
   private updateStatusBar = () => {
     EnvironmentController._statusBar.text = `$(gear) ${
-      this._currentEnvironment
+      this.currentEnvironment
     }`;
     if (existsSync(this._dbConfigPath)) {
       EnvironmentController._statusBar.show();
@@ -49,7 +57,7 @@ export class EnvironmentController {
           {
             label: value,
             description: config[value].connectString,
-            picked: this._currentEnvironment === value
+            picked: this.currentEnvironment === value
           }
         ];
       }, []);
@@ -76,23 +84,23 @@ export class EnvironmentController {
 
   // Returns "defaultEnv" if it is set, otherwise let's you pick from the list
   public getEnvironment = async (): Promise<string | null> => {
-    if (this._currentEnvironment === EnvironmentController.NONE.label) {
+    if (this.currentEnvironment === EnvironmentController.NONE.label) {
       return this.pickEnvironment(false);
     } else {
-      return this._currentEnvironment;
+      return this.currentEnvironment;
     }
   }
 
   public setDbEnvironment = async (): Promise<void> => {
     const pickEnv = await this.pickEnvironment(true);
     if (pickEnv) {
-      this._currentEnvironment = pickEnv;
+      this.currentEnvironment = pickEnv;
       this.updateStatusBar();
     }
   }
 
   public clearDbEnvironment = async (): Promise<void> => {
-    this._currentEnvironment = EnvironmentController.NONE.label;
+    this.currentEnvironment = EnvironmentController.NONE.label;
     this.updateStatusBar();
   }
 

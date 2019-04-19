@@ -56,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   const generatorManager = new GeneratorManager();
-  environmentController = new EnvironmentController();
+  environmentController = new EnvironmentController(context);
 
   const createOradewTask = ({
     name,

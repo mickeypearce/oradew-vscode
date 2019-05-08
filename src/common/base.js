@@ -117,7 +117,7 @@ function simpleParse(code) {
   )(code);
 
   // Trim semicolon (;) if it doesn't end with "END;" or "END <name>; etc"
-  if (!/END(\s\w*)*;$/gi.test(code)) {
+  if (!/END(\s*\w*);$/gi.test(code)) {
     code = trimCharsEnd(";")(code);
   }
   return code;

@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.8] - 2019-05-08
+
+- Fix importing all source [#20](https://github.com/mickeypearce/oradew-vscode/issues/20)
+
 ## [0.3.7] - 2019-04-12
 
 - Rename "source" to "source.input" config

@@ -164,7 +164,7 @@ const cherryPickFromJiraTask = async () => {
   console.log(`Files changed: ${stdout}`);
 };
 
-const generateBOLContent = function(paths) {
+const generateBOLContent = function (paths) {
   // Create Db objects from paths array
   let dbo = paths.map(path => {
     let obj = utils.getDBObjectFromPath(path);
@@ -288,7 +288,7 @@ const printResults = resp => {
     console.log(
       // chalk.magenta(
       `${resp.result.rowsAffected} ${
-        resp.result.rowsAffected === 1 ? "row" : "rows"
+      resp.result.rowsAffected === 1 ? "row" : "rows"
       } affected.`
 
       // )
@@ -597,7 +597,10 @@ const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
         const type = utils.getDirFromObjectType(obj.OBJECT_TYPE);
         const path = `./src/${owner}/${type}/${obj.OBJECT_NAME}.sql`;
         // Create empty sql file - if is inside "source.input" globs
-        if (base.isGlobMatch(source, [path])) fs.outputFileSync(path, "");
+        // non existing object are always created!
+        if (!fs.existsSync(path) || base.isGlobMatch(source, [path])) {
+          fs.outputFileSync(path, "");
+        }
       }
     }
   } catch (error) {
@@ -738,10 +741,10 @@ const generate = async ({
     const outputPath = output
       ? path.resolve(output)
       : path.resolve(
-          `./scripts/${
-            resp.obj.owner
-          }/file_${object}_${new Date().getTime()}.sql`
-        );
+        `./scripts/${
+        resp.obj.owner
+        }/file_${object}_${new Date().getTime()}.sql`
+      );
 
     await utils.outputFilePromise(outputPath, resp.result);
     console.log(`${outputPath} ${chalk.green("created.")}`);

@@ -44,6 +44,11 @@
       "description": "Glob pattern for Source files.",
       "type": "array"
     },
+    "source.encoding": {
+      "default": "utf8",
+      "description": "Source files encoding. \n(utf8, win1250, ...)",
+      "type": "string"
+    },
     "compile.warnings": {
       "default": "NONE",
       "description": "Compilation warning scopes.",

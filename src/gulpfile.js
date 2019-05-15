@@ -85,7 +85,8 @@ SPOOL OFF
 PROMPT INFO: Deploying version ${version} ...
 `;
 
-  if (srcEncoding !== pckEncoding) {
+  // --Warn If src encoding is changed but package encoding default...
+  if (srcEncoding !== pckEncoding && pckEncoding === "utf8") {
     console.warn(
       `${chalk.yellow(
         "WARN"
@@ -616,6 +617,7 @@ const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
         // non existing object are always created!
         if (!fs.existsSync(path) || base.isGlobMatch(source, [path])) {
           fs.outputFileSync(path, "");
+          console.log("Created file " + path);
         }
       }
     }

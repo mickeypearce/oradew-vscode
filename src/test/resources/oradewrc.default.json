@@ -16,6 +16,7 @@
   "package.encoding": "utf8",
   "package.templating": false,
   "source.input": ["./src/**/*.sql"],
+  "source.encoding": "utf8",
   "compile.warnings": "NONE",
   "compile.force": false,
   "compile.stageFile": true,

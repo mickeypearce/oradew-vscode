@@ -101,6 +101,7 @@ Default values will be used in the case workspace configuration file is not pres
   "package.encoding": "utf8",
   "package.templating": false,
   "source.input": ["./src/**/*.sql"],
+  "source.encoding": "utf8",
   "compile.warnings": "NONE",
   "compile.force": false,
   "compile.stageFile": true,
@@ -117,7 +118,8 @@ Default values will be used in the case workspace configuration file is not pres
 - `package.exclude` - Array of globs for excluding files from packaging. Scripts that start with "file" or "run" by default.
 - `package.encoding` - Encoding of deployment script file. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging. The default value is `false`.
-- `source.input` - Glob pattern for Source files. Used by general `Compile` and `Import` commands to match files that are targeted. For example, to compile only "HR" schema and exclude "HR" tables, set: ["./src/HR/**/*.sql", "!./src/HR/TABLES/*.sql"].
+- `source.input` - Glob pattern for Source files. Used by general `Compile` and `Import` commands to match files that are targeted. For example, to compile only "HR" schema and exclude "HR" tables, set: ["./src/HR/**/\*.sql", "!./src/HR/TABLES/\*.sql"].
+- `source.encoding` - Encoding of Source files. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.
 - `compile.stageFile` - Automatically stage file after is succesfully compiled (git add). Default value is `true`.

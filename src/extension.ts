@@ -41,6 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Reactivate extension when settings.json changes as databaseConfigPath file
   // which is activation trigger can be defined in settings
   vscode.workspace.onDidChangeConfiguration(() => {
+    settings.initializeSettings();
     deactivate();
     activate(context);
   });

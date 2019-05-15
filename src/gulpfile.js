@@ -49,9 +49,10 @@ const packageSrcFromFile = ({ env = argv.env }) => {
   const outputFileName = path.basename(outputFile);
   const outputDirectory = path.dirname(outputFile);
   const input = config.get({ field: "package.input", env });
-  const encoding = config.get({ field: "package.encoding", env });
+  const pckEncoding = config.get({ field: "package.encoding", env });
   const templating = config.get({ field: "package.templating", env });
   const version = config.get({ field: "version.number", env });
+  const srcEncoding = config.get({ field: "source.encoding", env });
 
   let exclude = config.get({ field: "package.exclude", env });
   exclude = exclude.map(utils.prependCheck("!"));
@@ -84,9 +85,20 @@ SPOOL OFF
 PROMPT INFO: Deploying version ${version} ...
 `;
 
+  // --Warn If src encoding is changed but package encoding default...
+  if (srcEncoding !== pckEncoding && pckEncoding === "utf8") {
+    console.warn(
+      `${chalk.yellow(
+        "WARN"
+      )} source.encoding (${srcEncoding}) is different than package.encoding (${pckEncoding})`
+    );
+  }
+
   return (
     gulp
       .src(src, { allowEmpty: true })
+      // First convert to utf8, run through the pipes and back to desired encoding
+      .pipe(convertEncoding({ from: srcEncoding }))
       // Replace template variables, ex. config["config.variable"]
       .pipe(templating ? template(templateObject) : gutil.noop())
       // Adds object prompt to every file
@@ -95,7 +107,7 @@ PROMPT INFO: Deploying version ${version} ...
       .pipe(insert.prepend(deployVersionPrepend))
       .pipe(insert.wrap(deployPrepend, deployAppend))
       .pipe(insert.prepend(timestampHeader))
-      .pipe(convertEncoding({ to: encoding }))
+      .pipe(convertEncoding({ to: pckEncoding }))
       .pipe(gulp.dest(outputDirectory))
       .on("end", () =>
         console.log(
@@ -164,7 +176,7 @@ const cherryPickFromJiraTask = async () => {
   console.log(`Files changed: ${stdout}`);
 };
 
-const generateBOLContent = function (paths) {
+const generateBOLContent = function(paths) {
   // Create Db objects from paths array
   let dbo = paths.map(path => {
     let obj = utils.getDBObjectFromPath(path);
@@ -245,6 +257,7 @@ const exportFilesFromDb = async ({
     field: "import.getDdlFunction",
     env
   });
+  const encoding = config.get({ field: "source.encoding", env });
 
   const processFile = async (code, file, done) => {
     let res;
@@ -265,6 +278,7 @@ const exportFilesFromDb = async ({
   return gulp
     .src(src, { base: "./", allowEmpty: true })
     .pipe(map(processFile))
+    .pipe(convertEncoding({ to: encoding }))
     .pipe(gulp.dest("."));
 
   // .on('end', () => ((!quiet) && console.log('Done.')))
@@ -288,7 +302,7 @@ const printResults = resp => {
     console.log(
       // chalk.magenta(
       `${resp.result.rowsAffected} ${
-      resp.result.rowsAffected === 1 ? "row" : "rows"
+        resp.result.rowsAffected === 1 ? "row" : "rows"
       } affected.`
 
       // )
@@ -328,6 +342,7 @@ const compileFilesToDb = async ({
   const warnings = config.get({ field: "compile.warnings", env });
   const stageFile = config.get({ field: "compile.stageFile", env });
   const force = config.get({ field: "compile.force", env });
+  const encoding = config.get({ field: "source.encoding", env });
 
   const processFile = async (file, done) => {
     let resp;
@@ -359,6 +374,8 @@ const compileFilesToDb = async ({
   return (
     gulp
       .src(src, { allowEmpty: true })
+      // Default encoding to: 'utf8'
+      .pipe(convertEncoding({ from: encoding }))
       // Compile file and emmit response
       .pipe(data(processFile))
       // End stream as there is no destination
@@ -600,6 +617,7 @@ const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
         // non existing object are always created!
         if (!fs.existsSync(path) || base.isGlobMatch(source, [path])) {
           fs.outputFileSync(path, "");
+          console.log("Created file " + path);
         }
       }
     }
@@ -741,10 +759,10 @@ const generate = async ({
     const outputPath = output
       ? path.resolve(output)
       : path.resolve(
-        `./scripts/${
-        resp.obj.owner
-        }/file_${object}_${new Date().getTime()}.sql`
-      );
+          `./scripts/${
+            resp.obj.owner
+          }/file_${object}_${new Date().getTime()}.sql`
+        );
 
     await utils.outputFilePromise(outputPath, resp.result);
     console.log(`${outputPath} ${chalk.green("created.")}`);

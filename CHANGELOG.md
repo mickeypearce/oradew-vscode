@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.9] - 2019-05-15
+
+- Added "source.encoding" config [#21](https://github.com/mickeypearce/oradew-vscode/issues/21)
+
 ## [0.3.8] - 2019-05-08
 
 - Fix importing all source [#20](https://github.com/mickeypearce/oradew-vscode/issues/20)

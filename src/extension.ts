@@ -2,20 +2,14 @@
 
 import * as vscode from "vscode";
 
-import { existsSync } from "fs-extra";
-
 import { TaskManager } from "./task-manager";
 import { GeneratorManager } from "./generator-manager";
 import { EnvironmentController } from "./environment-controller";
 import { ConfigurationController } from "./configuration-controller";
+import { setInitialized } from "./activation";
 
 let taskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
-
-const initExtension = () => {
-  // Variable is then used in package.json to enable bookmarks...
-  vscode.commands.executeCommand("setContext", "inOradewProject", true);
-};
 
 export function activate(context: vscode.ExtensionContext) {
   const workspacePath =
@@ -33,10 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
   //   activate(context);
   // });
 
-  // Existing DbConfigPath is ext activation point
-  if (existsSync(dbConfigPath)) {
-    initExtension();
-  }
+  setInitialized();
 
   // Reactivate extension when settings.json changes as databaseConfigPath file
   // which is activation trigger can be defined in settings
@@ -323,7 +314,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: init"
       );
-      initExtension();
+      setInitialized();
     }
   );
   let cmdTaskCreateProject = vscode.commands.registerCommand(

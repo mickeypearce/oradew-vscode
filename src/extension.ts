@@ -7,6 +7,7 @@ import { GeneratorManager } from "./generator-manager";
 import { EnvironmentController } from "./environment-controller";
 import { ConfigurationController } from "./configuration-controller";
 import { setInitialized } from "./activation";
+import { Telemetry } from "./telemetry";
 
 let taskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
@@ -304,6 +305,7 @@ export function activate(context: vscode.ExtensionContext) {
           "Oradew: generator." + generator.label
         );
       }
+      Telemetry.sendEvent("generateTask");
     }
   );
   /************** */
@@ -315,6 +317,7 @@ export function activate(context: vscode.ExtensionContext) {
         "Oradew: init"
       );
       setInitialized();
+      Telemetry.sendEvent("initProjectTask");
     }
   );
   let cmdTaskCreateProject = vscode.commands.registerCommand(
@@ -324,6 +327,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: create"
       );
+      Telemetry.sendEvent("createProjectTask");
     }
   );
   let cmdTaskCompile = vscode.commands.registerCommand(
@@ -333,6 +337,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: compile"
       );
+      Telemetry.sendEvent("compileTask");
     }
   );
   let cmdTaskCompileAll = vscode.commands.registerCommand(
@@ -342,6 +347,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: compile--all"
       );
+      Telemetry.sendEvent("compileAllTask");
     }
   );
   let cmdTaskCompileFile = vscode.commands.registerCommand(
@@ -351,6 +357,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: compile--file"
       );
+      Telemetry.sendEvent("compileFileTask");
     }
   );
   let cmdTaskCompileObject = vscode.commands.registerCommand(
@@ -360,6 +367,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: compile--object"
       );
+      Telemetry.sendEvent("compileObjectTask");
     }
   );
   let cmdTaskExport = vscode.commands.registerCommand(
@@ -369,6 +377,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: export"
       );
+      Telemetry.sendEvent("exportTask");
     }
   );
   let cmdTaskExportFile = vscode.commands.registerCommand(
@@ -378,6 +387,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: export--file"
       );
+      Telemetry.sendEvent("exportFileTask");
     }
   );
   let cmdTaskExportObject = vscode.commands.registerCommand(
@@ -387,6 +397,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: export--object"
       );
+      Telemetry.sendEvent("exportObjectTask");
     }
   );
   let cmdTaskPackage = vscode.commands.registerCommand(
@@ -396,6 +407,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: package"
       );
+      Telemetry.sendEvent("packageTask");
     }
   );
   let cmdTaskPackageDelta = vscode.commands.registerCommand(
@@ -405,6 +417,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: package--delta"
       );
+      Telemetry.sendEvent("packageDeltaTask");
     }
   );
   let cmdTaskDeploy = vscode.commands.registerCommand(
@@ -414,6 +427,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: deploy"
       );
+      Telemetry.sendEvent("deployTask");
     }
   );
   let cmdTaskDeployFile = vscode.commands.registerCommand(
@@ -423,6 +437,7 @@ export function activate(context: vscode.ExtensionContext) {
         "workbench.action.tasks.runTask",
         "Oradew: deploy--file"
       );
+      Telemetry.sendEvent("deployTaskFile");
     }
   );
   let cmdTaskTest = vscode.commands.registerCommand("oradew.testTask", () => {
@@ -430,6 +445,7 @@ export function activate(context: vscode.ExtensionContext) {
       "workbench.action.tasks.runTask",
       "Oradew: test"
     );
+    Telemetry.sendEvent("testTask");
     // let _task = createOradewTask({
     //   name: "test",
     //   params: ["test", "--env", "${command:oradew.getEnvironment}"],
@@ -460,6 +476,7 @@ export function activate(context: vscode.ExtensionContext) {
         taskExec.then(task => task.terminate());
         taskExec = null;
       }
+      Telemetry.sendEvent("compileOnSaveTask");
     }
   );
 
@@ -486,6 +503,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(cmdSetDbEnvironment);
   context.subscriptions.push(cmdClearDbEnvironment);
+
+  // Telemetry
+  context.subscriptions.push(Telemetry.reporter);
 }
 
 // this method is called when your extension is deactivated
@@ -496,4 +516,5 @@ export function deactivate(): void {
   if (environmentController) {
     environmentController.dispose();
   }
+  Telemetry.deactivate();
 }

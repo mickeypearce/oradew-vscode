@@ -7,6 +7,7 @@ import {
   ExtensionContext
 } from "vscode";
 import { ConfigurationController } from "./configuration-controller";
+import { Telemetry } from "./telemetry";
 
 import { readJson, existsSync } from "fs-extra";
 
@@ -82,7 +83,7 @@ export class EnvironmentController {
       .then(item => (item ? item.label : null));
   }
 
-  // Returns "defaultEnv" if it is set, otherwise let's you pick from the list
+  // Returns "currentEnvironment" if it is set, otherwise let's you pick from the list
   public getEnvironment = async (): Promise<string | null> => {
     if (this.currentEnvironment === EnvironmentController.NONE.label) {
       return this.pickEnvironment(false);
@@ -97,11 +98,13 @@ export class EnvironmentController {
       this.currentEnvironment = pickEnv;
       this.updateStatusBar();
     }
+    Telemetry.sendEvent("setDbEnvironment", { env: pickEnv });
   }
 
   public clearDbEnvironment = async (): Promise<void> => {
     this.currentEnvironment = EnvironmentController.NONE.label;
     this.updateStatusBar();
+    Telemetry.sendEvent("clearDbEnvironment");
   }
 
   public dispose() {

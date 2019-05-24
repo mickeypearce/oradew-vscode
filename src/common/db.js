@@ -5,7 +5,7 @@ const { readJsonSync, outputJsonSync } = require("fs-extra");
 const dbLoc = require("./nedb");
 const { getDefaultsFromSchema, includesCaseInsensitive } = require("./utility");
 
-oracledb.fetchAsString = [oracledb.DATE, oracledb.CLOB];
+oracledb.fetchAsString = [oracledb.DATE, oracledb.CLOB, oracledb.NUMBER];
 
 export class DBConfig {
   constructor(fileBase) {

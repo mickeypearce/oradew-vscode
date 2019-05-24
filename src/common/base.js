@@ -139,8 +139,6 @@ obj.compileFile = async (code, file, env, force, warnings) => {
 
   code = simpleParse(code);
 
-  // console.log(code);
-  // console.log(code);
   let errors;
   let lines = [];
   let result = {};
@@ -163,7 +161,6 @@ obj.compileFile = async (code, file, env, force, warnings) => {
   } catch (error) {
     const { line, position } = getLineAndPosition(code, error.offset);
     let msg = error.message;
-    // console.log(msg);
     errors = db.getErrorSystem(msg, 1, line, position);
   } finally {
     db.closeConnection(conn);

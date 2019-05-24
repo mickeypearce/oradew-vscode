@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.3.10] - 2019-05-25
+
+- Check prerequisites on startup [#23](https://github.com/mickeypearce/oradew-vscode/issues/23)
+- Add telemetry on command's usage
+
 ## [0.3.9] - 2019-05-15
 
 - Added "source.encoding" config [#21](https://github.com/mickeypearce/oradew-vscode/issues/21)

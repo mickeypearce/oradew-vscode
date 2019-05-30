@@ -13,15 +13,14 @@ let taskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
 
 export function activate(context: vscode.ExtensionContext) {
-  const workspacePath =
-    vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
+  const workspacePath = vscode.workspace.workspaceFolders
+    ? vscode.workspace.workspaceFolders[0].uri.fsPath
+    : context.extensionPath;
   const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
 
   let settings = ConfigurationController.getInstance();
-  const isSilent = !settings.chatty;
-  const wsConfigPath = settings.workspaceConfigFile;
-  const dbConfigPath = settings.databaseConfigFile;
+  const { chatty, workspaceConfigFile, databaseConfigFile } = settings;
 
   // let watcher = vscode.workspace.createFileSystemWatcher(dbConfigPath);
   // watcher.onDidCreate(() => {
@@ -42,9 +41,9 @@ export function activate(context: vscode.ExtensionContext) {
     workspacePath,
     contextPath,
     storagePath,
-    dbConfigPath,
-    wsConfigPath,
-    isSilent,
+    dbConfigPath: databaseConfigFile,
+    wsConfigPath: workspaceConfigFile,
+    isSilent: !chatty,
     isColor: true
   });
 

@@ -277,6 +277,7 @@ const exportFilesFromDb = async ({
 
   return gulp
     .src(src, { base: "./", allowEmpty: true })
+    .pipe(convertEncoding({ from: encoding })) //  convert first to utf8, as code is passed allong if not exported from db (--ease)
     .pipe(map(processFile))
     .pipe(convertEncoding({ to: encoding }))
     .pipe(gulp.dest("."));

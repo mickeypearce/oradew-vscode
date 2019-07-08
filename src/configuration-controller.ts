@@ -23,7 +23,7 @@ export class ConfigurationController {
 
   initializeSettings() {
     const oradewConfiguration = workspace.getConfiguration("oradew");
-    const workspacePath = workspace.workspaceFolders![0].uri.fsPath;
+    const workspacePath = workspace.workspaceFolders![0].uri.fsPath || "";
 
     const configParamWsConfigPath: string = oradewConfiguration.get(
       "workspaceConfigFile"

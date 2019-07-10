@@ -329,8 +329,7 @@ const getOnlyChangedFiles = async source => {
   const stdout = await git.getChangesNotStaged();
   const changed = base.fromStdoutToFilesArray(stdout);
   // Get array of files matched by source array parameter
-  const inter = base.getGlobMatches(source, changed);
-  return inter;
+  return base.getGlobMatches(source, changed);
 };
 
 const compileFilesToDb = async ({

@@ -5,7 +5,6 @@ import {
   sortBy,
   identity,
   map,
-  intersection,
   isEqual,
   replace,
   trim,
@@ -14,8 +13,10 @@ import {
 import { parse, resolve } from "path";
 
 const fs = require("fs-extra");
-const glob = require("glob");
-// const globby = require("globby");
+// const glob = require("glob");
+// const glob = require("globby");
+const glob = require("fast-glob");
+const micromatch = require("micromatch");
 
 const utils = require("./utility");
 const db = require("./db");
@@ -33,37 +34,34 @@ obj.fromStdoutToFilesArray = stdout =>
     // Scripts first
     sortBy(identity),
     // Add ./ if it doesn't already exists
-    map(utils.prependCheck("./"))
+    map(utils.rootPrepend)
   )(stdout);
 
 // Get array of files matched by glob patterns array
 obj.fromGlobsToFilesArray = (globArray, options) => {
-  return globArray
-    .reduce((acc, path) => acc.concat(glob.sync(path, options)), [])
-    .map(utils.prependCheck("./"));
+  return glob.sync(globArray, options).map(utils.rootPrepend);
+  // return globArray
+  //   .reduce((acc, path) => acc.concat(glob.sync(path, options)), [])
+  //   .map(utils.prependCheck("./"));
 };
 
 // Returns intersection between globArray matches and matchArray
 obj.getGlobMatches = (globArray, matchArray) => {
-  // Get array of files matched by globArrayparameter
-  const all = obj.fromGlobsToFilesArray(globArray);
-  // Intersection of both arrays
-  const inter = intersection(all)(matchArray);
-  return inter;
+  //Remove ./ from glob array
+  let globArrayFormat = globArray.map(utils.rootRemove);
+  // format options removes ./ only from matches
+  return micromatch.match(matchArray, globArrayFormat, {
+    format: utils.rootRemove
+  });
 };
 
 // True of matchArray equals globArray matches
 obj.isGlobMatch = (globArray, matchArray) => {
-  const matches = obj.getGlobMatches(globArray, matchArray);
-  return isEqual(matches, matchArray);
+  let globArrayFormat = globArray.map(utils.rootRemove);
+  return micromatch.every(matchArray, globArrayFormat, {
+    format: utils.rootRemove
+  });
 };
-
-// Get array of files matched by glob patterns array
-// I get "no such file or directory" if unexisting dir ? inside gulp?
-// Globby can input can be an array
-// obj.fromGlobsToFilesArrayGlobby = (globArray, options) => {
-//   return globby.sync(globArray, options).map(utils.prependCheck("./"));
-// };
 
 obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
   const obj = utils.getDBObjectFromPath(file);

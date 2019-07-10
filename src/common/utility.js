@@ -245,7 +245,9 @@ export const prependCheck = val => str =>
   str.startsWith(val) ? str : `${val}${str}`;
 
 // Add ./ if it doesn't already exists
-// export const addRootPath = utils.prependCheck("./");
+export const rootPrepend = prependCheck("./");
+// Remove ./ from path
+export const rootRemove = str => str.replace(/\.\//, "");
 
 /**
  * Includes - case insensitive.

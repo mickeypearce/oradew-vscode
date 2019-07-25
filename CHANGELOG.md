@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.11] - 2019-07-25
+
+- Maintanance
+
 ## [0.3.10] - 2019-05-25
 
 - Check prerequisites on startup [#23](https://github.com/mickeypearce/oradew-vscode/issues/23)

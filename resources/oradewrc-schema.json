@@ -79,7 +79,7 @@
       "default": "2099-01-01",
       "description": "Version release date.",
       "type": "string",
-      "format": "date-time"
+      "format": "date"
     },
     "test.input": {
       "default": ["./test/**/*.test.sql"],

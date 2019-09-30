@@ -53,7 +53,7 @@ utils.getDBObjectFromPath = path => {
 
   let isScript, isSource;
   // Glob matching is too costy...
-  isScript = pathSplit[0].toLowerCase() === "scripts";
+  isScript = includesCaseInsensitive(["scripts", "test"], pathSplit[0]);
   isSource = pathSplit[0].toLowerCase() === "src";
 
   // console.log("path=" + path);
@@ -69,7 +69,7 @@ utils.getDBObjectFromPath = path => {
     owner = pathSplit[pathSplit.length - 2];
     // If owner is missing (scripts structure without owner)
     // Legacy - single schema workspace
-    if (owner.toLowerCase() === "scripts") {
+    if (includesCaseInsensitive(["scripts", "test"], owner)) {
       owner = null;
     }
     dir = "SCRIPTS"; //non existent type but no problem

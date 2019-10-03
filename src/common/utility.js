@@ -2,6 +2,8 @@ import { sep, parse, resolve, relative, join } from "path";
 import { existsSync, readJsonSync, outputJsonSync, outputFile } from "fs-extra";
 const exec = require("child_process").exec;
 
+// import { getObjectInfo } from "./dbobject";
+
 let utils = {};
 
 let mapDirToObjectType = {

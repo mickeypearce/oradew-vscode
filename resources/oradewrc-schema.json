@@ -35,12 +35,16 @@
       "type": "boolean"
     },
     "package.exclude": {
-      "default": ["./scripts/**/+(file|run)*.sql"],
+      "default": [
+        "./scripts/**/+(file|run)*.sql"
+      ],
       "description": "Glob pattern to exclude files from package input.",
       "type": "array"
     },
     "source.input": {
-      "default": ["./src/**/*.sql"],
+      "default": [
+        "./src/**/*.sql"
+      ],
       "description": "Glob pattern for Source files.",
       "type": "array"
     },
@@ -53,7 +57,13 @@
       "default": "NONE",
       "description": "Compilation warning scopes.",
       "type": "string",
-      "enum": ["NONE", "ALL", "PERFORMANCE", "INFORMATIONAL", "SEVERE"]
+      "enum": [
+        "NONE",
+        "ALL",
+        "PERFORMANCE",
+        "INFORMATIONAL",
+        "SEVERE"
+      ]
     },
     "compile.force": {
       "default": false,
@@ -82,7 +92,9 @@
       "format": "date"
     },
     "test.input": {
-      "default": ["./test/**/*.test.sql"],
+      "default": [
+        "./test/**/*.test.sql"
+      ],
       "description": "Glob pattern for tests.",
       "type": "array"
     },
@@ -90,6 +102,62 @@
       "default": "dbms_metadata.get_ddl",
       "description": "DDL function name. Use your own DB function to customize import of object's DDL. \"DBMS_METADATA.GET_DDL\" by default. \nex.custom DB func.spec.: FUNCTION GetDDL(object_type IN VARCHAR2, name IN VARCHAR2, schema IN VARCHAR2 DEFAULT NULL) RETURN CLOB;",
       "type": "string"
+    },
+    "source.pattern": {
+      "description": "Naming patterns for the sources of different object types",
+      "type": "object",
+      "default": {
+        "package-spec": "./src/{schema-name}/PACKAGES/{object-name}.sql",
+        "package-body": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
+        "trigger": "./src/{schema-name}/TRIGGERS/{object-name}.sql",
+        "type-spec": "./src/{schema-name}/TYPES/{object-name}.sql",
+        "type-body": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
+        "view": "./src/{schema-name}/VIEWS/{object-name}.sql",
+        "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
+        "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql"
+      },
+      "properties": {
+        "package-spec": {
+          "default": "./src/{schema-name}/PACKAGES/{object-name}.sql",
+          "description": "Naming pattern for package specifications",
+          "type": "string"
+        },
+        "package-body": {
+          "default": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
+          "description": "Naming pattern for package bodies",
+          "type": "string"
+        },
+        "trigger": {
+          "default": "./src/{schema-name}/TRIGGERS/{object-name}.sql",
+          "description": "Naming pattern for triggers",
+          "type": "string"
+        },
+        "type-spec": {
+          "default": "./src/{schema-name}/TYPES/{object-name}.sql",
+          "description": "Naming pattern for type specifications",
+          "type": "string"
+        },
+        "type-body": {
+          "default": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
+          "description": "Naming pattern for type bodies",
+          "type": "string"
+        },
+        "view": {
+          "default": "./src/{schema-name}/VIEWS/{object-name}.sql",
+          "description": "Naming pattern for views",
+          "type": "string"
+        },
+        "function": {
+          "default": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
+          "description": "Naming pattern for functions",
+          "type": "string"
+        },
+        "procedure": {
+          "default": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
+          "description": "Naming pattern for procedures",
+          "type": "string"
+        }
+      }
     }
   }
 }

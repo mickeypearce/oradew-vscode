@@ -11,11 +11,15 @@
     "./src/**/PROCEDURES/*.sql",
     "./scripts/**/final*.sql"
   ],
-  "package.exclude": ["./scripts/**/+(file|run)*.sql"],
+  "package.exclude": [
+    "./scripts/**/+(file|run)*.sql"
+  ],
   "package.output": "./deploy/Run.sql",
   "package.encoding": "utf8",
   "package.templating": false,
-  "source.input": ["./src/**/*.sql"],
+  "source.input": [
+    "./src/**/*.sql"
+  ],
   "source.encoding": "utf8",
   "compile.warnings": "NONE",
   "compile.force": false,
@@ -23,6 +27,18 @@
   "version.number": "0.0.1",
   "version.description": "New feature",
   "version.releaseDate": "2099-01-01",
-  "test.input": ["./test/**/*.test.sql"],
-  "import.getDdlFunction": "dbms_metadata.get_ddl"
+  "test.input": [
+    "./test/**/*.test.sql"
+  ],
+  "import.getDdlFunction": "dbms_metadata.get_ddl",
+  "source.pattern": {
+    "package-spec": "./src/{schema-name}/PACKAGES/{object-name}.sql",
+    "package-body": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
+    "trigger": "./src/{schema-name}/TRIGGERS/{object-name}.sql",
+    "type-spec": "./src/{schema-name}/TYPES/{object-name}.sql",
+    "type-body": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
+    "view": "./src/{schema-name}/VIEWS/{object-name}.sql",
+    "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
+    "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql"
+  }
 }

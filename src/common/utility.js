@@ -221,8 +221,8 @@ export class WorkspaceConfig {
 export const workspaceConfig = new WorkspaceConfig(process.env.wsConfigPath);
 // export const createConfig = file => new Config(file);
 
-export const getDBObjectFromPath = utils.getDBObjectFromPath;
-export const getObjectTypeFromDir = utils.getObjectTypeFromDir;
+// export const getDBObjectFromPath = utils.getDBObjectFromPath;
+// export const getObjectTypeFromDir = utils.getObjectTypeFromDir;
 export const getDirFromObjectType = utils.getDirFromObjectType;
 export const getObjectTypes = utils.getObjectTypes;
 export const getDirTypes = utils.getDirTypes;

@@ -19,6 +19,8 @@ const glob = require("fast-glob");
 const micromatch = require("micromatch");
 
 const utils = require("./utility");
+import { getObjectInfo } from "./dbobject";
+
 const db = require("./db");
 
 let obj = {};
@@ -64,7 +66,7 @@ obj.isGlobMatch = (globArray, matchArray) => {
 };
 
 obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
-  const obj = utils.getDBObjectFromPath(file);
+  const obj = getObjectInfo(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
 
   let exported = null;
@@ -129,7 +131,7 @@ function getLineAndPosition(code, offset) {
 }
 
 obj.compileFile = async (code, file, env, force, warnings) => {
-  const obj = utils.getDBObjectFromPath(file);
+  const obj = getObjectInfo(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
   // When there is no user configuration for the owner
   // we force change the object owner to default user
@@ -175,7 +177,7 @@ obj.compileFile = async (code, file, env, force, warnings) => {
 };
 
 obj.compileSelection = async (code, file, env, lineOffset) => {
-  const obj = utils.getDBObjectFromPath(file);
+  const obj = getObjectInfo(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();
 
@@ -212,7 +214,7 @@ obj.compileSelection = async (code, file, env, lineOffset) => {
 };
 
 obj.runFileAsScript = (file, env) => {
-  const obj = utils.getDBObjectFromPath(file);
+  const obj = getObjectInfo(file);
   const owner = obj.owner;
   const connCfg = db.config.getConfiguration(env, owner);
   const connString = db.getConnectionString(connCfg);
@@ -291,7 +293,7 @@ obj.resolveObjectInfo = async (env, { name }) => {
 };
 
 obj.getGenerator = async ({ func, file, env, object }) => {
-  const obj = utils.getDBObjectFromPath(file);
+  const obj = getObjectInfo(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
 
   let result = {};

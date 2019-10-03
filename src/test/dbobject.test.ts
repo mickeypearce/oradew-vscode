@@ -23,6 +23,18 @@ describe("#getObjectInfo with default structure", function () {
     assert.deepEqual(getObjectInfo("./file.sql"),
       { "owner": "", "objectType": "script", "objectType1": "script", "objectName": "file", "isSource": false, "isScript": true });
   });
+  it("src: should get object type body from abs path", function () {
+    assert.deepEqual(getObjectInfo("d:/vscode/oradew-vscode/src/HR/FUNCTIONS/NKAP_VERZIJA.sql"),
+      { "owner": "HR", "objectType": "FUNCTION", "objectType1": "FUNCTION", "objectName": "NKAP_VERZIJA", "isSource": true, "isScript": false });
+  });
+  it("src: should get object type body - windows sep", function () {
+    assert.deepEqual(getObjectInfo(".\\src\\HR\\PACKAGE_BODIES\\my_pck1.sql"),
+      { "owner": "HR", "objectType": "PACKAGE BODY", "objectType1": "PACKAGE_BODY", "objectName": "my_pck1", "isSource": true, "isScript": false });
+  });
+  it("src: should get object type body from abs path - windows sep", function () {
+    assert.deepEqual(getObjectInfo("d:\\vscode\\oradew-vscode\\src\\HR\\FUNCTIONS\\NKAP_VERZIJA.sql"),
+      { "owner": "HR", "objectType": "FUNCTION", "objectType1": "FUNCTION", "objectName": "NKAP_VERZIJA", "isSource": true, "isScript": false });
+  });
 });
 
 describe("#getObjectInfo with custom config", function () {

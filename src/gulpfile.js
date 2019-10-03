@@ -21,6 +21,7 @@ const utils = require("./common/utility");
 const git = require("./common/git");
 const base = require("./common/base");
 const db = require("./common/db");
+import { getObjectInfo } from "./common/dbobject";
 
 let config = utils.workspaceConfig;
 
@@ -28,7 +29,7 @@ const timestampHeader = `-- File created: ${new Date()} with Oradew for VS Code
 `;
 
 const addDBObjectPrompt = (code, file, done) => {
-  const obj = utils.getDBObjectFromPath(file);
+  const obj = getObjectInfo(file);
 
   const prompt = `
 PROMPT ***********************************************************
@@ -179,7 +180,7 @@ const cherryPickFromJiraTask = async () => {
 const generateBOLContent = function(paths) {
   // Create Db objects from paths array
   let dbo = paths.map(path => {
-    let obj = utils.getDBObjectFromPath(path);
+    let obj = getObjectInfo(path);
     let exclude = path.startsWith("!");
     // return {...obj, exclude};
     return Object.assign({}, obj, { exclude });

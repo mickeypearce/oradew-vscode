@@ -1,7 +1,7 @@
 const micromatch = require("micromatch");
 
-import { rootRemove, workspaceConfig } from "./utility";
-import { sep, parse, resolve, relative } from "path";
+import { rootRemove, rootPrepend, workspaceConfig } from "./utility";
+import { parse, resolve, relative, posix } from "path";
 
 // const config = new WorkspaceConfig(
 //   __dirname + "/resources/oradewrc.default.json"
@@ -16,6 +16,7 @@ function getObjectTypeFromPath(path) {
     const pattern = patternsArray[element];
     // We use globs for matching, so replace variables with wildcard (*)
     const globPattern = pattern.replace(/{schema-name}|{object-name}/gi, "*");
+    // Globpattern have to be without ./, but We have it in config for unknown reason...
     return micromatch.isMatch(path, globPattern, {
       format: rootRemove
     });
@@ -45,7 +46,15 @@ let mapToOraObjectTypeAlt = {
 export function getObjectInfo(path) {
   let schema, objectName, objectType;
 
-  objectType = getObjectTypeFromPath(path);
+  // Convert path to relative
+  const absPath = resolve(path);
+  const base = resolve("./");
+  const relPath = relative(base, absPath);
+
+  // Convert path to posix with ./
+  const pathPosix = rootPrepend(relPath.replace(/\\/gi, "/"));
+
+  objectType = getObjectTypeFromPath(pathPosix);
 
   // pattern="./src/{schema-name}/PACKAGES/{object-name}-spec.sql"
   const pattern = patternsArray[objectType];
@@ -54,13 +63,14 @@ export function getObjectInfo(path) {
   // and objectname=filename, schema is second dir in path
   // we assume it as a script
   if (!pattern) {
-    const absPath = resolve(path);
-    const base = resolve("./");
-    const relPath = relative(base, absPath);
-    const pathSplit = relPath.split(sep);
+    // const absPath = resolve(path);
+    // const base = resolve("./");
+    // const relPath = relative(base, absPath);
+    const pathSplit = pathPosix.split("/");
 
     // If path don't include schema (too short :), we set it to "" which means default schema will be used
-    schema = pathSplit.length > 2 ? pathSplit[1] : "";
+    // ./scripts/HR/initial_dml.sql (4) or ./deploy/Release.sql (3)
+    schema = pathSplit.length > 3 ? pathSplit[2] : "";
     objectName = parse(absPath).name;
     return {
       owner: schema,
@@ -85,14 +95,17 @@ export function getObjectInfo(path) {
 
   // Remove both from path
   // o = ["./src/", "/PACKAGES/*-spec.sql"]
-  schema = schemaRegex.reduce((acc, val) => acc.replace(val, ""), path);
+  schema = schemaRegex.reduce((acc, val) => acc.replace(val, ""), pathPosix);
 
   /** extact object-name*/
   const objectSplit = pattern.split("{object-name}");
   const objectRegex = objectSplit.map(
     v => new RegExp(v.replace("{schema-name}", "\\w+"))
   );
-  objectName = objectRegex.reduce((acc, val) => acc.replace(val, ""), path);
+  objectName = objectRegex.reduce(
+    (acc, val) => acc.replace(val, ""),
+    pathPosix
+  );
 
   // Map to ora types
   const objectTypeOra = mapToOraObjectType[objectType] || objectType;

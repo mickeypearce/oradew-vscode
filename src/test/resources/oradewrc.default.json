@@ -32,13 +32,14 @@
   ],
   "import.getDdlFunction": "dbms_metadata.get_ddl",
   "source.pattern": {
-    "package-spec": "./src/{schema-name}/PACKAGES/{object-name}.sql",
-    "package-body": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
+    "packageSpec": "./src/{schema-name}/PACKAGES/{object-name}.sql",
+    "packageBody": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
     "trigger": "./src/{schema-name}/TRIGGERS/{object-name}.sql",
-    "type-spec": "./src/{schema-name}/TYPES/{object-name}.sql",
-    "type-body": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
+    "typeSpec": "./src/{schema-name}/TYPES/{object-name}.sql",
+    "typeBody": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
     "view": "./src/{schema-name}/VIEWS/{object-name}.sql",
     "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
-    "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql"
+    "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
+    "table": "./src/{schema-name}/TABLES/{object-name}.sql"
   }
 }

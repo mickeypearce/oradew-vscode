@@ -1,7 +1,8 @@
 const micromatch = require("micromatch");
 
 import { rootRemove, rootPrepend, workspaceConfig } from "./utility";
-import { parse, resolve, relative, posix } from "path";
+import { parse, resolve, relative, posix, dirname } from "path";
+import { invert } from "lodash/fp";
 
 // const config = new WorkspaceConfig(
 //   __dirname + "/resources/oradewrc.default.json"
@@ -12,7 +13,7 @@ const patternsArray = config.get("source.pattern");
 
 function getObjectTypeFromPath(path) {
   // Filter patterns that match a path
-  const pattern = Object.keys(patternsArray).filter(element => {
+  const foundPattern = Object.keys(patternsArray).filter(element => {
     const pattern = patternsArray[element];
     // We use globs for matching, so replace variables with wildcard (*)
     const globPattern = pattern.replace(/{schema-name}|{object-name}/gi, "*");
@@ -21,29 +22,31 @@ function getObjectTypeFromPath(path) {
       format: rootRemove
     });
   });
-  return pattern[0];
+  return foundPattern[0];
 }
 
-let mapToOraObjectType = {
-  "package-spec": "PACKAGE",
+const mapToOraObjectType = {
+  packageSpec: "PACKAGE",
   procedure: "PROCEDURE",
   function: "FUNCTION",
-  "package-body": "PACKAGE BODY",
+  packageBody: "PACKAGE BODY",
   view: "VIEW",
   trigger: "TRIGGER",
-  "type-spec": "TYPE",
-  "type-body": "TYPE BODY",
+  typeSpec: "TYPE",
+  typeBody: "TYPE BODY",
   table: "TABLE"
 };
 
-let mapToOraObjectTypeAlt = {
-  "package-spec": "PACKAGE_SPEC",
-  "package-body": "PACKAGE_BODY",
-  "type-spec": "TYPE_SPEC",
-  "type-body": "TYPE_BODY"
+const mapToOraObjectTypeAlt = {
+  packageSpec: "PACKAGE_SPEC",
+  packageBody: "PACKAGE_BODY",
+  typeSpec: "TYPE_SPEC",
+  typeBody: "TYPE_BODY"
 };
 
-export function getObjectInfo(path) {
+const mapfromOraObjectType = invert(mapToOraObjectType);
+
+export function getObjectInfoFromPath(path) {
   let schema, objectName, objectType;
 
   // Convert path to relative
@@ -122,4 +125,45 @@ export function getObjectInfo(path) {
     isSource: true,
     isScript: false
   };
+}
+
+export function replaceVarsInPattern(pattern = "", owner, name) {
+  return pattern.replace("{schema-name}", owner).replace("{object-name}", name);
+}
+
+/**
+ *
+ * @param {string} owner
+ * @param {string} oraType
+ * @param {string} name
+ * @returns {string} Relative path
+ */
+export function getPathFromObjectInfo(owner, oraType, name) {
+  // Get pattern for object type
+  const type = mapfromOraObjectType[oraType] || oraType;
+  const pattern = patternsArray[type];
+  // Replace variables in pattern with values
+  const path = replaceVarsInPattern(pattern, owner, name);
+  return path;
+}
+
+/**
+ * Return patters array without file (dir structure)
+ *
+ * @returns {Array} dir structure
+ * example:
+ * from
+ * {"packageSpec": "./src/{schema-name}/PACKAGES/{object-name}.sql",
+ * "packageBody": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql"}
+ * to
+ * ["./src/{schema-name}/PACKAGES",
+ * "./src/{schema-name}/PACKAGE_BODIES"]
+ */
+
+export function getStructure() {
+  return Object.keys(patternsArray).map(el => dirname(patternsArray[el]));
+}
+
+export function getObjectTypes() {
+  return Object.values(mapToOraObjectType);
 }

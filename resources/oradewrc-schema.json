@@ -104,57 +104,63 @@
       "type": "string"
     },
     "source.pattern": {
-      "description": "Naming patterns for the sources of different object types",
+      "description": "Define source structure for object types",
       "type": "object",
       "default": {
-        "package-spec": "./src/{schema-name}/PACKAGES/{object-name}.sql",
-        "package-body": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
+        "packageSpec": "./src/{schema-name}/PACKAGES/{object-name}.sql",
+        "packageBody": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
         "trigger": "./src/{schema-name}/TRIGGERS/{object-name}.sql",
-        "type-spec": "./src/{schema-name}/TYPES/{object-name}.sql",
-        "type-body": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
+        "typeSpec": "./src/{schema-name}/TYPES/{object-name}.sql",
+        "typeBody": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
         "view": "./src/{schema-name}/VIEWS/{object-name}.sql",
         "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
-        "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql"
+        "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
+        "table": "./src/{schema-name}/TABLES/{object-name}.sql"
       },
       "properties": {
-        "package-spec": {
+        "packageSpec": {
           "default": "./src/{schema-name}/PACKAGES/{object-name}.sql",
-          "description": "Naming pattern for package specifications",
+          "description": "Pattern for package specifications",
           "type": "string"
         },
-        "package-body": {
+        "packageBody": {
           "default": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
-          "description": "Naming pattern for package bodies",
+          "description": "Pattern for package bodies",
           "type": "string"
         },
         "trigger": {
           "default": "./src/{schema-name}/TRIGGERS/{object-name}.sql",
-          "description": "Naming pattern for triggers",
+          "description": "Pattern for triggers",
           "type": "string"
         },
-        "type-spec": {
+        "typeSpec": {
           "default": "./src/{schema-name}/TYPES/{object-name}.sql",
-          "description": "Naming pattern for type specifications",
+          "description": "Pattern for type specifications",
           "type": "string"
         },
-        "type-body": {
+        "typeBody": {
           "default": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
-          "description": "Naming pattern for type bodies",
+          "description": "Pattern for type bodies",
           "type": "string"
         },
         "view": {
           "default": "./src/{schema-name}/VIEWS/{object-name}.sql",
-          "description": "Naming pattern for views",
+          "description": "Pattern for views",
           "type": "string"
         },
         "function": {
           "default": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
-          "description": "Naming pattern for functions",
+          "description": "Pattern for functions",
           "type": "string"
         },
         "procedure": {
           "default": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
-          "description": "Naming pattern for procedures",
+          "description": "Pattern for procedures",
+          "type": "string"
+        },
+        "table": {
+          "default": "./src/{schema-name}/TABLES/{object-name}.sql",
+          "description": "Pattern for tables",
           "type": "string"
         }
       }

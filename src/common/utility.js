@@ -6,113 +6,6 @@ const exec = require("child_process").exec;
 
 let utils = {};
 
-let mapDirToObjectType = {
-  PACKAGES: "PACKAGE",
-  PROCEDURES: "PROCEDURE",
-  FUNCTIONS: "FUNCTION",
-  PACKAGE_BODIES: "PACKAGE BODY",
-  VIEWS: "VIEW",
-  TRIGGERS: "TRIGGER",
-  TYPES: "TYPE",
-  TYPE_BODIES: "TYPE BODY",
-  TABLES: "TABLE"
-};
-
-let mapObjectTypeAlternative = {
-  PACKAGE: "PACKAGE_SPEC",
-  "PACKAGE BODY": "PACKAGE_BODY",
-  TYPE: "TYPE_SPEC",
-  "TYPE BODY": "TYPE_BODY"
-};
-
-// Simple invert object function
-// Avoid importing _lodash
-const invert = obj => val => {
-  for (let key in obj) {
-    if (obj[key] === val) return key;
-  }
-};
-
-utils.getDirTypes = () => Object.keys(mapDirToObjectType);
-utils.getObjectTypes = () => Object.values(mapDirToObjectType);
-utils.getObjectTypeFromDir = dir => mapDirToObjectType[dir] || dir;
-utils.getObjectType1FromObjectType = type =>
-  mapObjectTypeAlternative[type] || type;
-utils.getDirFromObjectType = type => invert(mapDirToObjectType)(type) || type;
-
-utils.getDBObjectFromPath = path => {
-  if (!path) return { owner: undefined };
-  // Path can be relative or absolute
-  // tasks ${file} is absolute for ex
-  const absPath = resolve(path);
-  const base = resolve("./");
-  const relPath = relative(base, absPath);
-  const pathSplit = relPath.split(sep);
-
-  let owner, objectName, dir, objectType, objectType1;
-  // Object name is always from file name
-  objectName = parse(absPath).name;
-
-  let isScript, isSource;
-  // Glob matching is too costy...
-  isScript = includesCaseInsensitive(["scripts", "test"], pathSplit[0]);
-  isSource = pathSplit[0].toLowerCase() === "src";
-
-  // console.log("path=" + path);
-  // console.log("pathSplit=" + pathSplit);
-  // console.log("isscript=" + isScript);
-  // console.log("issource=" + isSource);
-
-  // We determine owner from path in Source and Scripts folder
-  // Null otherwise
-  if (isScript) {
-    // `./${scripts}/${owner}/${name}.sql`,
-    // owner = pathSplit[1];
-    owner = pathSplit[pathSplit.length - 2];
-    // If owner is missing (scripts structure without owner)
-    // Legacy - single schema workspace
-    if (includesCaseInsensitive(["scripts", "test"], owner)) {
-      owner = null;
-    }
-    dir = "SCRIPTS"; //non existent type but no problem
-  } else if (isSource) {
-    // `./${source}/${owner}/${dir}/${name}.sql`,
-    // owner = pathSplit[1];
-    // dir = pathSplit[2];
-    // More resilient if we go backwards
-    owner = pathSplit[pathSplit.length - 3];
-    // If owner is missing (src structure without owner)
-    // Legacy - single schema workspace
-    if (owner.toLowerCase() === "src") {
-      owner = null;
-    }
-    dir = pathSplit[pathSplit.length - 2];
-  } else {
-    // `./${deploy}/${name}.sql`,
-    // No owner here
-    // will go for default when looking for conn conf
-    owner = null;
-    // dir = pathSplit[0];
-    dir = "FILE";
-  }
-
-  objectType = utils.getObjectTypeFromDir(dir);
-  objectType1 = utils.getObjectType1FromObjectType(objectType);
-
-  // console.log("owner=" + owner);
-  // console.log("objectName=" + objectName);
-  // console.log("objectType=" + objectType);
-
-  return {
-    owner,
-    objectName,
-    objectType,
-    objectType1,
-    isScript,
-    isSource
-  };
-};
-
 // Build default object from json schema defaults
 // simplified - only defaults from first level in tree
 export const getDefaultsFromSchema = schema => {
@@ -220,12 +113,6 @@ export class WorkspaceConfig {
 }
 export const workspaceConfig = new WorkspaceConfig(process.env.wsConfigPath);
 // export const createConfig = file => new Config(file);
-
-// export const getDBObjectFromPath = utils.getDBObjectFromPath;
-// export const getObjectTypeFromDir = utils.getObjectTypeFromDir;
-export const getDirFromObjectType = utils.getDirFromObjectType;
-export const getObjectTypes = utils.getObjectTypes;
-export const getDirTypes = utils.getDirTypes;
 
 const promisify = func => (...args) =>
   new Promise((resolve, reject) =>

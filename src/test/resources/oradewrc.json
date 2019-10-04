@@ -2,8 +2,8 @@
   "compile.force": true,
   "customField": "this is it.",
   "source.pattern": {
-    "package-spec": "./src/{schema-name}/pck/{object-name}-spec.sql",
-    "package-body": "./src/{schema-name}/pck/{object-name}-body.sql",
+    "packageSpec": "./src/{schema-name}/pck/{object-name}-spec.sql",
+    "packageBody": "./src/{schema-name}/pck/{object-name}-body.sql",
     "trigger": "./src/{schema-name}/trigger-{object-name}.sql",
     "view": "./src/{schema-name}/view-{object-name}.sql",
     "function": "./src/FUNCTIONS/{object-name}.sql",

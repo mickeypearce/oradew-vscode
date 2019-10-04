@@ -21,7 +21,13 @@ const utils = require("./common/utility");
 const git = require("./common/git");
 const base = require("./common/base");
 const db = require("./common/db");
-import { getObjectInfo } from "./common/dbobject";
+import {
+  getObjectInfoFromPath,
+  getPathFromObjectInfo,
+  getStructure,
+  replaceVarsInPattern,
+  getObjectTypes
+} from "./common/dbobject";
 
 let config = utils.workspaceConfig;
 
@@ -29,7 +35,7 @@ const timestampHeader = `-- File created: ${new Date()} with Oradew for VS Code
 `;
 
 const addDBObjectPrompt = (code, file, done) => {
-  const obj = getObjectInfo(file);
+  const obj = getObjectInfoFromPath(file);
 
   const prompt = `
 PROMPT ***********************************************************
@@ -180,7 +186,7 @@ const cherryPickFromJiraTask = async () => {
 const generateBOLContent = function(paths) {
   // Create Db objects from paths array
   let dbo = paths.map(path => {
-    let obj = getObjectInfo(path);
+    let obj = getObjectInfoFromPath(path);
     let exclude = path.startsWith("!");
     // return {...obj, exclude};
     return Object.assign({}, obj, { exclude });
@@ -596,11 +602,12 @@ const compileOnSave = ({ env = argv.env || "DEV" }) => {
 const createSrcEmpty = done => {
   try {
     const schemas = db.config.getSchemas();
-    const dirs = utils.getDirTypes();
+    const dirs = getStructure();
     for (const owner of schemas) {
-      for (const dir of dirs) {
-        fs.ensureDirSync(`./src/${owner}/${dir}`);
-      }
+      dirs.forEach(pattern => {
+        const dirPath = replaceVarsInPattern(pattern, owner);
+        return fs.ensureDirSync(dirPath);
+      });
     }
     done();
 
@@ -613,18 +620,23 @@ const createSrcEmpty = done => {
 const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
   const source = config.get({ field: "source.input", env });
   const schemas = db.config.getSchemas();
-  const objectTypes = utils.getObjectTypes();
+  const objectTypes = getObjectTypes();
   try {
     for (const owner of schemas) {
       const objs = await base.getObjectsInfoByType(env, owner, objectTypes);
       for (const obj of objs) {
-        const type = utils.getDirFromObjectType(obj.OBJECT_TYPE);
-        const path = `./src/${owner}/${type}/${obj.OBJECT_NAME}.sql`;
-        // Create empty sql file - if is inside "source.input" globs
-        // non existing object are always created!
-        if (!fs.existsSync(path) || base.isGlobMatch(source, [path])) {
-          fs.outputFileSync(path, "");
-          console.log("Created file " + path);
+        const path = getPathFromObjectInfo(
+          owner,
+          obj.OBJECT_TYPE,
+          obj.OBJECT_NAME
+        );
+        if (path !== "") {
+          // Create empty sql file - if is inside "source.input" globs
+          // non existing object are always created!
+          if (!fs.existsSync(path) || base.isGlobMatch(source, [path])) {
+            fs.outputFileSync(path, "");
+            console.log("Created file " + path);
+          }
         }
       }
     }
@@ -719,10 +731,11 @@ const exportObjectFromDb = async ({
 
     // Create array of abs file paths
     let files = objs.map(obj => {
-      const owner = obj.OWNER;
-      const type = utils.getDirFromObjectType(obj.OBJECT_TYPE);
-      const name = obj.OBJECT_NAME;
-      const relativePath = `./src/${owner}/${type}/${name}.sql`;
+      const relativePath = getPathFromObjectInfo(
+        obj.OWNER,
+        obj.OBJECT_TYPE,
+        obj.OBJECT_NAME
+      );
       return path.resolve(relativePath);
     });
 

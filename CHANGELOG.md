@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.12] - 2019-10-04
+
+- Add configuration for custom source structure [#29](https://github.com/mickeypearce/oradew-vscode/issues/29)
+
 ## [0.3.11] - 2019-07-25
 
 - Maintanance

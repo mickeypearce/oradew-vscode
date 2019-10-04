@@ -1,5 +1,7 @@
 const assert = require("assert");
 
+import { resolve } from "path";
+
 import { getObjectInfoFromPath, getPathFromObjectInfo, getStructure } from "../common/dbobject";
 
 describe("#getObjectInfo with default structure", function () {
@@ -23,17 +25,10 @@ describe("#getObjectInfo with default structure", function () {
     assert.deepEqual(getObjectInfoFromPath("./file.sql"),
       { "owner": "", "objectType": "script", "objectType1": "script", "objectName": "file", "isSource": false, "isScript": true });
   });
-  it("src: should get object type body from abs path", function () {
-    assert.deepEqual(getObjectInfoFromPath("d:/vscode/oradew-vscode/src/HR/FUNCTIONS/NKAP_VERZIJA.sql"),
-      { "owner": "HR", "objectType": "FUNCTION", "objectType1": "FUNCTION", "objectName": "NKAP_VERZIJA", "isSource": true, "isScript": false });
-  });
+
   it("src: should get object type body - windows sep", function () {
     assert.deepEqual(getObjectInfoFromPath(".\\src\\HR\\PACKAGE_BODIES\\my_pck1.sql"),
       { "owner": "HR", "objectType": "PACKAGE BODY", "objectType1": "PACKAGE_BODY", "objectName": "my_pck1", "isSource": true, "isScript": false });
-  });
-  it("src: should get object type body from abs path - windows sep", function () {
-    assert.deepEqual(getObjectInfoFromPath("d:\\vscode\\oradew-vscode\\src\\HR\\FUNCTIONS\\NKAP_VERZIJA.sql"),
-      { "owner": "HR", "objectType": "FUNCTION", "objectType1": "FUNCTION", "objectName": "NKAP_VERZIJA", "isSource": true, "isScript": false });
   });
 });
 
@@ -69,8 +64,16 @@ describe("#getObjectInfo with custom config", function () {
       { "owner": "HR", "objectType": "VIEW", "objectType1": "VIEW", "objectName": "my_trg", "isSource": true, "isScript": false });
   });
   it("src: should get object type function without schema", function () {
-    assert.deepEqual(getObjectInfoFromPath("./src/FUNCTIONS/func1.sql"),
-      { "owner": "", "objectType": "FUNCTION", "objectType1": "FUNCTION", "objectName": "func1", "isSource": true, "isScript": false });
+    assert.deepEqual(getObjectInfoFromPath("./src/PROCEDURES/func1.sql"),
+      { "owner": "", "objectType": "PROCEDURE", "objectType1": "PROCEDURE", "objectName": "func1", "isSource": true, "isScript": false });
+  });
+  it("src: should get object type body from ABSOLUTE path", function () {
+    assert.deepEqual(getObjectInfoFromPath(resolve("test/src/HR/FUNCTIONS/FUNC_TEST.sql")),
+      { "owner": "HR", "objectType": "FUNCTION", "objectType1": "FUNCTION", "objectName": "FUNC_TEST", "isSource": true, "isScript": false });
+  });
+  it("src: should get object type body from ABSOLUTE path - windows sep", function () {
+    assert.deepEqual(getObjectInfoFromPath(resolve("test\\src\\HR\\FUNCTIONS\\FUNC_TEST.sql")),
+      { "owner": "HR", "objectType": "FUNCTION", "objectType1": "FUNCTION", "objectName": "FUNC_TEST", "isSource": true, "isScript": false });
   });
 });
 

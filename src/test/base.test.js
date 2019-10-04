@@ -4,8 +4,8 @@ const base = require("../common/base");
 describe("#base", function() {
   it("fromGlobsToFilesArray", function() {
     let matches = [
-      "./test/src/FUNCTIONS/FUNC_TEST.sql",
-      "./test/src/FUNCTIONS/FUNC_TEST1.sql"
+      "./test/src/HR/FUNCTIONS/FUNC_TEST.sql",
+      "./test/src/HR/FUNCTIONS/FUNC_TEST1.sql"
     ];
     let match = base.fromGlobsToFilesArray(["./test/src/**/*.sql"]);
     assert.deepEqual(match, matches);

@@ -6,7 +6,7 @@
     "packageBody": "./src/{schema-name}/pck/{object-name}-body.sql",
     "trigger": "./src/{schema-name}/trigger-{object-name}.sql",
     "view": "./src/{schema-name}/view-{object-name}.sql",
-    "function": "./src/FUNCTIONS/{object-name}.sql",
-    "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql"
+    "function": "./test/src/{schema-name}/FUNCTIONS/{object-name}.sql",
+    "procedure": "./src/PROCEDURES/{object-name}.sql"
   }
 }

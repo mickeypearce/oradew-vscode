@@ -33,16 +33,16 @@ oradewrc.json           Workspace configuration
 
 **Build**
 
-- `Toggle Compile Watch` <sup>New</sup> - Start/End compilaton on save. Compile working tree automatically whenever a Source file changes.
 - `Compile Changes to DB` (F6) - Compile changed Source objects (working tree) to DB
 - `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
 - `Run Current File as Script` (F5) - Execute a SQL script (with SQLPlus)
 - `Run Selected Statement` (Ctrl+Enter) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
+- `Toggle Compile Watch` - Start/End compilaton on save. Compile working tree automatically whenever a Source file changes.
 
 **Install**
 
-- `Package Delta` <sup>New</sup> (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD), and then generates SQL deployment script from those paths, TODO and BOL file.
 - `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
+- `Package Delta` (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD), and then generates SQL deployment script from those paths, TODO and BOL file.
 - `Deploy` - Run SQL deployment script on selected environment (with SQLPlus). Command prompts with environment selection.
 
 ### Additional
@@ -102,6 +102,17 @@ Default values will be used in the case workspace configuration file is not pres
   "package.templating": false,
   "source.input": ["./src/**/*.sql"],
   "source.encoding": "utf8",
+  "source.pattern": {
+    "packageSpec": "./src/{schema-name}/PACKAGES/{object-name}.sql",
+    "packageBody": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
+    "trigger": "./src/{schema-name}/TRIGGERS/{object-name}.sql",
+    "typeSpec": "./src/{schema-name}/TYPES/{object-name}.sql",
+    "typeBody": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
+    "view": "./src/{schema-name}/VIEWS/{object-name}.sql",
+    "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
+    "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
+    "table": "./src/{schema-name}/TABLES/{object-name}.sql"
+  },
   "compile.warnings": "NONE",
   "compile.force": false,
   "compile.stageFile": true,
@@ -120,6 +131,7 @@ Default values will be used in the case workspace configuration file is not pres
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging. The default value is `false`.
 - `source.input` - Glob pattern for Source files. Used by general `Compile` and `Import` commands to match files that are targeted. For example, to compile only "HR" schema and exclude "HR" tables, set: ["./src/HR/**/\*.sql", "!./src/HR/TABLES/\*.sql"].
 - `source.encoding` - Encoding of Source files. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
+- `source.pattern` - Define custom source structure by specifing path patterns for different object types. You can ommit object types you don't need.
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.
 - `compile.stageFile` - Automatically stage file after is succesfully compiled (git add). Default value is `true`.

@@ -35,12 +35,16 @@
       "type": "boolean"
     },
     "package.exclude": {
-      "default": ["./scripts/**/+(file|run)*.sql"],
+      "default": [
+        "./scripts/**/+(file|run)*.sql"
+      ],
       "description": "Glob pattern to exclude files from package input.",
       "type": "array"
     },
     "source.input": {
-      "default": ["./src/**/*.sql"],
+      "default": [
+        "./src/**/*.sql"
+      ],
       "description": "Glob pattern for Source files.",
       "type": "array"
     },
@@ -53,7 +57,13 @@
       "default": "NONE",
       "description": "Compilation warning scopes.",
       "type": "string",
-      "enum": ["NONE", "ALL", "PERFORMANCE", "INFORMATIONAL", "SEVERE"]
+      "enum": [
+        "NONE",
+        "ALL",
+        "PERFORMANCE",
+        "INFORMATIONAL",
+        "SEVERE"
+      ]
     },
     "compile.force": {
       "default": false,
@@ -79,10 +89,12 @@
       "default": "2099-01-01",
       "description": "Version release date.",
       "type": "string",
-      "format": "date-time"
+      "format": "date"
     },
     "test.input": {
-      "default": ["./test/**/*.test.sql"],
+      "default": [
+        "./test/**/*.test.sql"
+      ],
       "description": "Glob pattern for tests.",
       "type": "array"
     },
@@ -90,6 +102,68 @@
       "default": "dbms_metadata.get_ddl",
       "description": "DDL function name. Use your own DB function to customize import of object's DDL. \"DBMS_METADATA.GET_DDL\" by default. \nex.custom DB func.spec.: FUNCTION GetDDL(object_type IN VARCHAR2, name IN VARCHAR2, schema IN VARCHAR2 DEFAULT NULL) RETURN CLOB;",
       "type": "string"
+    },
+    "source.pattern": {
+      "description": "Define source structure for object types",
+      "type": "object",
+      "default": {
+        "packageSpec": "./src/{schema-name}/PACKAGES/{object-name}.sql",
+        "packageBody": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
+        "trigger": "./src/{schema-name}/TRIGGERS/{object-name}.sql",
+        "typeSpec": "./src/{schema-name}/TYPES/{object-name}.sql",
+        "typeBody": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
+        "view": "./src/{schema-name}/VIEWS/{object-name}.sql",
+        "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
+        "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
+        "table": "./src/{schema-name}/TABLES/{object-name}.sql"
+      },
+      "properties": {
+        "packageSpec": {
+          "default": "./src/{schema-name}/PACKAGES/{object-name}.sql",
+          "description": "Pattern for package specifications",
+          "type": "string"
+        },
+        "packageBody": {
+          "default": "./src/{schema-name}/PACKAGE_BODIES/{object-name}.sql",
+          "description": "Pattern for package bodies",
+          "type": "string"
+        },
+        "trigger": {
+          "default": "./src/{schema-name}/TRIGGERS/{object-name}.sql",
+          "description": "Pattern for triggers",
+          "type": "string"
+        },
+        "typeSpec": {
+          "default": "./src/{schema-name}/TYPES/{object-name}.sql",
+          "description": "Pattern for type specifications",
+          "type": "string"
+        },
+        "typeBody": {
+          "default": "./src/{schema-name}/TYPE_BODIES/{object-name}.sql",
+          "description": "Pattern for type bodies",
+          "type": "string"
+        },
+        "view": {
+          "default": "./src/{schema-name}/VIEWS/{object-name}.sql",
+          "description": "Pattern for views",
+          "type": "string"
+        },
+        "function": {
+          "default": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
+          "description": "Pattern for functions",
+          "type": "string"
+        },
+        "procedure": {
+          "default": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
+          "description": "Pattern for procedures",
+          "type": "string"
+        },
+        "table": {
+          "default": "./src/{schema-name}/TABLES/{object-name}.sql",
+          "description": "Pattern for tables",
+          "type": "string"
+        }
+      }
     }
   }
 }

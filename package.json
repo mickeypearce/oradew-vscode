@@ -347,6 +347,7 @@
     "@types/mocha": "^2.2.42",
     "@types/node": "^10.14.12",
     "@types/oracledb": "^1.11.34",
+    "decache": "^4.5.1",
     "mocha": "^5.2.0",
     "tslint": "^5.18.0",
     "typescript": "^2.9.2",

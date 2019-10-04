@@ -17,8 +17,13 @@ describe("#db getConfiguration", function() {
     let cfgNonUser = db.config.getConfiguration("DEV", "XXX");
     assert.deepEqual(cfgNonUser, cfg);
 
+    // No user parameter
     let cfgNullUser = db.config.getConfiguration("DEV");
     assert.deepEqual(cfgNullUser, cfg);
+
+    // Also empty user parameter should be same result
+    let cfgEmptyUser = db.config.getConfiguration("DEV", "");
+    assert.deepEqual(cfgEmptyUser, cfg);
   });
 });
 

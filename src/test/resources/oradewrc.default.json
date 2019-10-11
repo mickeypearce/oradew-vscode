@@ -1,14 +1,7 @@
 {
   "package.input": [
     "./scripts/**/initial*.sql",
-    "./src/**/VIEWS/*.sql",
-    "./src/**/TYPES/*.sql",
-    "./src/**/TYPE_BODIES/*.sql",
-    "./src/**/TRIGGERS/*.sql",
-    "./src/**/PACKAGES/*.sql",
-    "./src/**/PACKAGE_BODIES/*.sql",
-    "./src/**/FUNCTIONS/*.sql",
-    "./src/**/PROCEDURES/*.sql",
+    "./src/**/*.sql",
     "./scripts/**/final*.sql"
   ],
   "package.exclude": [

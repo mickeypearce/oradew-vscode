@@ -86,14 +86,7 @@ Default values will be used in the case workspace configuration file is not pres
 {
   "package.input": [
     "./scripts/**/initial*.sql",
-    "./src/**/VIEWS/*.sql",
-    "./src/**/TYPES/*.sql",
-    "./src/**/TYPE_BODIES/*.sql",
-    "./src/**/TRIGGERS/*.sql",
-    "./src/**/PACKAGES/*.sql",
-    "./src/**/PACKAGE_BODIES/*.sql",
-    "./src/**/FUNCTIONS/*.sql",
-    "./src/**/PROCEDURES/*.sql",
+    "./src/**/*.sql",
     "./scripts/**/final*.sql"
   ],
   "package.exclude": ["./scripts/**/+(file|run)*.sql"],
@@ -131,7 +124,7 @@ Default values will be used in the case workspace configuration file is not pres
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging. The default value is `false`.
 - `source.input` - Glob pattern for Source files. Used by general `Compile` and `Import` commands to match files that are targeted. For example, to compile only "HR" schema and exclude "HR" tables, set: ["./src/HR/**/\*.sql", "!./src/HR/TABLES/\*.sql"].
 - `source.encoding` - Encoding of Source files. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
-- `source.pattern` - Define custom source structure by specifing path patterns for different object types. You can ommit object types you don't need.
+- `source.pattern` - Define custom source structure by specifing path patterns for different object types. Ommited object types won't get exported. Single schema ex: {"packageSpec": "./src/pck/{object-name}-spec.sql", "packageBody": "./src/pck/{object-name}-body.sql"}
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `true` to compile without conflict detection. The default value is `false`.
 - `compile.stageFile` - Automatically stage file after is succesfully compiled (git add). Default value is `true`.

@@ -294,27 +294,29 @@ const exportFilesFromDb = async ({
 
 const printResults = resp => {
   // Print column names and rows data
-  let rows = resp.result.rows;
-  if (rows) {
-    // Replace null values with '(null)'
-    rows = rows.map(r => r.map(v => (v === null ? "(null)" : v)));
-    const table = new Table({
-      head: resp.result.metaData.map(col => col.name),
-      style: { head: ["cyan"] }
-    });
-    table.push(...rows);
-    console.log(table.toString());
-  }
-  // Print affected rows
-  if (resp.result.rowsAffected) {
-    console.log(
-      // chalk.magenta(
-      `${resp.result.rowsAffected} ${
-        resp.result.rowsAffected === 1 ? "row" : "rows"
-      } affected.`
+  if (resp.result) {
+    let rows = resp.result.rows;
+    if (rows) {
+      // Replace null values with '(null)'
+      rows = rows.map(r => r.map(v => (v === null ? "(null)" : v)));
+      const table = new Table({
+        head: resp.result.metaData.map(col => col.name),
+        style: { head: ["cyan"] }
+      });
+      table.push(...rows);
+      console.log(table.toString());
+    }
+    // Print affected rows
+    if (resp.result.rowsAffected) {
+      console.log(
+        // chalk.magenta(
+        `${resp.result.rowsAffected} ${
+          resp.result.rowsAffected === 1 ? "row" : "rows"
+        } affected.`
 
-      // )
-    );
+        // )
+      );
+    }
   }
   // Print dbms output
   if (resp.lines && resp.lines.length !== 0) {
@@ -415,6 +417,8 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   // Simple output err colorizer
   const colorize = text =>
     _.pipe(
+      // Remove carriage returns
+      _.replace(/\r\n/g, "\n"),
       // Remove double new-lines
       _.replace(/(\n\r)+/g, "\n"),
       _.trim,
@@ -425,9 +429,17 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
     )(text);
 
   try {
-    const stdout = await base.runFileAsScript(src, env);
-    console.log(`${env}@${src}`);
-    console.log(colorize(stdout));
+    const { stdout, obj } = await base.runFileAsScript(src, env);
+
+    const out = colorize(stdout);
+    const errors = db.parsteForErrors(out);
+
+    // Prints errors in problem matcher format (one error per line)
+    printResults({ errors, obj: { owner: obj.owner }, env, file });
+
+    // Outputs stdout
+    // console.log('=======OUTPUT=======');
+    console.log(out);
 
     // Add env suffix to log file if it exists
     if (fs.existsSync(logPath)) {

@@ -29,7 +29,7 @@ export class DBConfig {
       this.object = readJsonSync(this.fileBase);
     } catch (e) {
       // Defaults
-      console.log("Cannot find dbconfig.json file...");
+      console.log(`Cannot find ${this.fileBase} file...`);
       this.object = this.defaults;
     }
   }
@@ -316,22 +316,66 @@ const createErrorList = (arr = []) => {
   return obj;
 };
 
-const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
+const parsteForErrors = msg => {
+  // console.log(msg);
   // Matches only one line of error msg
-  let reg = /.*:\sline\s(\d*),\scolumn\s(\d*):\n(.*)/g;
+  // No idea why it wooldnt work: [\r\n|\n], so first I made a unused group instead: (\r\n|\n) to match \n or \r\n
+  // But then settled fot removing \r alltogether
+
+  const regCommon = /.*Error starting at line : (\d*)[\s\S]*?Error report -\n(.*line (\d*), column (\d*):\n(.*)|.*)/g;
+  const regCommands = /.*Error starting at line : (\d*)[\s\S]*?Line : (\d*) Column : (\d*)[\s\S]*?Error report -\n(.*)/g;
+  // const reg = /.*Error starting at line : (\d*)[\s\S]*?line (\d*), column (\d*):\n(.*)/g;
+
   let s;
   let err = createErrorList();
-  while ((s = reg.exec(msg)) !== null) {
+
+  while ((s = regCommon.exec(msg)) !== null) {
+    if (s[3] && s[4] && s[5]) {
+      // line and column exists after error report: ex:
+      // Error report -
+      // ORA-06550: line 3, column 1:
+      // PLS-00103: Encountered the symbol "END" when expecting one of the following:
+      err.add(
+        createError({
+          LINE: parseInt(s[1]) + parseInt(s[3]) - 1,
+          POSITION: s[4],
+          TEXT: s[5],
+          ATTRIBUTE: "ERROR",
+          _ID: "0003"
+        })
+      );
+    } else {
+      // ex: otherwise
+      // Error report -
+      // ORA-01430: column being added already exists in table
+      err.add(
+        createError({
+          LINE: parseInt(s[1]),
+          POSITION: 1,
+          TEXT: s[2],
+          ATTRIBUTE: "ERROR",
+          _ID: "0003"
+        })
+      );
+    }
+  }
+
+  // Offset already calculated in error message
+  while ((s = regCommands.exec(msg)) !== null) {
     err.add(
       createError({
-        LINE: lineOffset + parseInt(s[1]) - 1,
-        POSITION: s[2],
-        TEXT: s[3],
+        LINE: parseInt(s[2]),
+        POSITION: s[3],
+        TEXT: s[4],
         ATTRIBUTE: "ERROR",
         _ID: "0003"
       })
     );
   }
+  return err;
+};
+const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
+  let err = parsteForErrors(msg);
   if (err.get().length === 0) {
     err.add(
       createError({
@@ -438,3 +482,4 @@ module.exports.getErrorSystem = getErrorSystem;
 module.exports.getNameResolve = getNameResolve;
 module.exports.getDbmsOutput = getDbmsOutput;
 module.exports.getGeneratorFunction = getGeneratorFunction;
+module.exports.parsteForErrors = parsteForErrors;

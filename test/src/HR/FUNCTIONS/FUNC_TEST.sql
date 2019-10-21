@@ -1,6 +1,5 @@
 
-CREATE OR REPLACE FUNCTION "FUNC_TEST"
-RETURN varchar2 AS 2
-BEGIN
-  RETURN 'test'; bug
-END FUNC_TEST;
+begin
+  select
+end;
+/

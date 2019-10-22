@@ -5,7 +5,7 @@ import { ConfigurationController } from "./configuration-controller";
 
 let settings = ConfigurationController.getInstance();
 
-// Git and NodeJS are mandatory prerequsites, SQlPlus is a warning only
+// Git and NodeJS are mandatory prerequsites, SQl*Plus is a warning only
 export const existPrerequisites = (): boolean => {
   let bCheck = true;
   if (!commandExists("git")) {
@@ -20,10 +20,10 @@ export const existPrerequisites = (): boolean => {
     );
     bCheck = false;
   }
-  // Optional - SqlPlus is required only for certain oradew commands
-  if (!commandExists("sqlplus")) {
+  // Optional - SQL*Plus or SQLcl is required only for certain oradew commands
+  if (!commandExists("sqlplus") && !commandExists("sql")) {
     window.showWarningMessage(
-      `Oradew: "sqlplus" command (SQL*Plus) is required in command-line.`
+      `Oradew: "sqlplus" (SQL*Plus) or "sql" (SQLcl) command is required in command-line.`
     );
   }
   return bCheck;

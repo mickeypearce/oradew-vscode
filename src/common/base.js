@@ -223,7 +223,8 @@ obj.runFileAsScript = async (file, env) => {
   const cwd = parse(file).dir;
   const filename = parse(file).base;
   // const cmd = `(echo connect ${connString} & echo start ${filename} & echo show errors) | sqlplus -S /nolog`;
-  const cmd = `exit | "sql.exe" -S ${connString} @"${filename}"`;
+  const cli = process.env.cliExecutable;
+  const cmd = `exit | "${cli}" -S ${connString} @"${filename}"`;
 
   // We execute from file directory (change cwd)
   // mainly because of spooling to dir of the file (packaged script)

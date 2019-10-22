@@ -35,7 +35,7 @@ oradewrc.json           Workspace configuration
 
 - `Compile Changes to DB` (F6) - Compile changed Source objects (working tree) to DB
 - `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
-- `Run Current File as Script` (F5) - Execute a SQL script (with SQLPlus)
+- `Run Current File as Script` (F5) - Execute a SQL script (with SQL\*Plus or SQLcl)
 - `Run Selected Statement` (Ctrl+Enter) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
 - `Toggle Compile Watch` - Start/End compilaton on save. Compile working tree automatically whenever a Source file changes.
 
@@ -43,7 +43,7 @@ oradewrc.json           Workspace configuration
 
 - `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
 - `Package Delta` (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD), and then generates SQL deployment script from those paths, TODO and BOL file.
-- `Deploy` - Run SQL deployment script on selected environment (with SQLPlus). Command prompts with environment selection.
+- `Deploy` - Run SQL deployment script on selected environment (with SQL\*Plus or SQLcl). Command prompts with environment selection.
 
 ### Additional
 
@@ -118,7 +118,7 @@ Default values will be used in the case workspace configuration file is not pres
 ```
 
 - `package.input` - Array of globs for packaging files into deployment script file (package.output). `Package Delta` command populates it with changed file paths.
-- `package.output` - Deployment script file path. Created witsh `Package` commands from concatenated input files and prepared for SQLPlus execution. (wrapped with "SPOOL deploy.log", "COMMIT;", etc )
+- `package.output` - Deployment script file path. Created with `Package` commands from concatenated input files and prepared for deployment. (wrapped with "SPOOL deploy.log", "COMMIT;", etc )
 - `package.exclude` - Array of globs for excluding files from packaging. Scripts that start with "file" or "run" by default.
 - `package.encoding` - Encoding of deployment script file. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging. The default value is `false`.
@@ -181,7 +181,7 @@ The `label` and `function` properties are required for a generator to be succesf
 
 - Node.js 6, 8, 10 or 11
 - Git
-- SQLPlus
+- SQL\*Plus or SQLcl
 
 ### Important
 
@@ -235,7 +235,7 @@ Commands:
   compile [options]         Compile Source files to DB
   import [options]          Import Source files from DB
   package [options]         Package files to deployment script
-  deploy|run [options]      Run script (with SQLPlus)
+  deploy|run [options]      Run script (with SQL*Plus or SQLcl)
   test [options]            Run unit tests
   generate [options]        Code generator
   watch [options]           Compile when Source file changes

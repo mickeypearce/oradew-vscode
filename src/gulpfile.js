@@ -432,13 +432,15 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
     const { stdout, obj } = await base.runFileAsScript(src, env);
 
     const out = colorize(stdout);
-    const errors = db.parsteForErrors(out);
+    const errors = db.pasteForErrors(out);
 
     // Prints errors in problem matcher format (one error per line)
     printResults({ errors, obj: { owner: obj.owner }, env, file });
 
     // Outputs stdout
-    // console.log('=======OUTPUT=======');
+    console.log(
+      "=============================== STDOUT ==============================="
+    );
     console.log(out);
 
     // Add env suffix to log file if it exists

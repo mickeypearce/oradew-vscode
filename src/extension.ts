@@ -22,6 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
   const isSilent = !settings.chatty;
   const wsConfigPath = settings.workspaceConfigFile;
   const dbConfigPath = settings.databaseConfigFile;
+  const cliExecutable = settings.cliExecutable;
 
   // let watcher = vscode.workspace.createFileSystemWatcher(dbConfigPath);
   // watcher.onDidCreate(() => {
@@ -45,7 +46,8 @@ export function activate(context: vscode.ExtensionContext) {
     dbConfigPath,
     wsConfigPath,
     isSilent,
-    isColor: true
+    isColor: true,
+    cliExecutable
   });
 
   const generatorManager = new GeneratorManager();

@@ -316,21 +316,17 @@ const createErrorList = (arr = []) => {
   return obj;
 };
 
-const parsteForErrors = msg => {
-  // console.log(msg);
+const pasteForErrors = msg => {
   // Matches only one line of error msg
-  // No idea why it wooldnt work: [\r\n|\n], so first I made a unused group instead: (\r\n|\n) to match \n or \r\n
-  // But then settled fot removing \r alltogether
-
-  const regCommon = /.*Error starting at line : (\d*)[\s\S]*?Error report -\n(.*line (\d*), column (\d*):\n(.*)|.*)/g;
-  const regCommands = /.*Error starting at line : (\d*)[\s\S]*?Line : (\d*) Column : (\d*)[\s\S]*?Error report -\n(.*)/g;
-  // const reg = /.*Error starting at line : (\d*)[\s\S]*?line (\d*), column (\d*):\n(.*)/g;
+  const regCommon = /.*Error starting at line : (\d+)[\s\S]*?Error report -\n(.*line (\d+), column (\d+):\n(.*)|[\s\S]*?at line (\d+)|.*)/g;
+  const regCommands = /.*Error starting at line : (\d+)[\s\S]*?Line : (\d+) Column : (\d+)[\s\S]*?Error report -\n(.*)/g;
+  const regTableError = /(\d+)\/(\d+)\s*(.*)/g;
 
   let s;
   let err = createErrorList();
 
   while ((s = regCommon.exec(msg)) !== null) {
-    if (s[3] && s[4] && s[5]) {
+    if (s[1] && s[3] && s[4] && s[5]) {
       // line and column exists after error report: ex:
       // Error report -
       // ORA-06550: line 3, column 1:
@@ -340,6 +336,20 @@ const parsteForErrors = msg => {
           LINE: parseInt(s[1]) + parseInt(s[3]) - 1,
           POSITION: s[4],
           TEXT: s[5],
+          ATTRIBUTE: "ERROR",
+          _ID: "0003"
+        })
+      );
+    } else if (s[1] && s[2] && s[6]) {
+      // only line...
+      // Error report -
+      // ORA-00001: unique constraint (HR.my_table PK) violated
+      // ORA-06512: at line 34
+      err.add(
+        createError({
+          LINE: parseInt(s[1]) + parseInt(s[6]) - 1,
+          POSITION: 1,
+          TEXT: s[2],
           ATTRIBUTE: "ERROR",
           _ID: "0003"
         })
@@ -372,10 +382,26 @@ const parsteForErrors = msg => {
       })
     );
   }
+  // !!! this Line information has not an offset so it is wrong in multi stm script
+  // ex.:
+  // LINE/COL  ERROR
+  // --------- -------------------------------------------------------------
+  // 3/1       PLS-00103: Encountered the symbol "NULL" when expecting one of the following: ...
+  while ((s = regTableError.exec(msg)) !== null) {
+    err.add(
+      createError({
+        LINE: parseInt(s[1]),
+        POSITION: s[2],
+        TEXT: s[3],
+        ATTRIBUTE: "ERROR",
+        _ID: "0003"
+      })
+    );
+  }
   return err;
 };
 const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
-  let err = parsteForErrors(msg);
+  let err = pasteForErrors(msg);
   if (err.get().length === 0) {
     err.add(
       createError({
@@ -482,4 +508,4 @@ module.exports.getErrorSystem = getErrorSystem;
 module.exports.getNameResolve = getNameResolve;
 module.exports.getDbmsOutput = getDbmsOutput;
 module.exports.getGeneratorFunction = getGeneratorFunction;
-module.exports.parsteForErrors = parsteForErrors;
+module.exports.pasteForErrors = pasteForErrors;

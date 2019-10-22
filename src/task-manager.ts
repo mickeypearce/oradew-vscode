@@ -16,6 +16,7 @@ export class TaskManager {
     wsConfigPath?: string; // ./oradewrc.json by default
     isSilent?: boolean; //gulp option: --silent
     isColor?: boolean; //gulp option:--color
+    cliExecutable: string;
   }) {
     const {
       workspacePath,
@@ -24,7 +25,8 @@ export class TaskManager {
       wsConfigPath,
       dbConfigPath,
       isSilent,
-      isColor
+      isColor,
+      cliExecutable
     } = tmConfig;
 
     this.gulpPathJs = path.resolve(
@@ -48,7 +50,8 @@ export class TaskManager {
       env: {
         storagePath,
         dbConfigPath,
-        wsConfigPath
+        wsConfigPath,
+        cliExecutable
       },
       // inherit stdio
       stdio: "inherit"

@@ -319,6 +319,12 @@
             "default": false,
             "required": false,
             "description": "Enable informational output (in Gulp tasks)"
+          },
+          "oradew.cliExecutable": {
+            "type": "string",
+            "default": "sql",
+            "required": false,
+            "description": "The path to CLI executable for Database (SQL*Plus or SQLcl)"
           }
         }
       }

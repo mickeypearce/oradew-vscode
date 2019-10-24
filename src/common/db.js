@@ -318,7 +318,7 @@ const createErrorList = (arr = []) => {
 
 const pasteForErrors = msg => {
   // Matches only one line of error msg
-  const regCommon = /.*Error starting at line : (\d+)[\s\S]*?Error report -\n(.*line (\d+), column (\d+):\n(.*)|[\s\S]*?at line (\d+)|.*)/g;
+  const regCommon = /.*Error starting at line : (\d+)[\s\S]*?Error report -\n(.*line (\d+), column (\d+):\n(.*)|.*\n.*at line (\d+)|.*)/g;
   const regCommands = /.*Error starting at line : (\d+)[\s\S]*?Line : (\d+) Column : (\d+)[\s\S]*?Error report -\n(.*)/g;
   const regTableError = /(\d+)\/(\d+)\s*(.*)/g;
 

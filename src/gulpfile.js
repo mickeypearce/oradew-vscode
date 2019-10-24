@@ -397,13 +397,15 @@ const compileFilesToDb = async ({
 const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   const src = file || config.get({ field: "package.output", env });
 
-  if (!fs.existsSync(src)) {
-    console.log(`File does not exist: ${src}`);
+  const filePath = path.resolve(src);
+  if (!fs.existsSync(filePath)) {
+    console.log(`File does not exist: ${filePath}`);
+    console.log(`Try "Package" command to create a deployment script.`);
     return;
   }
 
-  const outputFileName = path.basename(src);
-  const outputDirectory = path.dirname(src);
+  const outputFileName = path.basename(filePath);
+  const outputDirectory = path.dirname(filePath);
 
   // Default log file that packaged scripts spools to
   const logPath = path.join(outputDirectory, getLogFilename(outputFileName));
@@ -429,13 +431,13 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
     )(text);
 
   try {
-    const { stdout, obj } = await base.runFileAsScript(src, env);
+    const { stdout, obj } = await base.runFileAsScript(filePath, env);
 
     const out = colorize(stdout);
     const errors = db.pasteForErrors(out);
 
     // Prints errors in problem matcher format (one error per line)
-    printResults({ errors, obj: { owner: obj.owner }, env, file });
+    printResults({ errors, obj, env, file: filePath });
 
     // Outputs stdout
     console.log(

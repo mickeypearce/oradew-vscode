@@ -228,7 +228,8 @@ obj.runFileAsScript = async (file, env) => {
 
   // We execute from file directory (change cwd)
   // mainly because of spooling to dir of the file (packaged script)
-  let stdout = await utils.execPromise(cmd, { cwd });
+  // buffer: 5MB
+  let stdout = await utils.execPromise(cmd, { maxBuffer: 1024 * 5000, cwd });
   return { stdout, obj };
 };
 

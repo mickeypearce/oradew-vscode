@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.13] - 2019-10-25
+
+- Add problem matcher for scripts and SQLcl as a default CLI [#28](https://github.com/mickeypearce/oradew-vscode/issues/28)
+
 ## [0.3.12] - 2019-10-04
 
 - Add configuration for custom source structure [#29](https://github.com/mickeypearce/oradew-vscode/issues/29)

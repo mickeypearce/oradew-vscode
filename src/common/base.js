@@ -213,19 +213,24 @@ obj.compileSelection = async (code, file, env, lineOffset) => {
   };
 };
 
-obj.runFileAsScript = (file, env) => {
+obj.runFileAsScript = async (file, env) => {
   const obj = getObjectInfoFromPath(file);
-  const owner = obj.owner;
-  const connCfg = db.config.getConfiguration(env, owner);
+  const connCfg = db.config.getConfiguration(env, obj.owner);
+  obj.owner = connCfg.user.toUpperCase();
+
   const connString = db.getConnectionString(connCfg);
 
   const cwd = parse(file).dir;
   const filename = parse(file).base;
-  const cmd = `(echo connect ${connString} & echo start ${filename} & echo show errors) | sqlplus -S /nolog`;
+  // const cmd = `(echo connect ${connString} & echo start ${filename} & echo show errors) | sqlplus -S /nolog`;
+  const cli = process.env.cliExecutable;
+  const cmd = `exit | "${cli}" -S ${connString} @"${filename}"`;
 
   // We execute from file directory (change cwd)
   // mainly because of spooling to dir of the file (packaged script)
-  return utils.execPromise(cmd, { cwd });
+  // buffer: 5MB
+  let stdout = await utils.execPromise(cmd, { maxBuffer: 1024 * 5000, cwd });
+  return { stdout, obj };
 };
 
 obj.getObjectsInfoByType = async (env, owner, objectTypes) => {

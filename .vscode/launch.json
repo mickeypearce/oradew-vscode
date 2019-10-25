@@ -10,12 +10,8 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}"
-      ],
-      "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
-      ],
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "preLaunchTask": "npm: watch",
       "sourceMaps": true,
       "env": {
@@ -31,9 +27,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test"
       ],
-      "outFiles": [
-        "${workspaceFolder}/out/test/**/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
       "preLaunchTask": "npm: watch"
     },
     {
@@ -42,17 +36,18 @@
       "request": "launch",
       "cwd": "${workspaceFolder}/test",
       "program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
+      "env": {
+        "dbConfigPath": "dbconfig.json"
+      },
       "args": [
         "--cwd=${workspaceFolder}/test",
         "--gulpfile=${workspaceFolder}/out/gulpfile.js",
-        "importFiles",
+        "run",
         "--env=DEV",
-        "--file=${workspaceFolder}/test/src/FUNCTIONS/FUNC_TEST.sql"
+        "--file=${workspaceFolder}/test/src/HR/FUNCTIONS/FUNC_TEST.sql"
         // "--object=FUNC_TEST1"
       ],
-      "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "showAsyncStacks": true,
       "sourceMaps": true,
       "preLaunchTask": "npm: watch"

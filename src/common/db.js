@@ -29,7 +29,7 @@ export class DBConfig {
       this.object = readJsonSync(this.fileBase);
     } catch (e) {
       // Defaults
-      console.log("Cannot find dbconfig.json file...");
+      console.log(`Cannot find ${this.fileBase} file...`);
       this.object = this.defaults;
     }
   }
@@ -316,15 +316,81 @@ const createErrorList = (arr = []) => {
   return obj;
 };
 
-const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
+const pasteForErrors = msg => {
   // Matches only one line of error msg
-  let reg = /.*:\sline\s(\d*),\scolumn\s(\d*):\n(.*)/g;
+  const regCommon = /.*Error starting at line : (\d+)[\s\S]*?Error report -\n(.*line (\d+), column (\d+):\n(.*)|.*\n.*at line (\d+)|.*)/g;
+  const regCommands = /.*Error starting at line : (\d+)[\s\S]*?Line : (\d+) Column : (\d+)[\s\S]*?Error report -\n(.*)/g;
+  const regTableError = /(\d+)\/(\d+)\s*(.*)/g;
+
   let s;
   let err = createErrorList();
-  while ((s = reg.exec(msg)) !== null) {
+
+  while ((s = regCommon.exec(msg)) !== null) {
+    if (s[1] && s[3] && s[4] && s[5]) {
+      // line and column exists after error report: ex:
+      // Error report -
+      // ORA-06550: line 3, column 1:
+      // PLS-00103: Encountered the symbol "END" when expecting one of the following:
+      err.add(
+        createError({
+          LINE: parseInt(s[1]) + parseInt(s[3]) - 1,
+          POSITION: s[4],
+          TEXT: s[5],
+          ATTRIBUTE: "ERROR",
+          _ID: "0003"
+        })
+      );
+    } else if (s[1] && s[2] && s[6]) {
+      // only line...
+      // Error report -
+      // ORA-00001: unique constraint (HR.my_table PK) violated
+      // ORA-06512: at line 34
+      err.add(
+        createError({
+          LINE: parseInt(s[1]) + parseInt(s[6]) - 1,
+          POSITION: 1,
+          TEXT: s[2],
+          ATTRIBUTE: "ERROR",
+          _ID: "0003"
+        })
+      );
+    } else {
+      // ex: otherwise
+      // Error report -
+      // ORA-01430: column being added already exists in table
+      err.add(
+        createError({
+          LINE: parseInt(s[1]),
+          POSITION: 1,
+          TEXT: s[2],
+          ATTRIBUTE: "ERROR",
+          _ID: "0003"
+        })
+      );
+    }
+  }
+
+  // Offset already calculated in error message
+  while ((s = regCommands.exec(msg)) !== null) {
     err.add(
       createError({
-        LINE: lineOffset + parseInt(s[1]) - 1,
+        LINE: parseInt(s[2]),
+        POSITION: s[3],
+        TEXT: s[4],
+        ATTRIBUTE: "ERROR",
+        _ID: "0003"
+      })
+    );
+  }
+  // !!! this Line information has not an offset so it is wrong in multi stm script
+  // ex.:
+  // LINE/COL  ERROR
+  // --------- -------------------------------------------------------------
+  // 3/1       PLS-00103: Encountered the symbol "NULL" when expecting one of the following: ...
+  while ((s = regTableError.exec(msg)) !== null) {
+    err.add(
+      createError({
+        LINE: parseInt(s[1]),
         POSITION: s[2],
         TEXT: s[3],
         ATTRIBUTE: "ERROR",
@@ -332,6 +398,10 @@ const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
       })
     );
   }
+  return err;
+};
+const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
+  let err = pasteForErrors(msg);
   if (err.get().length === 0) {
     err.add(
       createError({
@@ -438,3 +508,4 @@ module.exports.getErrorSystem = getErrorSystem;
 module.exports.getNameResolve = getNameResolve;
 module.exports.getDbmsOutput = getDbmsOutput;
 module.exports.getGeneratorFunction = getGeneratorFunction;
+module.exports.pasteForErrors = pasteForErrors;

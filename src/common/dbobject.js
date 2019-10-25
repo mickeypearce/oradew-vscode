@@ -66,9 +66,6 @@ export function getObjectInfoFromPath(path) {
   // and objectname=filename, schema is second dir in path
   // we assume it as a script
   if (!pattern) {
-    // const absPath = resolve(path);
-    // const base = resolve("./");
-    // const relPath = relative(base, absPath);
     const pathSplit = pathPosix.split("/");
 
     // If path don't include schema (too short :), we set it to "" which means default schema will be used
@@ -97,7 +94,9 @@ export function getObjectInfoFromPath(path) {
   );
 
   // Remove both from path
-  // o = ["./src/", "/PACKAGES/*-spec.sql"]
+  // ex: path: "./src/HR/PACKAGES/pck1-spec.sql"
+  // replace ["./src/", "/PACKAGES/\w+-spec.sql"] with "", leaving "HR"
+  // actually: pathPosix.replace(schemaRegex[0]).replace(schemaRegex[1])
   schema = schemaRegex.reduce((acc, val) => acc.replace(val, ""), pathPosix);
 
   /** extact object-name*/

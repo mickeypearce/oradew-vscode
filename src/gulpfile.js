@@ -294,27 +294,29 @@ const exportFilesFromDb = async ({
 
 const printResults = resp => {
   // Print column names and rows data
-  let rows = resp.result.rows;
-  if (rows) {
-    // Replace null values with '(null)'
-    rows = rows.map(r => r.map(v => (v === null ? "(null)" : v)));
-    const table = new Table({
-      head: resp.result.metaData.map(col => col.name),
-      style: { head: ["cyan"] }
-    });
-    table.push(...rows);
-    console.log(table.toString());
-  }
-  // Print affected rows
-  if (resp.result.rowsAffected) {
-    console.log(
-      // chalk.magenta(
-      `${resp.result.rowsAffected} ${
-        resp.result.rowsAffected === 1 ? "row" : "rows"
-      } affected.`
+  if (resp.result) {
+    let rows = resp.result.rows;
+    if (rows) {
+      // Replace null values with '(null)'
+      rows = rows.map(r => r.map(v => (v === null ? "(null)" : v)));
+      const table = new Table({
+        head: resp.result.metaData.map(col => col.name),
+        style: { head: ["cyan"] }
+      });
+      table.push(...rows);
+      console.log(table.toString());
+    }
+    // Print affected rows
+    if (resp.result.rowsAffected) {
+      console.log(
+        // chalk.magenta(
+        `${resp.result.rowsAffected} ${
+          resp.result.rowsAffected === 1 ? "row" : "rows"
+        } affected.`
 
-      // )
-    );
+        // )
+      );
+    }
   }
   // Print dbms output
   if (resp.lines && resp.lines.length !== 0) {
@@ -395,13 +397,15 @@ const compileFilesToDb = async ({
 const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   const src = file || config.get({ field: "package.output", env });
 
-  if (!fs.existsSync(src)) {
-    console.log(`File does not exist: ${src}`);
+  const filePath = path.resolve(src);
+  if (!fs.existsSync(filePath)) {
+    console.log(`File does not exist: ${filePath}`);
+    console.log(`Try "Package" command to create a deployment script.`);
     return;
   }
 
-  const outputFileName = path.basename(src);
-  const outputDirectory = path.dirname(src);
+  const outputFileName = path.basename(filePath);
+  const outputDirectory = path.dirname(filePath);
 
   // Default log file that packaged scripts spools to
   const logPath = path.join(outputDirectory, getLogFilename(outputFileName));
@@ -415,6 +419,8 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   // Simple output err colorizer
   const colorize = text =>
     _.pipe(
+      // Remove carriage returns
+      _.replace(/\r\n/g, "\n"),
       // Remove double new-lines
       _.replace(/(\n\r)+/g, "\n"),
       _.trim,
@@ -425,9 +431,19 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
     )(text);
 
   try {
-    const stdout = await base.runFileAsScript(src, env);
-    console.log(`${env}@${src}`);
-    console.log(colorize(stdout));
+    const { stdout, obj } = await base.runFileAsScript(filePath, env);
+
+    const out = colorize(stdout);
+    const errors = db.pasteForErrors(out);
+
+    // Prints errors in problem matcher format (one error per line)
+    printResults({ errors, obj, env, file: filePath });
+
+    // Outputs stdout
+    console.log(
+      "=============================== STDOUT ==============================="
+    );
+    console.log(out);
 
     // Add env suffix to log file if it exists
     if (fs.existsSync(logPath)) {

@@ -31,6 +31,8 @@ const wsConfigPath =
 const isColor = (process.env.color || "true") === "true";
 const isSilent = (process.env.silent || "true") === "true";
 
+const cliExecutable = process.env.cliExecutable || "sql";
+
 const taskManager = new TaskManager({
   workspacePath,
   contextPath,
@@ -38,7 +40,8 @@ const taskManager = new TaskManager({
   dbConfigPath,
   wsConfigPath,
   isSilent,
-  isColor
+  isColor,
+  cliExecutable
 });
 const execute = () => taskManager.executeOradewTask(process.argv);
 
@@ -90,7 +93,7 @@ program
 program
   .command("deploy")
   .alias("run")
-  .description("Run script (with SQLPlus)")
+  .description("Run script (with SQL*Plus or SQLcl)")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .option("--file <file>", "Path of file. 'package.output' if not specified.")
   .action(() => execute());

@@ -316,7 +316,7 @@ const createErrorList = (arr = []) => {
   return obj;
 };
 
-const pasteForErrors = msg => {
+const parseForErrors = msg => {
   // Matches only one line of error msg
   const regCommon = /.*Error starting at line : (\d+)[\s\S]*?Error report -\n(.*line (\d+), column (\d+):\n(.*)|.*\n.*at line (\d+)|.*)/g;
   const regCommands = /.*Error starting at line : (\d+)[\s\S]*?Line : (\d+) Column : (\d+)[\s\S]*?Error report -\n(.*)/g;
@@ -401,7 +401,7 @@ const pasteForErrors = msg => {
   return err;
 };
 const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
-  let err = pasteForErrors(msg);
+  let err = parseForErrors(msg);
   if (err.get().length === 0) {
     err.add(
       createError({
@@ -508,4 +508,4 @@ module.exports.getErrorSystem = getErrorSystem;
 module.exports.getNameResolve = getNameResolve;
 module.exports.getDbmsOutput = getDbmsOutput;
 module.exports.getGeneratorFunction = getGeneratorFunction;
-module.exports.pasteForErrors = pasteForErrors;
+module.exports.parseForErrors = parseForErrors;

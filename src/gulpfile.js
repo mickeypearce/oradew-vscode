@@ -434,7 +434,7 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
     const { stdout, obj } = await base.runFileAsScript(filePath, env);
 
     const out = colorize(stdout);
-    const errors = db.pasteForErrors(out);
+    const errors = db.parseForErrors(out);
 
     // Prints errors in problem matcher format (one error per line)
     printResults({ errors, obj, env, file: filePath });

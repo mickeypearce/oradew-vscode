@@ -15,7 +15,7 @@
   ],
   "source.encoding": "utf8",
   "compile.warnings": "NONE",
-  "compile.force": false,
+  "compile.force": true,
   "compile.stageFile": true,
   "version.number": "0.0.1",
   "version.description": "New feature",
@@ -34,5 +34,6 @@
     "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
     "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
     "table": "./src/{schema-name}/TABLES/{object-name}.sql"
-  }
+  },
+  "import.ease": false
 }

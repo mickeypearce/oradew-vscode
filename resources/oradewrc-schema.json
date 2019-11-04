@@ -59,7 +59,7 @@
       ]
     },
     "compile.force": {
-      "default": false,
+      "default": true,
       "description": "Ignore the conflict detection and merge of local file changes with object stored on DB.",
       "type": "boolean"
     },
@@ -157,6 +157,11 @@
           "type": "string"
         }
       }
+    },
+    "import.ease": {
+      "default": false,
+      "description": "When true imports only DB objects that changed on DB in comparision to project Source files",
+      "type": "boolean"
     }
   }
 }

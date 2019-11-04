@@ -171,9 +171,7 @@ export function activate(context: vscode.ExtensionContext) {
         params: [
           "import",
           "--env",
-          "${command:oradew.getEnvironment}",
-          "--ease",
-          "true"
+          "${command:oradew.getEnvironment}"
         ]
       })
     );

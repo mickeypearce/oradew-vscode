@@ -20,9 +20,9 @@ describe("#Utility Default Config in ./", function() {
     assert.deepEqual(defaults, templateOradewrc);
   });
 
-  it("should compile.force be false by default", function() {
+  it("should compile.force be true by default", function() {
     let force = configDefault.get("compile.force");
-    assert.equal(force, false);
+    assert.equal(force, true);
   });
   it("should test.input be ... by default", function() {
     let testInput = configDefault.get("test.input");

@@ -648,7 +648,7 @@ const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
         );
         if (path !== "") {
           // Create empty sql file - if is inside "source.input" globs
-          // non existing object are always created!
+          // non existing object are always created! (as I don't know howto glob match virual file)
           if (!fs.existsSync(path) || base.isGlobMatch(source, [path])) {
             fs.outputFileSync(path, "");
             console.log("Created file " + path);
@@ -898,10 +898,10 @@ gulp.task(
     env = argv.env || "DEV",
     file = argv.file,
     changed = argv.changed || false,
-    ease = argv.ease || false,
     quiet = argv.quiet || false,
     object = argv.object
   }) => {
+    const ease = config.get({ field: "import.ease", env });
     if (object) return exportObjectFromDb({ env, object });
     else return exportFilesFromDbAsync({ file, env, changed, ease, quiet });
   }

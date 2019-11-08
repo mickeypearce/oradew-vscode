@@ -101,7 +101,8 @@ describe("#getStructure", function () {
       "./src/{schema-name}/VIEWS",
       "./src/{schema-name}/FUNCTIONS",
       "./src/{schema-name}/PROCEDURES",
-      "./src/{schema-name}/TABLES"
+      "./src/{schema-name}/TABLES",
+      "./src/{schema-name}/SYNONYMS"
     ]);
   });
 });

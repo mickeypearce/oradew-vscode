@@ -16,7 +16,7 @@ This extension allows you to develop your Oracle (PL/SQL) project in Visual Stud
 ```
 ./deploy                Deployment package
 ./scripts               SQL Scripts (DDL, DML, files, etc)
-./src                   Source with PL/SQL objects (FUNCTIONS, PACKAGES, PROCEDURES, TABLES, TRIGGERS, TYPES, VIEWS)
+./src                   Source with PL/SQL objects
 ./test                  Unit tests
 dbconfig.json           DB environment configuration (required)
 oradewrc.json           Workspace configuration
@@ -104,7 +104,8 @@ Default values will be used in the case workspace configuration file is not pres
     "view": "./src/{schema-name}/VIEWS/{object-name}.sql",
     "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
     "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
-    "table": "./src/{schema-name}/TABLES/{object-name}.sql"
+    "table": "./src/{schema-name}/TABLES/{object-name}.sql",
+    "synonym": "./src/{schema-name}/SYNONYMS/{object-name}.sql"
   },
   "compile.warnings": "NONE",
   "compile.force": true,

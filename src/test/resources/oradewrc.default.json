@@ -33,7 +33,8 @@
     "view": "./src/{schema-name}/VIEWS/{object-name}.sql",
     "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
     "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
-    "table": "./src/{schema-name}/TABLES/{object-name}.sql"
+    "table": "./src/{schema-name}/TABLES/{object-name}.sql",
+    "synonym": "./src/{schema-name}/SYNONYMS/{object-name}.sql"
   },
   "import.ease": false
 }

@@ -34,7 +34,8 @@ const mapToOraObjectType = {
   trigger: "TRIGGER",
   typeSpec: "TYPE",
   typeBody: "TYPE BODY",
-  table: "TABLE"
+  table: "TABLE",
+  synonym: "SYNONYM"
 };
 
 const mapToOraObjectTypeAlt = {

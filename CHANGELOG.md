@@ -1,12 +1,16 @@
 # Change Log
 
+## [0.3.14] - 2019-11-08
+
+- Added synonyms to source objects [#31](https://github.com/mickeypearce/oradew-vscode/issues/31)
+
 ## [0.3.13] - 2019-10-25
 
-- Add problem matcher for scripts and SQLcl as a default CLI [#28](https://github.com/mickeypearce/oradew-vscode/issues/28)
+- Added problem matcher for scripts and SQLcl as a default CLI [#28](https://github.com/mickeypearce/oradew-vscode/issues/28)
 
 ## [0.3.12] - 2019-10-04
 
-- Add configuration for custom source structure [#29](https://github.com/mickeypearce/oradew-vscode/issues/29)
+- Added configuration for custom source structure [#29](https://github.com/mickeypearce/oradew-vscode/issues/29)
 
 ## [0.3.11] - 2019-07-25
 
@@ -15,7 +19,7 @@
 ## [0.3.10] - 2019-05-25
 
 - Check prerequisites on startup [#23](https://github.com/mickeypearce/oradew-vscode/issues/23)
-- Add telemetry on command's usage
+- Added telemetry on command's usage
 
 ## [0.3.9] - 2019-05-15
 

@@ -197,10 +197,7 @@ const generateBOLContent = function(paths) {
   let o = _.pipe(
     _.groupBy("owner"),
     _.mapValues(
-      _.pipe(
-        _.groupBy("objectType"),
-        _.mapValues(_.map("objectName"))
-      )
+      _.pipe(_.groupBy("objectType"), _.mapValues(_.map("objectName")))
     )
   )(dbo);
 
@@ -647,9 +644,8 @@ const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
           obj.OBJECT_NAME
         );
         if (path !== "") {
-          // Create empty sql file - if is inside "source.input" globs
-          // non existing object are always created! (as I don't know howto glob match virual file)
-          if (!fs.existsSync(path) || base.isGlobMatch(source, [path])) {
+          // is path inside "source" glob?
+          if (base.isGlobMatch(source, [path])) {
             fs.outputFileSync(path, "");
             console.log("Created file " + path);
           }

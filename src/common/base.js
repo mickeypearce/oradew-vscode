@@ -16,7 +16,7 @@ const fs = require("fs-extra");
 // const glob = require("glob");
 // const glob = require("globby");
 const glob = require("fast-glob");
-const micromatch = require("micromatch");
+const multimatch = require("multimatch");
 
 const utils = require("./utility");
 import { getObjectInfoFromPath } from "./dbobject";
@@ -47,22 +47,17 @@ obj.fromGlobsToFilesArray = (globArray, options) => {
   //   .map(utils.prependCheck("./"));
 };
 
-// Returns intersection between globArray matches and matchArray
+// Get filepaths from matchArray matched by globArray
+// (Intersection between globArray matches and matchArray)
 obj.getGlobMatches = (globArray, matchArray) => {
-  //Remove ./ from glob array
-  let globArrayFormat = globArray.map(utils.rootRemove);
-  // format options removes ./ only from matches
-  return micromatch.match(matchArray, globArrayFormat, {
-    format: utils.rootRemove
-  });
+  return multimatch(matchArray, globArray);
 };
 
-// True of matchArray equals globArray matches
+// True if matchArray equals globArray matches
+// Matches against a list instead of the filesystem
 obj.isGlobMatch = (globArray, matchArray) => {
-  let globArrayFormat = globArray.map(utils.rootRemove);
-  return micromatch.every(matchArray, globArrayFormat, {
-    format: utils.rootRemove
-  });
+  const matches = multimatch(matchArray, globArray);
+  return isEqual(matchArray, matches);
 };
 
 obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
@@ -110,11 +105,7 @@ obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
 
 function simpleParse(code) {
   // Trim empties and slash (/) from code if it exists
-  code = pipe(
-    trim,
-    trimCharsEnd("/"),
-    trim
-  )(code);
+  code = pipe(trim, trimCharsEnd("/"), trim)(code);
 
   // Trim semicolon (;) if it doesn't end with "END;" or "END <name>; etc"
   if (!/END(\s*\w*);$/gi.test(code)) {

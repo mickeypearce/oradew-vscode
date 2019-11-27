@@ -16,7 +16,8 @@
       "sourceMaps": true,
       "env": {
         "silent": "false"
-      }
+      },
+      "stopOnEntry": false
     },
     {
       "name": "Extension Tests",

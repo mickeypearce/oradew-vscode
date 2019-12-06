@@ -177,7 +177,7 @@ const getConnectionString = connCfg => {
 };
 
 const compile = async (connection, code, warningScope = "NONE") => {
-  oracledb.outFormat = oracledb.ARRAY;
+  oracledb.outFormat = oracledb.OUT_FORMAT_ARRAY;
   oracledb.autoCommit = true;
   if (warningScope.toUpperCase() !== "NONE") {
     await connection.execute(
@@ -193,7 +193,7 @@ const getObjectDdl = (
   getFunctionName,
   { owner, objectName, objectType1 }
 ) => {
-  oracledb.outFormat = oracledb.ARRAY;
+  oracledb.outFormat = oracledb.OUT_FORMAT_ARRAY;
   return connection
     .execute(
       `select ${getFunctionName}(upper(:objectType1), upper(:objectName), upper(:owner)) from dual`,
@@ -207,7 +207,7 @@ const getObjectDdl = (
 };
 
 const getErrorsInfo = (connection, { owner, objectName, objectType }) => {
-  oracledb.outFormat = oracledb.OBJECT;
+  oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
   oracledb.maxRows = 150;
   // Flatten multi-lines text to one-line error
   // as problem matcher cannot parse multi-line
@@ -230,7 +230,7 @@ const getErrorsInfo = (connection, { owner, objectName, objectType }) => {
 
 const getObjectsInfo = (connection, { owner, objectType, objectName }) => {
   // Exclude types that are silently created when defined in packages (SYS_PLSQL)
-  oracledb.outFormat = oracledb.OBJECT;
+  oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
   return connection
     .execute(
       `select owner, object_id, object_name, object_type, cast(last_ddl_time as timestamp) as last_ddl_time, status
@@ -255,7 +255,7 @@ const getGeneratorFunction = (
   { owner, objectName, objectType1 },
   selectedObject
 ) => {
-  oracledb.outFormat = oracledb.ARRAY;
+  oracledb.outFormat = oracledb.OUT_FORMAT_ARRAY;
   return connection
     .execute(
       `select ${getFunctionName}(upper(:objectType1), upper(:objectName), upper(:owner), upper(:selectedObject)) from dual`,
@@ -318,7 +318,7 @@ const createErrorList = (arr = []) => {
 
 const parseForErrors = msg => {
   // Matches only one line of error msg
-  const regCommon = /.*Error starting at line : (\d+)[\s\S]*?Error report -\n(.*line (\d+), column (\d+):\n(.*)|.*\n.*at line (\d+)|.*)/g;
+  const regCommon = /.*Error starting at line : (\d+)[\s\S]*?Error report -\n(.*line (\d+), column (\d+):\n(.*)|[\s\S]*?at line (\d+)|.*)/g;
   const regCommands = /.*Error starting at line : (\d+)[\s\S]*?Line : (\d+) Column : (\d+)[\s\S]*?Error report -\n(.*)/g;
   const regTableError = /(\d+)\/(\d+)\s*(.*)/g;
 

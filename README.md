@@ -11,6 +11,16 @@ This extension allows you to develop your Oracle (PL/SQL) project in Visual Stud
 
 ![Compile Demo](images/demo.gif)
 
+## Installation
+
+### Prerequisites
+
+- Node.js 8.16 or later, Node.js 10.16 or later, or Node.js 12
+- Git
+- SQL\*Plus or SQLcl
+
+Install the extension and start with `Oradew: Initialize Workspace/Version` command.
+
 ## Structure
 
 ```
@@ -177,20 +187,6 @@ Create a configuration file `oradewrc-generate.json` in your workspace root with
 The `label` and `function` properties are required for a generator to be succesfully defined (`description` is optional). Use `output` property to specify a file path of the generated content (also optional). If the `output` is omitted a file with unique filename will be created in ./scripts directory.
 
 <b>NOTE</b>: Generators have a separate repository over here: [Oradew Code Generators](https://github.com/mickeypearce/oradew-generators). Your contributions are welcomed!
-
-## Installation
-
-### Prerequisites
-
-- Node.js 6, 8, 10 or 11
-- Git
-- SQL\*Plus or SQLcl
-
-### Important
-
-> `Extension uses Oracle driver (node-oracledb v3.1.1) that includes pre-built binaries for Node 6, 8, 10 and 11 on: Windows 64-bit (x64), macOS 64-bit (Intel x64) and Linux 64-bit (x86-64) (built on Oracle Linux 6).`
-
-For other environments, please refer to [INSTALL](https://github.com/oracle/node-oracledb/blob/master/INSTALL.md) (Oracle) on building from source code.
 
 ### Included extensions:
 

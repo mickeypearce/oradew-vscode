@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.15] - 2019-12-06
+
+- Upgraded node-oracledb to v4.1.0
+
 ## [0.3.14] - 2019-11-08
 
 - Added synonyms to source objects [#31](https://github.com/mickeypearce/oradew-vscode/issues/31)

@@ -13,15 +13,21 @@ This extension allows you to develop your Oracle (PL/SQL) project in Visual Stud
 
 ## Installation
 
-### Prerequisites
+Install the extension and start with `Oradew: Initialize Workspace/Version` command.
+
+### Prerequisites (local)
 
 - Node.js 8.16 or later, Node.js 10.16 or later, or Node.js 12
 - Git
 - SQL\*Plus or SQLcl
 
-Install the extension and start with `Oradew: Initialize Workspace/Version` command.
+### Container
 
-## Structure
+An Oradew VS Code Remote development container is available [here](https://github.com/mickeypearce/oradew-vscode-container) with all prerequisites preinstalled.
+
+## Workspace
+
+A default workspace structure:
 
 ```
 ./deploy                Deployment package
@@ -139,12 +145,12 @@ Default values will be used in the case workspace configuration file is not pres
 - `source.pattern` - Define custom source structure by specifing path patterns for different object types. Ommited object types won't get exported. Single schema ex: {"packageSpec": "./src/pck/{object-name}-spec.sql", "packageBody": "./src/pck/{object-name}-body.sql"}
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Ignore conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `false` to turn on conflict detection. The default value is `true`.
-- `compile.stageFile` - Automatically stage file after is succesfully compiled (git add). Default value is `true`.
+- `compile.stageFile` - Automatically stage file after succesfully compiled (git add). Default value is `true`.
 - `version.number` - Version number
 - `version.description` - Version description
 - `version.releaseDate` - Version release date
 - `test.input` - Array of globs for matching test files. Executed with `Run tests` command.
-- `import.ease` - When true imports only DB objects that changed on DB in comparision to project Source files. Default value is `false`.
+- `import.ease` - When set to `true`, it will import only DB objects that changed on DB in comparision to project Source files. Default value is `false`.
 - `import.getDdlFunction` - Custom Get_DDL function name. Use your own DB function to customize import of object's DDL. It is used by `Import` commands. The default value is `DBMS_METADATA.GET_DDL`.
   ```sql
   -- Example of a DB function specification:
@@ -187,19 +193,6 @@ Create a configuration file `oradewrc-generate.json` in your workspace root with
 The `label` and `function` properties are required for a generator to be succesfully defined (`description` is optional). Use `output` property to specify a file path of the generated content (also optional). If the `output` is omitted a file with unique filename will be created in ./scripts directory.
 
 <b>NOTE</b>: Generators have a separate repository over here: [Oradew Code Generators](https://github.com/mickeypearce/oradew-generators). Your contributions are welcomed!
-
-### Included extensions:
-
-- Language PL/SQL
-- oracle-format
-
-### Recommended extensions:
-
-- SQLTools
-- GitLens
-- Numbered bookmarks
-- Better comments
-- Multiple clipboards
 
 ## Command Line
 

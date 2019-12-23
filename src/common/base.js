@@ -218,7 +218,7 @@ obj.runFileAsScript = async (file, env) => {
   const isSqlPlus = parse(cli).name.toLowerCase() === "sqlplus";
   let cmd;
   if (isSqlPlus) {
-    cmd = `(echo connect ${connString} & echo start ${filename} & echo show errors) | "${cli}" -S /nolog`;
+    cmd = `(echo connect ${connString} && echo start ${filename} && echo show errors) | "${cli}" -S /nolog`;
   } else {
     cmd = `exit | "${cli}" -S ${connString} @"${filename}"`;
   }

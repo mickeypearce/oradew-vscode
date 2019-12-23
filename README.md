@@ -63,7 +63,7 @@ oradewrc.json           Workspace configuration
 
 ### Additional
 
-- `Import Changes from DB` (Shift+F6) - Walk Source files and import DB object content if changed on DB
+- `Import Changes from DB` (Shift+F6) - Walk Source files and import matching DB object from DB
 - `Import Current File`
 - `Import Selected Object` - Import new object from DB into a Source file
 - `Compile All Source to DB`

@@ -414,23 +414,23 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   );
 
   // Simple output err colorizer
-  const colorize = text =>
+  const sanitize = text =>
     _.pipe(
       // Remove carriage returns
       _.replace(/\r\n/g, "\n"),
       // Remove double new-lines
       _.replace(/(\n\r)+/g, "\n"),
-      _.trim,
+      _.trim
       // Color red to the line that contains ERROR
-      _.replace(/^.*ERROR.*$/gm, chalk.red("$&")),
+      // _.replace(/^.*ERROR.*$/gm, chalk.red("$&")),
       // Color orange to the line that contains Warning
-      _.replace(/^.*Warning:.*$/gm, chalk.yellow("$&"))
+      // _.replace(/^.*Warning:.*$/gm, chalk.yellow("$&"))
     )(text);
 
   try {
     const { stdout, obj } = await base.runFileAsScript(filePath, env);
 
-    const out = colorize(stdout);
+    const out = sanitize(stdout);
     const errors = db.parseForErrors(out);
 
     // Prints errors in problem matcher format (one error per line)

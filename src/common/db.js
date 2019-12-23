@@ -321,6 +321,8 @@ const parseForErrors = msg => {
   const regCommon = /.*Error starting at line : (\d+)[\s\S]*?Error report -\n(.*line (\d+), column (\d+):\n(.*)|[\s\S]*?at line (\d+)|.*)/g;
   const regCommands = /.*Error starting at line : (\d+)[\s\S]*?Line : (\d+) Column : (\d+)[\s\S]*?Error report -\n(.*)/g;
   const regTableError = /(\d+)\/(\d+)\s*(.*)/g;
+  // Sqlplus error msg
+  const regCommonSqlplus = /.*ERROR at line (\d+):.*\n(.*line (\d+), column (\d+):\n(.*)|[\s\S]*?: at line (\d+)|.*)/g;
 
   let s;
   let err = createErrorList();
@@ -398,8 +400,61 @@ const parseForErrors = msg => {
       })
     );
   }
+  // offset is not properly calculated for mulitple stm
+  // ERROR at line 1:
+  // ORA-00001: unique constraint (HR.my_table PK) violated
+  // ORA-06512: at line 20
+  // ---or---
+  // ERROR at line 1:
+  // ORA-01031: insufficient privileges
+  while ((s = regCommonSqlplus.exec(msg)) !== null) {
+    if (s[1] && s[3] && s[4] && s[5]) {
+      // ERROR at line 3:
+      // ORA-06550: line 3, column 1:
+      // PLS-00103: Encountered the symbol "END" when expecting one of the following:
+      // := . ( @ % ;
+      // The symbol ";" was substituted for "END" to continue.
+      err.add(
+        createError({
+          LINE: parseInt(s[3]),
+          POSITION: s[4],
+          TEXT: s[5],
+          ATTRIBUTE: "ERROR",
+          _ID: "0003"
+        })
+      );
+    } else if (s[1] && s[2] && s[6]) {
+      // only line...
+      // ERROR at line 1:
+      // ORA-00001: unique constraint (HR.my_table PK) violated
+      // ORA-06512: at line 20
+      err.add(
+        createError({
+          LINE: parseInt(s[6]),
+          POSITION: 1,
+          TEXT: s[2],
+          ATTRIBUTE: "ERROR",
+          _ID: "0003"
+        })
+      );
+    } else {
+      // ex: otherwise
+      // ERROR at line 1:
+      // ORA-01031: insufficient privileges
+      err.add(
+        createError({
+          LINE: parseInt(s[1]),
+          POSITION: 1,
+          TEXT: s[2],
+          ATTRIBUTE: "ERROR",
+          _ID: "0003"
+        })
+      );
+    }
+  }
   return err;
 };
+
 const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
   let err = parseForErrors(msg);
   if (err.get().length === 0) {

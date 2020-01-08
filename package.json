@@ -325,6 +325,11 @@
             "default": "sql",
             "required": false,
             "description": "The path to CLI executable for Database (SQL*Plus or SQLcl)"
+          },
+          "oradew.envVariables": {
+            "type": "object",
+            "default": {},
+            "description": "Set environment variables. Eg: ORACLE_HOME, NLS_LANG..."
           }
         }
       }

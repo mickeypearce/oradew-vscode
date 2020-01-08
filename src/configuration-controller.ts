@@ -7,6 +7,7 @@ export class ConfigurationController {
   public generatorConfigFile: string;
   public chatty: boolean;
   public cliExecutable: string;
+  public envVariables?: { [id: string]: string };
 
   private static _instance: ConfigurationController;
 
@@ -49,5 +50,6 @@ export class ConfigurationController {
 
     this.chatty = oradewConfiguration.get("chatty");
     this.cliExecutable = oradewConfiguration.get("cliExecutable");
+    this.envVariables = oradewConfiguration.get("envVariables");
   }
 }

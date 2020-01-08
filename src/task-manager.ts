@@ -16,7 +16,8 @@ export class TaskManager {
     wsConfigPath?: string; // ./oradewrc.json by default
     isSilent?: boolean; //gulp option: --silent
     isColor?: boolean; //gulp option:--color
-    cliExecutable: string;
+    cliExecutable: string; //DB cli executable (ex. sqlplus)
+    envVariables?: { [id: string]: string }; // ENV vars (ex: "NLS_LANG": "AMERICAN_AMERICA.cp1252" )
   }) {
     const {
       workspacePath,
@@ -26,7 +27,8 @@ export class TaskManager {
       dbConfigPath,
       isSilent,
       isColor,
-      cliExecutable
+      cliExecutable,
+      envVariables
     } = tmConfig;
 
     this.gulpPathJs = path.resolve(
@@ -51,7 +53,8 @@ export class TaskManager {
         ORADEW_STORAGE_DIR: storagePath,
         ORADEW_DB_CONFIG_PATH: dbConfigPath,
         ORADEW_WS_CONFIG_PATH: wsConfigPath,
-        ORADEW_CLI_EXECUTABLE: cliExecutable
+        ORADEW_CLI_EXECUTABLE: cliExecutable,
+        ...(envVariables || {})
       },
       // inherit stdio
       stdio: "inherit"

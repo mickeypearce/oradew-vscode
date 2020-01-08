@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.16] - 2020-01-08
+
+- Added setting for environment variables: "oradew.envVariables" (ex.: "NLS_LANG", "ORACLE_HOME", etc) [#28](https://github.com/mickeypearce/oradew-vscode/issues/28)
+
 ## [0.3.15] - 2019-12-06
 
 - Upgraded node-oracledb to v4.1.0
@@ -14,7 +18,7 @@
 
 ## [0.3.12] - 2019-10-04
 
-- Added configuration for custom source structure [#29](https://github.com/mickeypearce/oradew-vscode/issues/29)
+- Added configuration for custom source structure [#27](https://github.com/mickeypearce/oradew-vscode/issues/27)
 
 ## [0.3.11] - 2019-07-25
 

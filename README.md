@@ -23,7 +23,7 @@ Install the extension and start with `Oradew: Initialize Workspace/Version` comm
 
 ### Container
 
-An Oradew VS Code Remote development container is available [here](https://github.com/mickeypearce/oradew-vscode-container) with all prerequisites preinstalled.
+An Oradew VS Code development container is available [here](https://github.com/mickeypearce/oradew-vscode-container) with all prerequisites preinstalled.
 
 ## Workspace
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { resolve } = require("path");
+const { homedir } = require("os");
 import { TaskManager } from "./task-manager";
 import * as program from "commander";
 
@@ -15,12 +16,16 @@ import * as program from "commander";
 // Examples in powershell:
 // $env:silent="false"
 // $env:dbconfig="./.vscode/dbconfig.json"
+// Examples in bash:
+// export storage=/root/.vscode-server/data/User/workspaceStorage/23e6f2d18f63fad4517cc3121396a6d9/mp.oradew-vscode/
 
 // WS is current dir by default
 const workspacePath = process.env.cwd || process.cwd();
 
+// Extension location path
 const contextPath = resolve(__dirname, "..");
-const storagePath = workspacePath;
+
+const storagePath = process.env.storage || homedir();
 
 // Configs are in WS dir by default
 const dbConfigPath =

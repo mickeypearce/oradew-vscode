@@ -48,6 +48,8 @@ const mapToOraObjectTypeAlt = {
 const mapfromOraObjectType = invert(mapToOraObjectType);
 
 export function getObjectInfoFromPath(path) {
+  if (!path) return { owner: undefined };
+
   let schema, objectName, objectType;
 
   // Convert path to relative

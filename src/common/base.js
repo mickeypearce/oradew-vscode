@@ -213,7 +213,7 @@ obj.runFileAsScript = async (file, env) => {
 
   const cwd = parse(file).dir;
   const filename = parse(file).base;
-  const cli = process.env.cliExecutable;
+  const cli = process.env.ORADEW_CLI_EXECUTABLE;
 
   const isSqlPlus = parse(cli).name.toLowerCase() === "sqlplus";
   let cmd;

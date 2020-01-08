@@ -48,10 +48,10 @@ export class TaskManager {
 
     this.processEnv = {
       env: {
-        storagePath,
-        dbConfigPath,
-        wsConfigPath,
-        cliExecutable
+        ORADEW_STORAGE_DIR: storagePath,
+        ORADEW_DB_CONFIG_PATH: dbConfigPath,
+        ORADEW_WS_CONFIG_PATH: wsConfigPath,
+        ORADEW_CLI_EXECUTABLE: cliExecutable
       },
       // inherit stdio
       stdio: "inherit"

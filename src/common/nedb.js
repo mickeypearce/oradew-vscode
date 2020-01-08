@@ -1,7 +1,10 @@
 const Datastore = require("nedb");
 const { join } = require("path");
 
-const filename = join(process.env.storagePath || __dirname, "exported.db");
+const filename = join(
+  process.env.ORADEW_STORAGE_DIR || __dirname,
+  "exported.db"
+);
 
 const db = new Datastore({
   filename,

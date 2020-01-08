@@ -111,7 +111,9 @@ export class WorkspaceConfig {
     });
   }
 }
-export const workspaceConfig = new WorkspaceConfig(process.env.wsConfigPath);
+export const workspaceConfig = new WorkspaceConfig(
+  process.env.ORADEW_WS_CONFIG_PATH
+);
 // export const createConfig = file => new Config(file);
 
 const promisify = func => (...args) =>

@@ -129,7 +129,7 @@ export class DBConfig {
     }
   };
 }
-export const config = new DBConfig(process.env.dbConfigPath);
+export const config = new DBConfig(process.env.ORADEW_DB_CONFIG_PATH);
 
 // Each env has its own pool with users
 let _pool = {};

@@ -7,36 +7,37 @@ import * as program from "commander";
 
 // ENVironment variables:
 
-// cwd: workspace path (current working dir by default)
-// color: gulp output in colors (true by default)
-// silent: without gulp output (true by default)
-// dbconfig: DB config path (./dbconfig.json by default)
-// wsconfig: Workspace config path (./oradewrc.json by default)
+// ORADEW_CWD: workspace directory (current working dir by default)
+// ORADEW_COLOR: gulp output in colors (true by default)
+// ORADEW_SILENT: without gulp output (true by default)
+// ORADEW_DB_CONFIG_PATH: DB config path (./dbconfig.json by default)
+// ORADEW_WS_CONFIG_PATH: Workspace config path (./oradewrc.json by default)
+// ORADEW_STORAGE_DIR: Storage directory
 
 // Examples in powershell:
-// $env:silent="false"
-// $env:dbconfig="./.vscode/dbconfig.json"
+// $env:ORADEW_SILENT="false"
+// $env:ORADEW_DB_CONFIG_PATH="./.vscode/dbconfig.json"
 // Examples in bash:
-// export storage=/root/.vscode-server/data/User/workspaceStorage/23e6f2d18f63fad4517cc3121396a6d9/mp.oradew-vscode/
+// export ORADEW_STORAGE_DIR=/root/.vscode-server/data/User/workspaceStorage/23e6f2d18f63fad4517cc3121396a6d9/mp.oradew-vscode/
 
 // WS is current dir by default
-const workspacePath = process.env.cwd || process.cwd();
+const workspacePath = process.env.ORADEW_CWD || process.cwd();
 
 // Extension location path
 const contextPath = resolve(__dirname, "..");
 
-const storagePath = process.env.storage || homedir();
+const storagePath = process.env.ORADEW_STORAGE_DIR || homedir();
 
 // Configs are in WS dir by default
 const dbConfigPath =
-  process.env.dbconfig || resolve(workspacePath, "dbconfig.json");
+  process.env.ORADEW_DB_CONFIG_PATH || resolve(workspacePath, "dbconfig.json");
 const wsConfigPath =
-  process.env.wsconfig || resolve(workspacePath, "oradewrc.json");
+  process.env.ORADEW_WS_CONFIG_PATH || resolve(workspacePath, "oradewrc.json");
 
-const isColor = (process.env.color || "true") === "true";
-const isSilent = (process.env.silent || "true") === "true";
+const isColor = (process.env.ORADEW_COLOR || "true") === "true";
+const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
 
-const cliExecutable = process.env.cliExecutable || "sql";
+const cliExecutable = process.env.ORADEW_CLI_EXECUTABLE || "sql";
 
 const taskManager = new TaskManager({
   workspacePath,

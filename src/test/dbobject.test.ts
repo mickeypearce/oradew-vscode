@@ -44,7 +44,7 @@ describe("#getObjectInfo with custom config", function () {
   // delete the cached module and reload with different config
   var decache = require('decache');
   decache("../common/dbobject");
-  process.env['wsConfigPath'] = __dirname + "/resources/oradewrc.json";
+  process.env['ORADEW_WS_CONFIG_PATH'] = __dirname + "/resources/oradewrc.json";
   const getObjectInfoFromPath = require('../common/dbobject').getObjectInfoFromPath;
 
   it("src: should get object type body", function () {
@@ -81,7 +81,7 @@ describe("#getPath from custom structure", function () {
   // delete the cached module and reload with different config
   var decache = require('decache');
   decache("../common/dbobject");
-  process.env['wsConfigPath'] = __dirname + "/resources/oradewrc.json";
+  process.env['ORADEW_WS_CONFIG_PATH'] = __dirname + "/resources/oradewrc.json";
   const getPathFromObjectInfo = require('../common/dbobject').getPathFromObjectInfo;
   it("should get custom dir structure for packages", function () {
     assert.deepEqual(getPathFromObjectInfo("HR", "PACKAGE BODY", "my_pck1"), './src/HR/pck/my_pck1-body.sql');

@@ -451,25 +451,15 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   }
 };
 
-const createDbConfigFile = async ({ prompt = argv.prompt || false }) => {
+const createDbConfigFile = async ({}) => {
   // Create db config file if it doesn't exists already...
-  const dbconfig = db.config.fileBase;
-  if (!fs.existsSync(dbconfig)) {
+  if (!fs.existsSync(db.config.fileBase)) {
     db.config.createFile();
-    console.log(chalk.magenta("DB config created."));
-    // Prompt user to edit db config file
-    // prompt &&
-    //   (await inquirer.prompt([
-    //     {
-    //       type: "input",
-    //       name: "defaultDbConfig",
-    //       message: `Zdravo! Please edit DB config file (dbconfig.json). Then press <enter> to continue to create workspace structure. (press <ctrl+c> to break).`
-    //     }
-    //   ]));
-    if (!prompt) return;
+
     console.log(
-      "Let's fill out DB settings for DEV environment... Press <enter> to skip."
+      "Let's fill out OracleDB settings for DEV environment... Press <enter> to skip."
     );
+
     let res = await inquirer.prompt([
       {
         type: "input",
@@ -500,7 +490,7 @@ const createDbConfigFile = async ({ prompt = argv.prompt || false }) => {
       "DEV.users[0].password",
       res.password || db.config.get("DEV.users[0].password")
     );
-    console.log(chalk.magenta("DB config updated."));
+    console.log(chalk.magenta(`${db.config.fileBase} updated.`));
   }
 };
 
@@ -545,7 +535,7 @@ const cleanProject = () => {
   });
 };
 
-const initGit = async ({ prompt = argv.prompt || false }) => {
+const initGit = async ({}) => {
   let isInitialized;
   try {
     isInitialized = await git.exec({
@@ -556,25 +546,28 @@ const initGit = async ({ prompt = argv.prompt || false }) => {
   }
 
   if (!isInitialized) {
-    let answer =
-      prompt &&
-      (await inquirer.prompt({
-        type: "confirm",
-        name: "repo",
-        message: `Initialize git repository?`,
-        default: true
-      }));
+    let answer = await inquirer.prompt({
+      type: "confirm",
+      name: "repo",
+      message: `Initialize git repository?`,
+      default: true
+    });
 
-    if (!prompt || answer.repo) {
+    if (answer.repo) {
       await git.exec({ args: "init" });
       console.log(chalk.magenta("Repository initialized."));
     }
   }
 };
 
-const initConfigFile = async ({ prompt = argv.prompt || false }) => {
-  if (!prompt) return;
-  console.log("Let's fill out version details... Press <enter> to skip.");
+const initConfigFile = async ({}) => {
+  let answer = await inquirer.prompt({
+    type: "confirm",
+    name: "ws",
+    message: `Edit workspace configuration file?`,
+    default: false
+  });
+  if (!answer.ws) return;
   let res = await inquirer.prompt([
     {
       type: "input",
@@ -602,7 +595,7 @@ const initConfigFile = async ({ prompt = argv.prompt || false }) => {
     "version.releaseDate",
     res.releaseDate || config.get("version.releaseDate")
   );
-  console.log(chalk.magenta("Workspace config saved."));
+  console.log(chalk.magenta(`${config.getFileEnv()} updated.`));
 };
 
 // unused
@@ -834,7 +827,7 @@ gulp.task(
     cleanProject,
     createProjectFiles,
     createSrcEmpty,
-    // initConfigFile,
+    initConfigFile,
     initGit
   )
 );

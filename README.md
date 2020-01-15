@@ -13,7 +13,7 @@ This extension allows you to develop your Oracle (PL/SQL) project in Visual Stud
 
 ## Installation
 
-Install the extension and start with `Oradew: Initialize Workspace/Version` command.
+Install the extension and start with `Oradew: Initialize Workspace` command.
 
 ### Prerequisites (local)
 
@@ -44,7 +44,7 @@ oradewrc.json           Workspace configuration
 
 **Setup**
 
-- `Initialize Workspace/Version` - Create configuration files: `dbconfig.json` and `oradewrc.json`, create workspace folder structure and initialize git repository when starting from scratch (new workspace). Clear logs, package and scripts: prepare workspace for a new version/feature when executed in a non-empty workspace.
+- `Initialize Workspace` - Create configuration files: `dbconfig.json` and `oradewrc.json`, create workspace folder structure and initialize git repository when starting from scratch (new workspace). Clear logs, package and scripts: prepare workspace for a new version/feature when executed in a non-empty workspace.
 - `Import All Source from DB` - Create Source files from DB objects
 
 **Build**
@@ -90,7 +90,7 @@ Only `dbconfig.json` file is required for the workspace activation and successfu
 }
 ```
 
-Create `dbconfig.json` manually in the root folder of your workspace or execute `Init Workspace/Version` command.
+Create `dbconfig.json` manually in the root folder of your workspace or execute `Init Workspace` command.
 
 ### Workspace
 

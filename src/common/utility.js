@@ -49,7 +49,7 @@ export class WorkspaceConfig {
     // env objects are created on demand: this.object["DEV"], ....
   }
 
-  getFileEnv(env) {
+  getFileEnv(env = "BASE") {
     if (env === "BASE") return this.filePathBase;
     let parsed = parse(this.filePathBase);
     return resolve(parsed.dir, `${parsed.name}.${env}${parsed.ext}`);

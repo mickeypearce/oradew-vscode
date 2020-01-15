@@ -182,7 +182,7 @@
       },
       {
         "command": "oradew.initProjectTask",
-        "title": "Initialize Workspace/Version",
+        "title": "Initialize Workspace",
         "category": "Oradew"
       },
       {

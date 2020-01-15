@@ -10,9 +10,8 @@ describe("#db getConfiguration", function() {
     let cfg = {
       env: "DEV",
       connectString: "localhost/orclpdb",
-      user: "hr1",
-      password: "welcome1",
-      default: true
+      user: "hr",
+      password: "welcome"
     };
     let cfgNonUser = db.config.getConfiguration("DEV", "XXX");
     assert.deepEqual(cfgNonUser, cfg);
@@ -43,7 +42,7 @@ describe("#DBConfig", function() {
 
   it("should return all distinct dev users", function() {
     let users = dbconfig.getSchemas();
-    assert.deepEqual(users, ["HR", "HR1"]);
+    assert.deepEqual(users, ["HR"]);
   });
 
   // it("should return connectString", function() {

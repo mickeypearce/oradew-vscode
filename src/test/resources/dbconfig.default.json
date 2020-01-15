@@ -5,11 +5,6 @@
       {
         "user": "hr",
         "password": "welcome"
-      },
-      {
-        "user": "hr1",
-        "password": "welcome1",
-        "default": true
       }
     ]
   },

@@ -59,7 +59,6 @@ program
 program
   .command("init")
   .description("Initialize a new workspace")
-  .option("--prompt", "With input prompts")
   .action(() => execute());
 
 program

@@ -12,11 +12,6 @@
           {
             "user": "hr",
             "password": "welcome"
-          },
-          {
-            "user": "hr1",
-            "password": "welcome1",
-            "default": true
           }
         ]
       }
@@ -81,7 +76,10 @@
                 "default": false
               }
             },
-            "required": ["user", "password"],
+            "required": [
+              "user",
+              "password"
+            ],
             "default": {
               "user": "hr",
               "password": "welcome"
@@ -89,7 +87,10 @@
           }
         }
       },
-      "required": ["connectString", "users"]
+      "required": [
+        "connectString",
+        "users"
+      ]
     }
   }
 }

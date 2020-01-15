@@ -106,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
     result.push(
       createOradewTask({
         name: "init",
-        params: ["init", "--prompt", "true"]
+        params: ["init"]
       })
     );
 

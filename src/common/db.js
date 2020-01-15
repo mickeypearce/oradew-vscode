@@ -34,6 +34,14 @@ export class DBConfig {
     }
   }
 
+  get(field) {
+    return _.get(field)(this.object);
+  }
+  set(field, value) {
+    this.object = _.set(field)(value)(this.object);
+    return outputJsonSync(this.fileBase, this.object);
+  }
+
   // _getConnectString = (env = "DEV") => this.object[env].connectString;
   // _getUserObjects = (env = "DEV") => this.object[env].users;
 

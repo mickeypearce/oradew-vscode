@@ -458,14 +458,49 @@ const createDbConfigFile = async ({ prompt = argv.prompt || false }) => {
     db.config.createFile();
     console.log(chalk.magenta("DB config created."));
     // Prompt user to edit db config file
-    prompt &&
-      (await inquirer.prompt([
-        {
-          type: "input",
-          name: "defaultDbConfig",
-          message: `Zdravo! Please edit DB config file (dbconfig.json). Then press <enter> to continue to create workspace structure. (press <ctrl+c> to break).`
-        }
-      ]));
+    // prompt &&
+    //   (await inquirer.prompt([
+    //     {
+    //       type: "input",
+    //       name: "defaultDbConfig",
+    //       message: `Zdravo! Please edit DB config file (dbconfig.json). Then press <enter> to continue to create workspace structure. (press <ctrl+c> to break).`
+    //     }
+    //   ]));
+    if (!prompt) return;
+    console.log(
+      "Let's fill out DB settings for DEV environment... Press <enter> to skip."
+    );
+    let res = await inquirer.prompt([
+      {
+        type: "input",
+        name: "connectString",
+        message: "Connection string?"
+      },
+      {
+        type: "input",
+        name: "user",
+        message: "Username?"
+      },
+      {
+        type: "input",
+        name: "password",
+        message: "Password?"
+      }
+    ]);
+    // Save prompts to config file, leave defaults if empty
+    db.config.set(
+      "DEV.connectString",
+      res.connectString || db.config.get("DEV.connectString")
+    );
+    db.config.set(
+      "DEV.users[0].user",
+      res.user || db.config.get("DEV.users[0].user")
+    );
+    db.config.set(
+      "DEV.users[0].password",
+      res.password || db.config.get("DEV.users[0].password")
+    );
+    console.log(chalk.magenta("DB config updated."));
   }
 };
 
@@ -521,17 +556,6 @@ const initGit = async ({ prompt = argv.prompt || false }) => {
   }
 
   if (!isInitialized) {
-    //   let answer = await inquirer.prompt({
-    //     type: "confirm",
-    //     name: "branch",
-    //     message: `Create new version branch?`
-    //   });
-    //   if (answer.branch) {
-    //     await git.branch(`version-${config.get("version.number")}`);
-    //     console.log(chalk.magenta("Branch created."));
-    //   }
-    // } else {
-
     let answer =
       prompt &&
       (await inquirer.prompt({
@@ -810,7 +834,7 @@ gulp.task(
     cleanProject,
     createProjectFiles,
     createSrcEmpty,
-    initConfigFile,
+    // initConfigFile,
     initGit
   )
 );
@@ -894,10 +918,11 @@ gulp.task(
     env = argv.env || "DEV",
     file = argv.file,
     changed = argv.changed || false,
+    ease = argv.ease,
     quiet = argv.quiet || false,
     object = argv.object
   }) => {
-    const ease = config.get({ field: "import.ease", env });
+    ease = ease || config.get({ field: "import.ease", env });
     if (object) return exportObjectFromDb({ env, object });
     else return exportFilesFromDbAsync({ file, env, changed, ease, quiet });
   }

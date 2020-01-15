@@ -13,6 +13,7 @@ import * as program from "commander";
 // ORADEW_DB_CONFIG_PATH: DB config path (./dbconfig.json by default)
 // ORADEW_WS_CONFIG_PATH: Workspace config path (./oradewrc.json by default)
 // ORADEW_STORAGE_DIR: Storage directory
+// ORADEW_CLI_EXECUTABLE: DB executable cli
 
 // Examples in powershell:
 // $env:ORADEW_SILENT="false"
@@ -55,6 +56,32 @@ program
   .name("oradew")
   .version("0.1.0")
   .usage("<command> [options]");
+
+program.on("--help", function() {
+  console.log("");
+  console.log("Environment variables:");
+  console.log(
+    "ORADEW_CWD             Workspace directory (current working dir by default)"
+  );
+  console.log(
+    "ORADEW_DB_CONFIG_PATH  DB config file path (./dbconfig.json by default)"
+  );
+  console.log(
+    "ORADEW_WS_CONFIG_PATH  Workspace config file path (./oradewrc.json by default)"
+  );
+  console.log(
+    "ORADEW_STORAGE_DIR     Storage directory (current user's home directory by default)"
+  );
+  console.log(
+    "ORADEW_CLI_EXECUTABLE  OracleDB executable CLI (sql or sqlplus, 'sql' by default)"
+  );
+  console.log(
+    "ORADEW_COLOR           Debug: Gulp outputs in colors (true by default)"
+  );
+  console.log(
+    "ORADEW_SILENT          Debug: Gulp outputs silent (true by default)"
+  );
+});
 
 program
   .command("init")

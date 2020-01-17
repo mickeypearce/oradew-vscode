@@ -457,7 +457,11 @@ const createDbConfigFile = async ({}) => {
     db.config.createFile();
 
     console.log(
-      "Let's fill out OracleDB settings for DEV environment... Press <enter> to skip."
+      `This utility will walk you through creating a dbconfig.json file.
+It only covers basic items for DB connection for one environment (DEV).
+You can edit, add DB environments or users later.
+
+Press ^C at any time to quit or enter to skip.`
     );
 
     let res = await inquirer.prompt([
@@ -490,7 +494,7 @@ const createDbConfigFile = async ({}) => {
       "DEV.users[0].password",
       res.password || db.config.get("DEV.users[0].password")
     );
-    console.log(chalk.magenta(`${db.config.fileBase} updated.`));
+    console.log(`${db.config.fileBase} updated.`);
   }
 };
 
@@ -525,13 +529,16 @@ const createProjectFiles = () => {
       allowEmpty: true,
       base: path.join(__dirname, "/templates/")
     })
-    .pipe(gulp.dest("."));
+    .pipe(gulp.dest("."))
+    .on("end", () =>
+      console.log(`workspace structure initialized for user(s): ${schemas}`)
+    );
 };
 
 const cleanProject = () => {
   // Delete temp directories
   return del(["./scripts/*", "./deploy/*", "./**/*.log"]).then(rDel => {
-    rDel.length != 0 && console.log(chalk.magenta("Workspace cleaned."));
+    rDel.length != 0 && console.log("workspace cleaned.");
   });
 };
 
@@ -555,7 +562,7 @@ const initGit = async ({}) => {
 
     if (answer.repo) {
       await git.exec({ args: "init" });
-      console.log(chalk.magenta("Repository initialized."));
+      console.log("Repository initialized.");
     }
   }
 };
@@ -564,7 +571,7 @@ const initConfigFile = async ({}) => {
   let answer = await inquirer.prompt({
     type: "confirm",
     name: "ws",
-    message: `Edit workspace configuration file?`,
+    message: `Do you want to edit oradewrc.json file?`,
     default: false
   });
   if (!answer.ws) return;
@@ -595,7 +602,7 @@ const initConfigFile = async ({}) => {
     "version.releaseDate",
     res.releaseDate || config.get("version.releaseDate")
   );
-  console.log(chalk.magenta(`${config.getFileEnv()} updated.`));
+  console.log(`${config.getFileEnv()} updated.`);
 };
 
 // unused

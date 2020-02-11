@@ -196,7 +196,7 @@ The `label` and `function` properties are required for a generator to be succesf
 
 ## Command Line
 
-You can execute Oradew commands (gulp tasks) directly from the command line (CLI).
+You can execute Oradew commands from the command line (Oradew CLI).
 
 ### Installation
 
@@ -205,7 +205,7 @@ You can execute Oradew commands (gulp tasks) directly from the command line (CLI
 > npm run install-cli
 ```
 
-This will install `oradew` command globally.
+This will install `oradew` CLI command.
 
 If you are installing from the repository you must first compile the source code:
 

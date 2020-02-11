@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Develop Oracle (PL/SQL) project in VS Code.",
-  "version": "0.3.16",
+  "version": "0.3.17",
   "publisher": "mp",
   "engines": {
     "vscode": "^1.30.0"
@@ -362,7 +362,7 @@
     "mocha": "^5.2.0",
     "tslint": "^5.18.0",
     "typescript": "^2.9.2",
-    "vsce": "^1.64.0",
+    "vsce": "^1.73.0",
     "vscode": "^1.1.35"
   },
   "dependencies": {

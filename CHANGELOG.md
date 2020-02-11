@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.17] - 2019-02-11
+
+- Upgraded init command
+
 ## [0.3.16] - 2020-01-08
 
 - Added setting for environment variables: "oradew.envVariables" (ex.: "NLS_LANG", "ORACLE_HOME", etc) [#28](https://github.com/mickeypearce/oradew-vscode/issues/28)

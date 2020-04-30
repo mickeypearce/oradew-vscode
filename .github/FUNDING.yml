@@ -1,3 +1,7 @@
 # These are supported funding model platforms
-custom: ["https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=97NH366RK4UQA&item_name=Oradew&currency_code=EUR&source=url"]
-
+custom:
+  [
+    "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=97NH366RK4UQA&item_name=Oradew&currency_code=EUR&source=url",
+    "https://www.blockchain.com/btc/address/1GM3cfCZYiZwGecRjjZHgvzV9yQnqGCXbM",
+    "https://ethplorer.io/address/0x1be31049320bfd61991c9fa7a2bbb1aa4782ec9f"
+  ]

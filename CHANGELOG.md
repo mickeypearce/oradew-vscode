@@ -1,10 +1,10 @@
 # Change Log
 
-## [0.3.18] - 2019-05-07
+## [0.3.18] - 2020-05-07
 
 - Minor bug fixes and changes
 
-## [0.3.17] - 2019-02-11
+## [0.3.17] - 2020-02-11
 
 - Upgraded init command
 

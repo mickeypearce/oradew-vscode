@@ -41,40 +41,40 @@
       "editor/title": [
         {
           "command": "oradew.compileFileTask",
-          "when": "inOradewProject && resourceLangId == plsql",
+          "when": "inOradewProject && resourceExtname == .sql",
           "group": "navigation@1",
           "alt": "oradew.compileObjectTask"
         },
         {
           "command": "oradew.deployTaskFile",
-          "when": "inOradewProject && resourceLangId == plsql",
+          "when": "inOradewProject && resourceExtname == .sql",
           "group": "navigation@2"
         }
       ],
       "editor/context": [
         {
           "command": "oradew.compileFileTask",
-          "when": "inOradewProject && resourceLangId == plsql && !editorHasSelection",
+          "when": "inOradewProject && resourceExtname == .sql && !editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.exportFileTask",
-          "when": "inOradewProject && resourceLangId == plsql && !editorHasSelection",
+          "when": "inOradewProject && resourceExtname == .sql && !editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.exportObjectTask",
-          "when": "inOradewProject && resourceLangId == plsql && editorHasSelection",
+          "when": "inOradewProject && resourceExtname == .sql && editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.compileObjectTask",
-          "when": "inOradewProject && resourceLangId == plsql && editorHasSelection",
+          "when": "inOradewProject && resourceExtname == .sql && editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.generateTask",
-          "when": "inOradewProject && resourceLangId == plsql && editorHasSelection",
+          "when": "inOradewProject && resourceExtname == .sql && editorHasSelection",
           "group": "Oradew"
         }
       ],

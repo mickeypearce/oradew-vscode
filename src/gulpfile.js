@@ -922,8 +922,10 @@ gulp.task(
     quiet = argv.quiet || false,
     object = argv.object
   }) => {
-    ease = ease || config.get({ field: "import.ease", env });
+    // ease is a string 'true' or 'false' in parameter
+    let s_ease = ease || config.get({ field: "import.ease", env }).toString();
+    let b_ease = (s_ease == 'true');
     if (object) return exportObjectFromDb({ env, object });
-    else return exportFilesFromDbAsync({ file, env, changed, ease, quiet });
+    else return exportFilesFromDbAsync({ file, env, changed, ease: b_ease, quiet });
   }
 );

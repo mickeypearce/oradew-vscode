@@ -2,15 +2,14 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Develop Oracle (PL/SQL) project in VS Code.",
-  "version": "0.3.17",
+  "version": "0.3.18",
   "publisher": "mp",
   "engines": {
     "vscode": "^1.44.0"
   },
   "license": "MIT",
   "categories": [
-    "Other",
-    "Extension Packs"
+    "Other"
   ],
   "bin": {
     "oradew": "./out/cli.js"

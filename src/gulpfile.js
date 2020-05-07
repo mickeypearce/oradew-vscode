@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs-extra");
 const gulp = require("gulp");
-const gutil = require("gulp-util");
+const noop = require("gulp-noop");
 const concat = require("gulp-concat");
 const insert = require("gulp-insert");
 const argv = require("yargs").argv;
@@ -107,7 +107,7 @@ PROMPT INFO: Deploying version ${version} ...
       // First convert to utf8, run through the pipes and back to desired encoding
       .pipe(convertEncoding({ from: srcEncoding }))
       // Replace template variables, ex. config["config.variable"]
-      .pipe(templating ? template(templateObject) : gutil.noop())
+      .pipe(templating ? template(templateObject) : noop())
       // Adds object prompt to every file
       .pipe(map(addDBObjectPrompt))
       .pipe(concat(outputFileName))
@@ -385,7 +385,7 @@ const compileFilesToDb = async ({
       // Compile file and emmit response
       .pipe(data(processFile))
       // End stream as there is no destination
-      .on("data", gutil.noop)
+      .on("data", noop)
 
     // .on('end', () => console.log('Done.'));
   );

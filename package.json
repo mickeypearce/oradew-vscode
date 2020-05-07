@@ -335,10 +335,6 @@
       }
     ]
   },
-  "extensionDependencies": [
-    "xyz.plsql-language",
-    "mp.vscode-oracle-format"
-  ],
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "npm run precompile && tsc -p ./",

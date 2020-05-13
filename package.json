@@ -2,10 +2,10 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Develop Oracle (PL/SQL) project in VS Code.",
-  "version": "0.3.18",
+  "version": "0.3.19",
   "publisher": "mp",
   "engines": {
-    "vscode": "^1.44.0"
+    "vscode": "^1.45.0"
   },
   "license": "MIT",
   "categories": [
@@ -290,6 +290,25 @@
         "url": "./resources/oradewrc-generate-schema.json"
       }
     ],
+    "taskDefinitions": [
+      {
+        "type": "oradew",
+        "required": [
+          "name",
+          "params"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The Oradew task name"
+          },
+          "params": {
+            "type": "array",
+            "description": "The Oradew task parameters"
+          }
+        }
+      }
+    ],
     "configuration": [
       {
         "type": "object",
@@ -352,7 +371,7 @@
     "@types/mocha": "^7.0.2",
     "@types/node": "^10.14.12",
     "@types/oracledb": "^4.1.0",
-    "@types/vscode": "^1.44.0",
+    "@types/vscode": "^1.45.0",
     "decache": "^4.5.1",
     "mocha": "^7.1.1",
     "tslint": "^5.18.0",

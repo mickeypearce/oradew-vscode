@@ -63,10 +63,10 @@ export function activate(context: vscode.ExtensionContext) {
     params: Array<string>;
   }) => {
     let _task = new vscode.Task(
-      { type: "shell", name },
+      { type: "oradew", name, params },
       vscode.TaskScope.Workspace,
       name,
-      "Oradew",
+      "oradew",
       new vscode.ProcessExecution(
         "node",
         [...taskManager.gulpParams, ...params],
@@ -259,7 +259,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   let registerOradewTasks = () => {
     let tasks: vscode.Task[] = [];
-    taskProvider = vscode.tasks.registerTaskProvider("gulp", {
+    taskProvider = vscode.tasks.registerTaskProvider("oradew", {
       provideTasks: () => {
         if (tasks.length === 0) {
           tasks = getTasks();
@@ -267,6 +267,13 @@ export function activate(context: vscode.ExtensionContext) {
         return tasks;
       },
       resolveTask(_task: vscode.Task): vscode.Task | undefined {
+        const name = _task.definition.name;
+        const params = _task.definition.params;
+
+        if (name && params) {
+          // resolveTask requires that the same definition object be used.
+          return createOradewTask({name, params})
+        }
         return undefined;
       }
     });
@@ -306,7 +313,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (generator && generator.label && generator.function) {
         vscode.commands.executeCommand(
           "workbench.action.tasks.runTask",
-          "Oradew: generator." + generator.label
+          "oradew: generator." + generator.label
         );
       }
       Telemetry.sendEvent("generateTask");
@@ -318,7 +325,7 @@ export function activate(context: vscode.ExtensionContext) {
     async () => {
       await vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: init"
+        "oradew: init"
       );
       setInitialized();
       Telemetry.sendEvent("initProjectTask");
@@ -329,7 +336,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: create"
+        "oradew: create"
       );
       Telemetry.sendEvent("createProjectTask");
     }
@@ -339,7 +346,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: compile"
+        "oradew: compile"
       );
       Telemetry.sendEvent("compileTask");
     }
@@ -349,7 +356,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: compile--all"
+        "oradew: compile--all"
       );
       Telemetry.sendEvent("compileAllTask");
     }
@@ -359,7 +366,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: compile--file"
+        "oradew: compile--file"
       );
       Telemetry.sendEvent("compileFileTask");
     }
@@ -369,7 +376,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: compile--object"
+        "oradew: compile--object"
       );
       Telemetry.sendEvent("compileObjectTask");
     }
@@ -379,7 +386,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: export"
+        "oradew: export"
       );
       Telemetry.sendEvent("exportTask");
     }
@@ -389,7 +396,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: export--file"
+        "oradew: export--file"
       );
       Telemetry.sendEvent("exportFileTask");
     }
@@ -399,7 +406,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: export--object"
+        "oradew: export--object"
       );
       Telemetry.sendEvent("exportObjectTask");
     }
@@ -409,7 +416,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: package"
+        "oradew: package"
       );
       Telemetry.sendEvent("packageTask");
     }
@@ -419,7 +426,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: package--delta"
+        "oradew: package--delta"
       );
       Telemetry.sendEvent("packageDeltaTask");
     }
@@ -429,7 +436,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: deploy"
+        "oradew: deploy"
       );
       Telemetry.sendEvent("deployTask");
     }
@@ -439,7 +446,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "Oradew: deploy--file"
+        "oradew: deploy--file"
       );
       Telemetry.sendEvent("deployTaskFile");
     }
@@ -447,7 +454,7 @@ export function activate(context: vscode.ExtensionContext) {
   let cmdTaskTest = vscode.commands.registerCommand("oradew.testTask", () => {
     vscode.commands.executeCommand(
       "workbench.action.tasks.runTask",
-      "Oradew: test"
+      "oradew: test"
     );
     Telemetry.sendEvent("testTask");
     // let _task = createOradewTask({

@@ -2,7 +2,7 @@
 
 const { resolve } = require("path");
 const { homedir } = require("os");
-import { TaskManager } from "./task-manager";
+import { TaskManager } from "./gulp-task-manager";
 import * as program from "commander";
 
 // ENVironment variables:

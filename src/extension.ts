@@ -2,34 +2,28 @@
 
 import * as vscode from "vscode";
 
-import { TaskManager } from "./task-manager";
 import { GeneratorManager } from "./generator-manager";
 import { EnvironmentController } from "./environment-controller";
 import { ConfigurationController } from "./configuration-controller";
 import { setInitialized } from "./activation";
+import { OradewTaskProvider, createCompileOnSaveTask } from './oradew-task-provider';
 import { Telemetry } from "./telemetry";
 
-let taskProvider: vscode.Disposable | undefined;
+
+let oradewTaskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
+let generatorManager: GeneratorManager;
 
 export function activate(context: vscode.ExtensionContext) {
-  const workspacePath =
-    vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
-  const contextPath = context.extensionPath;
-  const storagePath = context.storagePath || context.extensionPath;
 
   let settings = ConfigurationController.getInstance();
-  const isSilent = !settings.chatty;
-  const wsConfigPath = settings.workspaceConfigFile;
-  const dbConfigPath = settings.databaseConfigFile;
-  const cliExecutable = settings.cliExecutable;
-  const envVariables = settings.envVariables;
 
   // let watcher = vscode.workspace.createFileSystemWatcher(dbConfigPath);
   // watcher.onDidCreate(() => {
   //   activate(context);
   // });
 
+  // Set context inOradewProject
   setInitialized();
 
   // Reactivate extension when settings.json changes as databaseConfigPath file
@@ -40,246 +34,12 @@ export function activate(context: vscode.ExtensionContext) {
     activate(context);
   });
 
-  const taskManager = new TaskManager({
-    workspacePath,
-    contextPath,
-    storagePath,
-    dbConfigPath,
-    wsConfigPath,
-    isSilent,
-    isColor: true,
-    cliExecutable,
-    envVariables
-  });
 
-  const generatorManager = new GeneratorManager();
+  generatorManager = new GeneratorManager();
   environmentController = new EnvironmentController(context);
 
-  const createOradewTask = ({
-    name,
-    params
-  }: {
-    name: string;
-    params: Array<string>;
-  }) => {
-    let _task = new vscode.Task(
-      { type: "oradew", name, params },
-      vscode.TaskScope.Workspace,
-      name,
-      "oradew",
-      new vscode.ProcessExecution(
-        "node",
-        [...taskManager.gulpParams, ...params],
-        taskManager.processEnv
-      ),
-      "$oracle-plsql"
-    );
-    return _task;
-  };
+  oradewTaskProvider = vscode.tasks.registerTaskProvider(OradewTaskProvider.OradewType, new OradewTaskProvider(context));
 
-  function getTasks(): vscode.Task[] {
-    let result: vscode.Task[] = [];
-
-    // Register generators as tasks
-    for (let generator of generatorManager.getDefinitions()) {
-      if (generator.label && generator.function) {
-        result.push(
-          createOradewTask({
-            name: "generator." + generator.label,
-            params: [
-              "generate",
-              "--env",
-              "${command:oradew.getEnvironment}",
-              "--func",
-              generator.function,
-              "--file",
-              "${file}",
-              "--object",
-              "${selectedText}",
-              ...(generator.output ? ["--output", generator.output] : [])
-            ]
-          })
-        );
-      }
-    }
-
-    result.push(
-      createOradewTask({
-        name: "init",
-        params: ["init"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "create",
-        params: ["create", "--env", "${command:oradew.getEnvironment}"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "compile",
-        params: [
-          "compile",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--changed",
-          "true"
-        ]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "compile--file",
-        params: [
-          "compile",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--file",
-          "${file}"
-        ]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "compile--all",
-        params: ["compile", "--env", "${command:oradew.getEnvironment}"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "compile--object",
-        params: [
-          "compile",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--file",
-          "${file}",
-          "--object",
-          "${selectedText}",
-          "--line",
-          "${lineNumber}"
-        ]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "export",
-        params: [
-          "import",
-          "--env",
-          "${command:oradew.getEnvironment}"
-        ]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "export--file",
-        params: [
-          "import",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--file",
-          "${file}",
-          "--ease",
-          "false"
-        ]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "export--object",
-        params: [
-          "import",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--object",
-          "${selectedText}"
-        ]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "package",
-        params: ["package", "--env", "${command:oradew.getEnvironment}"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "package--delta",
-        params: [
-          "package",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--delta"
-        ]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "deploy",
-        params: ["run", "--env", "${command:oradew.pickEnvironment}"]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "deploy--file",
-        params: [
-          "run",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--file",
-          "${file}"
-        ]
-      })
-    );
-
-    result.push(
-      createOradewTask({
-        name: "test",
-        params: ["test", "--env", "${command:oradew.getEnvironment}"]
-      })
-    );
-
-    return result;
-  }
-
-  /* ***********/
-
-  let registerOradewTasks = () => {
-    let tasks: vscode.Task[] = [];
-    taskProvider = vscode.tasks.registerTaskProvider("oradew", {
-      provideTasks: () => {
-        if (tasks.length === 0) {
-          tasks = getTasks();
-        }
-        return tasks;
-      },
-      resolveTask(_task: vscode.Task): vscode.Task | undefined {
-        const name = _task.definition.name;
-        const params = _task.definition.params;
-
-        if (name && params) {
-          // resolveTask requires that the same definition object be used.
-          return createOradewTask({name, params})
-        }
-        return undefined;
-      }
-    });
-  };
-
-  registerOradewTasks();
 
   // Internal command: env paramater selection in commands
   let cmdGetEnvironment = vscode.commands.registerCommand(
@@ -302,24 +62,24 @@ export function activate(context: vscode.ExtensionContext) {
     environmentController.clearDbEnvironment
   );
 
+  // Internal command: function paramater selection in generator task
+  let cmdGetGeneratorFunction = vscode.commands.registerCommand(
+    "oradew.getGeneratorFunction",
+    generatorManager.getGeneratorFunction
+  );
+
+  /************** */
+
   let cmdTaskGenerate = vscode.commands.registerCommand(
     "oradew.generateTask",
     async () => {
-      // Reload registering of generators
-      registerOradewTasks();
-      let generator = await vscode.window.showQuickPick(
-        generatorManager.getDefinitions()
+      vscode.commands.executeCommand(
+        "workbench.action.tasks.runTask",
+        "oradew: generator"
       );
-      if (generator && generator.label && generator.function) {
-        vscode.commands.executeCommand(
-          "workbench.action.tasks.runTask",
-          "oradew: generator." + generator.label
-        );
-      }
       Telemetry.sendEvent("generateTask");
     }
   );
-  /************** */
   let cmdTaskInitProject = vscode.commands.registerCommand(
     "oradew.initProjectTask",
     async () => {
@@ -457,12 +217,6 @@ export function activate(context: vscode.ExtensionContext) {
       "oradew: test"
     );
     Telemetry.sendEvent("testTask");
-    // let _task = createOradewTask({
-    //   name: "test",
-    //   params: ["test", "--env", "${command:oradew.getEnvironment}"],
-    //   isBackground: false
-    // });
-    // vscode.tasks.executeTask(_task);
   });
   let taskExec: Thenable<vscode.TaskExecution>;
   let cmdTaskCompileOnSave = vscode.commands.registerCommand(
@@ -474,14 +228,7 @@ export function activate(context: vscode.ExtensionContext) {
       // )[0];
       // If if doesn't exist - execute, otherwise terminate.
       if (!taskExec) {
-        let _task = createOradewTask({
-          name: "compileOnSave",
-          params: ["compileOnSave", "--env", "${command:oradew.getEnvironment}"]
-        });
-        _task.isBackground = true;
-        _task.presentationOptions = {
-          reveal: vscode.TaskRevealKind.Silent
-        };
+        let _task = createCompileOnSaveTask();
         taskExec = vscode.tasks.executeTask(_task);
       } else {
         taskExec.then(task => task.terminate());
@@ -511,6 +258,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Internal
   context.subscriptions.push(cmdGetEnvironment);
   context.subscriptions.push(cmdPickEnvironment);
+  context.subscriptions.push(cmdGetGeneratorFunction);
 
   context.subscriptions.push(cmdSetDbEnvironment);
   context.subscriptions.push(cmdClearDbEnvironment);
@@ -521,8 +269,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate(): void {
-  if (taskProvider) {
-    taskProvider.dispose();
+  if (oradewTaskProvider) {
+    oradewTaskProvider.dispose();
   }
   if (environmentController) {
     environmentController.dispose();

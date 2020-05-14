@@ -1,6 +1,7 @@
 import { existsSync, readJsonSync } from "fs-extra";
 import { getDefaultsFromSchema } from "./common/utility";
 import { ConfigurationController } from "./configuration-controller";
+import { QuickPickItem, QuickPickOptions, window } from "vscode";
 
 interface IGenerator {
   label: string;
@@ -37,5 +38,29 @@ export class GeneratorManager {
   getDefinitions = (): Array<IGenerator> => {
     this.read();
     return this.object["generator.define"];
+  }
+
+  private createGeneratorList = (): QuickPickItem[] => {
+    return this.getDefinitions().map(generator => {
+      return {
+        label: generator.label,
+        description: generator.description,
+        detail: generator.function
+      }
+    })
+  }
+
+  public getGeneratorFunction = async (): Promise<string | null> => {
+
+    let gens: QuickPickItem[] = await this.createGeneratorList();
+    const options: QuickPickOptions = {
+      placeHolder: "Select generator",
+      matchOnDescription: true,
+      matchOnDetail: true
+    };
+
+    return window
+      .showQuickPick(gens, options)
+      .then(item => (item ? item.detail : null));
   }
 }

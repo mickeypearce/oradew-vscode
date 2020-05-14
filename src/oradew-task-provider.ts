@@ -1,5 +1,5 @@
 
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 import { TaskManager } from "./gulp-task-manager";
 import { ConfigurationController } from "./configuration-controller";
 
@@ -9,7 +9,7 @@ const { chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVaria
 let taskManager: TaskManager;
 
 export class OradewTaskProvider implements vscode.TaskProvider {
-  static OradewType: string = 'oradew';
+  static OradewType: string = "oradew";
   private oradewPromise: Thenable<vscode.Task[]> | undefined = undefined;
 
   constructor(context: vscode.ExtensionContext) {
@@ -67,7 +67,7 @@ export function createCompileOnSaveTask(): vscode.Task {
 let _channel: vscode.OutputChannel;
 function getOutputChannel(): vscode.OutputChannel {
   if (!_channel) {
-    _channel = vscode.window.createOutputChannel('Oradew Auto Detection');
+    _channel = vscode.window.createOutputChannel("Oradew Auto Detection");
   }
   return _channel;
 }
@@ -83,7 +83,7 @@ function createOradewTaskDefinition({ name, params }): OradewTaskDefinition {
     name,
     params
   };
-};
+}
 
 function createOradewTask(definition: OradewTaskDefinition): vscode.Task {
   let _task = new vscode.Task(
@@ -99,7 +99,7 @@ function createOradewTask(definition: OradewTaskDefinition): vscode.Task {
     "$oracle-plsql"
   );
   return _task;
-};
+}
 
 async function getOradewTasks(): Promise<vscode.Task[]> {
   let result: vscode.Task[] = [];
@@ -285,7 +285,7 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
     if (err.stdout) {
       channel.appendLine(err.stdout);
     }
-    channel.appendLine('Auto detecting oradew tasts failed.' + err);
+    channel.appendLine("Auto detecting oradew tasts failed." + err);
     channel.show(true);
     return emptyTasks;
   }

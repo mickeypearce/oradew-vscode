@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.19] - 2020-05-14
+
+- Added "oradew" task contribution
+
 ## [0.3.18] - 2020-05-07
 
 - Minor bug fixes and changes

@@ -92,6 +92,7 @@ program
   .command("create")
   .description("Import All Objects from Db to Source")
   .option("--env <env>", "DB Environment. DEV if not specified.")
+  .option("--file <file>", "File path or a glob.")
   .action(() => execute());
 
 program
@@ -99,7 +100,7 @@ program
   .description("Compile Source files to DB")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .option("--changed", "Only files in working tree (changes)")
-  .option("--file <file>", "Path of file.")
+  .option("--file <file>", "File path or a glob.")
   .option("--object <object>", "DB statement (query or block)")
   .option("--line <line>", "Line offset of statement in file. 1 by default")
   .action(() => execute());
@@ -110,7 +111,7 @@ program
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .option("--changed", "Only files in working tree (changes")
   .option("--ease", "Only files (objects) that changed on DB")
-  .option("--file <file>", "Path of file.")
+  .option("--file <file>", "File path or a glob.")
   .option("--quiet", "Suppress console output")
   .option("--object <object>", "DB object name")
   .action(() => execute());

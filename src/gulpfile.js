@@ -654,8 +654,11 @@ const createSrcEmpty = done => {
   }
 };
 
-const createSrcFromDbObjects = async ({ env = argv.env || "DEV" }) => {
-  const source = config.get({ field: "source.input", env });
+const createSrcFromDbObjects = async ({
+  env = argv.env || "DEV",
+  file = argv.file
+}) => {
+  const source = file || config.get({ field: "source.input", env });
   const schemas = db.config.getSchemas();
   const objectTypes = getObjectTypes();
   try {

@@ -59,6 +59,8 @@ program
 
 program.on("--help", function() {
   console.log("");
+  console.log("(Use `oradew <command> --help` for command options.)")
+  console.log("");
   console.log("Environment variables:");
   console.log(
     "ORADEW_CWD             Workspace directory (current working dir by default)"
@@ -92,28 +94,28 @@ program
   .command("create")
   .description("Import All Objects from Db to Source")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--file <file>", "File path or a glob.")
+  .option("--file <file>", "File path or a glob. \"source.input\" if not specified.")
   .action(() => execute());
 
 program
   .command("compile")
   .description("Compile Source files to DB")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--changed", "Only files in working tree (changes)")
-  .option("--file <file>", "File path or a glob.")
-  .option("--object <object>", "DB statement (query or block)")
-  .option("--line <line>", "Line offset of statement in file. 1 by default")
+  .option("--file <file>", "File path or a glob. \"source.input\" if not specified.")
+  .option("--changed", "Only files in working tree (changes). False by default.")
+  .option("--object <object>", "PL/SQL statement (query or block - in double quotes) to compile")
+  .option("--line <line>", "Line offset of a statement in file. 1 by default.")
   .action(() => execute());
 
 program
   .command("import")
   .description("Import Source files from DB")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--changed", "Only files in working tree (changes")
-  .option("--ease", "Only files (objects) that changed on DB")
-  .option("--file <file>", "File path or a glob.")
-  .option("--quiet", "Suppress console output")
-  .option("--object <object>", "DB object name")
+  .option("--file <file>", "File path or a glob. \"source.input\" if not specified.")
+  .option("--changed", "Only files in working tree (changes). False by default.")
+  .option("--ease", "Only files (objects) that changed on DB. False by default.")
+  .option("--quiet", "Suppress console output. False by default.")
+  .option("--object <object>", "DB object name to import")
   .action(() => execute());
 
 program
@@ -128,7 +130,7 @@ program
   .alias("run")
   .description("Run script (with SQL*Plus or SQLcl)")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--file <file>", "Path of file. 'package.output' if not specified.")
+  .option("--file <file>", "File path. \"package.output\" if not specified.")
   .action(() => execute());
 
 program
@@ -140,11 +142,11 @@ program
 program
   .command("generate")
   .description("Code generator")
-  .option("--func <func>", "DB generator function (required)")
   .option("--env <env>", "DB Environment. DEV if not specified.")
+  .option("--func <func>", "Generator function name on DB (required)")
   .option(
     "--file <file>",
-    "Path of file. (func. param mapping: ./src/${schema}/${object_type}/${name}.sql)"
+    "File path. (func. param mapping: ./src/${schema}/${object_type}/${name}.sql)"
   )
   .option(
     "--object <object>",
@@ -152,7 +154,7 @@ program
   )
   .option(
     "--output <output>",
-    "Result output path. Generated file name if not specified."
+    "Output file path. Generated file name if not specified."
   )
   .action(() => execute());
 

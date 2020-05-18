@@ -6,7 +6,7 @@ import { GeneratorManager } from "./generator-manager";
 import { EnvironmentController } from "./environment-controller";
 import { ConfigurationController } from "./configuration-controller";
 import { setInitialized } from "./activation";
-import { OradewTaskProvider, createCompileOnSaveTask } from './oradew-task-provider';
+import { OradewTaskProvider, createCompileOnSaveTask } from "./oradew-task-provider";
 import { Telemetry } from "./telemetry";
 
 

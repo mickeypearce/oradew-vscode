@@ -126,11 +126,13 @@ PROMPT INFO: Deploying version ${version} ...
   );
 };
 
-const createDeployInputFromGit = async ({ env = argv.env }) => {
+const createDeployInputFromGit = async ({ env = argv.env, from = argv.from }) => {
   try {
     console.log("Retrieving changed paths from git history...");
     // Get changed file paths from git history
-    let firstCommit = await git.getFirstCommitOnBranch();
+    let firstCommit = from || await git.getFirstCommitOnBranch();
+    console.log(`Starting from commit: ${firstCommit}`);
+
     const stdout = await git.getCommitedFilesSincePoint(firstCommit.trim());
     const changedPaths = base.fromStdoutToFilesArray(stdout).sort();
 
@@ -868,10 +870,10 @@ exportFilesFromDb.flags = {
   "--quiet": "(optional) Suppress console output"
 };
 
-gulp.task("package", async ({ delta = argv.delta }) => {
-  // If delta, first populate package input
+gulp.task("package", async ({ delta = argv.delta, from = argv.from }) => {
+  // If delta or from, first populate package input
   let tasks = [
-    ...[delta ? createDeployInputFromGit : []],
+    ...[delta || from ? createDeployInputFromGit : []],
     extractTodos,
     makeBillOfLading,
     packageSrcFromFile

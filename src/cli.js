@@ -122,7 +122,8 @@ program
   .command("package")
   .description("Package files to deployment script")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--delta", "Only changed files")
+  .option("--delta", "Changed files from latest tagged commit up to head")
+  .option("--from <commit>", "Changed files from specified commit up to head")
   .action(() => execute());
 
 program

@@ -47,6 +47,17 @@ const mapToOraObjectTypeAlt = {
 
 const mapfromOraObjectType = invert(mapToOraObjectType);
 
+/**
+ * Object def
+ * @typedef {{owner: string, objectType?: string, objectType1?: string, objectName?: string, isSource?: string, isScript?: string}} ObjectDefinition
+ */
+
+/**
+ ** Extract object info from file path
+  * patters array define in "source.pattern"
+  * @param {string} path
+  * @returns {ObjectDefinition} object
+  */
 export function getObjectInfoFromPath(path) {
   if (!path) return { owner: undefined };
 

@@ -121,6 +121,8 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
           "--object",
           "${selectedText}",
           // ...(generator.output ? ["--output", generator.output] : [])
+          "--user",
+          "${command:oradew.getUser}"
         ]
       }))
     );
@@ -161,7 +163,9 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
           "--env",
           "${command:oradew.getEnvironment}",
           "--file",
-          "${file}"
+          "${file}",
+          "--user",
+          "${command:oradew.getUser}"
         ]
       }))
     );
@@ -169,7 +173,11 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
     result.push(
       createOradewTask(createOradewTaskDefinition({
         name: "compile--all",
-        params: ["compile", "--env", "${command:oradew.getEnvironment}"]
+        params: [
+          "compile",
+          "--env",
+          "${command:oradew.getEnvironment}"
+        ]
       }))
     );
 
@@ -185,14 +193,16 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
           "--object",
           "${selectedText}",
           "--line",
-          "${lineNumber}"
+          "${lineNumber}",
+          "--user",
+          "${command:oradew.getUser}"
         ]
       }))
     );
 
     result.push(
       createOradewTask(createOradewTaskDefinition({
-        name: "export",
+        name: "import",
         params: [
           "import",
           "--env",
@@ -203,7 +213,7 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
 
     result.push(
       createOradewTask(createOradewTaskDefinition({
-        name: "export--file",
+        name: "import--file",
         params: [
           "import",
           "--env",
@@ -218,13 +228,15 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
 
     result.push(
       createOradewTask(createOradewTaskDefinition({
-        name: "export--object",
+        name: "import--object",
         params: [
           "import",
           "--env",
           "${command:oradew.getEnvironment}",
           "--object",
-          "${selectedText}"
+          "${selectedText}",
+          "--user",
+          "${command:oradew.getUser}"
         ]
       }))
     );
@@ -251,7 +263,13 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
     result.push(
       createOradewTask(createOradewTaskDefinition({
         name: "deploy",
-        params: ["run", "--env", "${command:oradew.pickEnvironment}"]
+        params: [
+          "run",
+          "--env",
+          "${command:oradew.pickEnvironment}",
+          "--user",
+          "${command:oradew.getUser}"
+        ]
       }))
     );
 
@@ -263,7 +281,9 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
           "--env",
           "${command:oradew.getEnvironment}",
           "--file",
-          "${file}"
+          "${file}",
+          "--user",
+          "${command:oradew.getUser}"
         ]
       }))
     );

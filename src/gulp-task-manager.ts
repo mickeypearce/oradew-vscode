@@ -66,6 +66,12 @@ export class TaskManager {
     console.log("Executing oradew task: " + params.join(" "));
 
     // Execute process
-    child.spawn(process.execPath, params, this.processEnv);
+    return child.spawn(process.execPath, params, this.processEnv);
+    // ls.stdout.on("data", (data) => {
+    //   console.log(`stdout: ${data}`);
+    // });
+    // ls.on("error", (data) => {
+    //   console.log(`error: ${data}`);
+    // });
   }
 }

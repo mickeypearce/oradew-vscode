@@ -81,7 +81,7 @@ export class DBConfig {
    * Filter by env and user
    * User parameter is optional, return default configuration if cannot be determined (user non existent)
    * @param {string} env
-   * @param {?string} user
+   * @param {string} [user]
    * @returns {ConnectionConfig} Connection config
    */
   getConfiguration = (env, user) => {
@@ -132,7 +132,7 @@ export class DBConfig {
       return { ...head, ...byDefault[0] };
     } else {
       throw Error(
-        `dbconfig.json: No default connection configuration for "${env}" env.`
+        `dbconfig.json: No match for user "${user}" in "${env}". Add/Enable missing user or set default user for the environment.`
       );
     }
   };

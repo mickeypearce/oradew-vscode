@@ -117,6 +117,7 @@ program
   .option("--ease", "Only files (objects) that changed on DB. False by default.")
   .option("--quiet", "Suppress console output. False by default.")
   .option("--object <object>", "DB object name to import")
+  .option("--user <user>", "DB user. Extracted from file path if not specified or default user in dbconfig.")
   .action(() => execute());
 
 program

@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 
 import { GeneratorManager } from "./generator-manager";
 import { EnvironmentController } from "./environment-controller";
+import { UserController } from "./user-controller";
 import { ConfigurationController } from "./configuration-controller";
 import { setInitialized } from "./activation";
 import { OradewTaskProvider, createCompileOnSaveTask } from "./oradew-task-provider";
@@ -12,6 +13,7 @@ import { Telemetry } from "./telemetry";
 
 let oradewTaskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
+let userController: UserController;
 let generatorManager: GeneratorManager;
 
 export function activate(context: vscode.ExtensionContext) {
@@ -37,6 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   generatorManager = new GeneratorManager();
   environmentController = new EnvironmentController(context);
+  userController = new UserController(context, environmentController);
 
   oradewTaskProvider = vscode.tasks.registerTaskProvider(OradewTaskProvider.OradewType, new OradewTaskProvider(context));
 
@@ -67,6 +70,23 @@ export function activate(context: vscode.ExtensionContext) {
     "oradew.getGeneratorFunction",
     generatorManager.getGeneratorFunction
   );
+
+  // Internal command: env paramater selection in commands
+  let cmdGetUser = vscode.commands.registerCommand(
+    "oradew.getUser",
+    userController.getUser
+  );
+  // Internal command: used for deploy task command
+  let cmdPickUser = vscode.commands.registerCommand(
+    "oradew.pickUser",
+    userController.pickUser
+  );
+
+  let cmdSetDbUser = vscode.commands.registerCommand(
+    "oradew.setDbUser",
+    userController.setDbUser
+  );
+
 
   /************** */
 
@@ -142,33 +162,33 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
   let cmdTaskExport = vscode.commands.registerCommand(
-    "oradew.exportTask",
+    "oradew.importTask",
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "oradew: export"
+        "oradew: import"
       );
-      Telemetry.sendEvent("exportTask");
+      Telemetry.sendEvent("importTask");
     }
   );
   let cmdTaskExportFile = vscode.commands.registerCommand(
-    "oradew.exportFileTask",
+    "oradew.importFileTask",
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "oradew: export--file"
+        "oradew: import--file"
       );
-      Telemetry.sendEvent("exportFileTask");
+      Telemetry.sendEvent("importFileTask");
     }
   );
   let cmdTaskExportObject = vscode.commands.registerCommand(
-    "oradew.exportObjectTask",
+    "oradew.importObjectTask",
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "oradew: export--object"
+        "oradew: import--object"
       );
-      Telemetry.sendEvent("exportObjectTask");
+      Telemetry.sendEvent("importObjectTask");
     }
   );
   let cmdTaskPackage = vscode.commands.registerCommand(
@@ -259,6 +279,9 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdGetEnvironment);
   context.subscriptions.push(cmdPickEnvironment);
   context.subscriptions.push(cmdGetGeneratorFunction);
+  context.subscriptions.push(cmdGetUser);
+  context.subscriptions.push(cmdPickUser);
+  context.subscriptions.push(cmdSetDbUser);
 
   context.subscriptions.push(cmdSetDbEnvironment);
   context.subscriptions.push(cmdClearDbEnvironment);
@@ -274,6 +297,9 @@ export function deactivate(): void {
   }
   if (environmentController) {
     environmentController.dispose();
+  }
+  if (userController) {
+    userController.dispose();
   }
   Telemetry.deactivate();
 }

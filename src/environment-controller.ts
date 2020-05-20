@@ -19,12 +19,19 @@ export class EnvironmentController {
   private _context: ExtensionContext;
   private _dbConfigPath: string;
   private static _statusBar: StatusBarItem;
-  private get currentEnvironment(): string {
+
+  // This is saved for use by commands
+  public get currentEnvironment(): string {
     return this._context.workspaceState.get("currEnv", "DEV");
   }
-  private set currentEnvironment(env: string) {
+  public set currentEnvironment(env: string) {
+    this.currentPick = env;
     this._context.workspaceState.update("currEnv", env);
   }
+
+  // This is temporary. used for 'getDBuser' command in process of single task execution
+  // to pass parameter between env and user commands
+  public currentPick: string;
 
   public constructor(context: ExtensionContext) {
     this._context = context;
@@ -36,12 +43,11 @@ export class EnvironmentController {
     EnvironmentController._statusBar.tooltip = "Oradew: Set DB Environment";
     EnvironmentController._statusBar.command = `oradew.setDbEnvironment`;
     this.updateStatusBar();
+    this.currentPick = this.currentEnvironment;
   }
 
   private updateStatusBar = () => {
-    EnvironmentController._statusBar.text = `$(gear) ${
-      this.currentEnvironment
-    }`;
+    EnvironmentController._statusBar.text = `$(gear) Env: ${this.currentEnvironment}`;
     if (existsSync(this._dbConfigPath)) {
       EnvironmentController._statusBar.show();
     } else {
@@ -71,7 +77,7 @@ export class EnvironmentController {
   ): Promise<string | null> => {
     let envs: QuickPickItem[] = await this.createEnvironmentList();
     const options: QuickPickOptions = {
-      placeHolder: "Select DB environment",
+      placeHolder: "Select DB environment for executing command",
       matchOnDescription: true,
       matchOnDetail: true
     };
@@ -80,7 +86,14 @@ export class EnvironmentController {
     }
     return window
       .showQuickPick(envs, options)
-      .then(item => (item ? item.label : null));
+      .then(item => {
+        if (item) {
+          this.currentPick = item.label;
+          return this.currentPick;
+        } else {
+          return null;
+        }
+      });
   }
 
   // Returns "currentEnvironment" if it is set, otherwise let's you pick from the list

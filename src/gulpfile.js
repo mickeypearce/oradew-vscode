@@ -343,7 +343,8 @@ const getOnlyChangedFiles = async source => {
 const compileFilesToDb = async ({
   file = argv.file,
   env = argv.env || "DEV",
-  changed = argv.changed || false
+  changed = argv.changed || false,
+  user = argv.user,
 }) => {
   const source = config.get({ field: "source.input", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
@@ -361,7 +362,8 @@ const compileFilesToDb = async ({
         file.path,
         env,
         force,
-        warnings
+        warnings,
+        user
       );
       printResults(resp);
       // Stage file if no errors
@@ -393,7 +395,11 @@ const compileFilesToDb = async ({
   );
 };
 
-const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
+const runFileOnDb = async ({
+  file = argv.file,
+  env = argv.env || "DEV",
+  user = argv.user,
+}) => {
   const src = file || config.get({ field: "package.output", env });
 
   const filePath = path.resolve(src);
@@ -416,7 +422,7 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
   );
 
   // Simple output err colorizer
-  const sanitize = text =>
+  const sanitize = (text) =>
     _.pipe(
       // Remove carriage returns
       _.replace(/\r\n/g, "\n"),
@@ -430,7 +436,7 @@ const runFileOnDb = async ({ file = argv.file, env = argv.env || "DEV" }) => {
     )(text);
 
   try {
-    const { stdout, obj } = await base.runFileAsScript(filePath, env);
+    const { stdout, obj } = await base.runFileAsScript(filePath, env, user);
 
     const out = sanitize(stdout);
     const errors = db.parseForErrors(out);
@@ -792,11 +798,12 @@ const compileObjectToDb = async ({
   file = argv.file,
   env = argv.env || "DEV",
   object = argv.object,
-  line = argv.line
+  line = argv.line,
+  user = argv.user
 }) => {
   try {
     if (!object) throw Error("Object cannot be empty.");
-    let resp = await base.compileSelection(object, file, env, line);
+    let resp = await base.compileSelection(object, file, env, line, user);
     printResults(resp);
   } catch (err) {
     console.error(err.message);
@@ -808,12 +815,13 @@ const generate = async ({
   func = argv.func,
   file = argv.file,
   object = argv.object,
-  output = argv.output
+  output = argv.output,
+  user = argv.user
 }) => {
   try {
     if (!func) throw Error("Func cannot be empty.");
 
-    const resp = await base.getGenerator({ func, file, env, object });
+    const resp = await base.getGenerator({ func, file, env, object, user });
 
     // Save to output argument if it exists
     // otherwise save to generated file in ./script directory
@@ -849,26 +857,8 @@ gulp.task(
   gulp.series(createSrcFromDbObjects, exportFilesFromDbAsync)
 );
 
-compileFilesToDbAsync.description = "Compile files to DB.";
-compileFilesToDbAsync.flags = {
-  "--env": "DB Environment. [DEV, TEST, UAT]",
-  "--file": "(optional) Absolute path of file",
-  "--changed": "(optional) Only changed files (in working tree)"
-};
-
-compileAndMergeFilesToDb.description = "Compile with merge.";
-
 gulp.task("compileOnSave", compileOnSave);
 gulp.task("watch", compileOnSave);
-
-exportFilesFromDb.description = "Export files from DB.";
-exportFilesFromDb.flags = {
-  "--env": "DB Environment. [DEV, TEST, UAT]",
-  "--file": "(optional) Absolute path of file",
-  "--changed": "(optional) Only changed files (in working tree)",
-  "--ease": "(optional) Export only if DB object changed",
-  "--quiet": "(optional) Suppress console output"
-};
 
 gulp.task("package", async ({ delta = argv.delta, from = argv.from }) => {
   // If delta or from, first populate package input
@@ -887,15 +877,9 @@ gulp.task(
   createDeployInputFromGit
 );
 
-runFileOnDb.description = "Run file on DB with SqlPlus.";
-runFileOnDb.flags = {
-  "--env": "DB Environment. [DEV, TEST, UAT]",
-  "--file": "(optional) Absolute path of file"
-};
 gulp.task("run", runFileOnDb);
 gulp.task("deploy", runFileOnDb); // Alias
 
-runTest.description = "Simple unit testing.";
 gulp.task("test", runTest);
 
 // gulp.task("default", "package");

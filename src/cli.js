@@ -105,6 +105,7 @@ program
   .option("--changed", "Only files in working tree (changes). False by default.")
   .option("--object <object>", "PL/SQL statement (query or block - in double quotes) to compile")
   .option("--line <line>", "Line offset of a statement in file. 1 by default.")
+  .option("--user <user>", "DB user. Extracted from file path if not specified or default user in dbconfig.")
   .action(() => execute());
 
 program
@@ -132,6 +133,7 @@ program
   .description("Run script (with SQL*Plus or SQLcl)")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .option("--file <file>", "File path. \"package.output\" if not specified.")
+  .option("--user <user>", "DB user. Extracted from file path if not specified or default user in dbconfig.")
   .action(() => execute());
 
 program
@@ -157,6 +159,7 @@ program
     "--output <output>",
     "Output file path. Generated file name if not specified."
   )
+  .option("--user <user>", "DB user. Extracted from file path if not specified or default user in dbconfig.")
   .action(() => execute());
 
 program

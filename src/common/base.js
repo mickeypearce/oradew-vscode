@@ -121,8 +121,8 @@ function getLineAndPosition(code, offset) {
   return { line, position };
 }
 
-obj.compileFile = async (code, file, env, force, warnings) => {
-  const obj = getObjectInfoFromPath(file);
+obj.compileFile = async (code, file, env, force, warnings, user) => {
+  const obj = {owner: user} || getObjectInfoFromPath(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
   // When there is no user configuration for the owner
   // we force change the object owner to default user
@@ -167,8 +167,8 @@ obj.compileFile = async (code, file, env, force, warnings) => {
   };
 };
 
-obj.compileSelection = async (code, file, env, lineOffset) => {
-  const obj = getObjectInfoFromPath(file);
+obj.compileSelection = async (code, file, env, lineOffset, user) => {
+  const obj = {owner: user} || getObjectInfoFromPath(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();
 
@@ -204,8 +204,8 @@ obj.compileSelection = async (code, file, env, lineOffset) => {
   };
 };
 
-obj.runFileAsScript = async (file, env) => {
-  const obj = getObjectInfoFromPath(file);
+obj.runFileAsScript = async (file, env, user) => {
+  const obj = {owner: user} || getObjectInfoFromPath(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
   obj.owner = connCfg.user.toUpperCase();
 
@@ -294,8 +294,8 @@ obj.resolveObjectInfo = async (env, { name }) => {
   return result;
 };
 
-obj.getGenerator = async ({ func, file, env, object }) => {
-  const obj = getObjectInfoFromPath(file);
+obj.getGenerator = async ({ func, file, env, object, user }) => {
+  const obj = {owner: user} || getObjectInfoFromPath(file);
   const connCfg = db.config.getConfiguration(env, obj.owner);
 
   let result = {};

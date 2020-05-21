@@ -54,7 +54,13 @@ export class OradewTaskProvider implements vscode.TaskProvider {
 export function createCompileOnSaveTask(): vscode.Task {
   let _def: OradewTaskDefinition = createOradewTaskDefinition({
     name: "compileOnSave",
-    params: ["compileOnSave", "--env", "${command:oradew.getEnvironment}"]
+    params: [
+      "compileOnSave",
+      "--env",
+      "${command:oradew.getEnvironment}",
+      "--user",
+      "${command:oradew.getUser}"
+    ]
   });
   let _task = createOradewTask(_def);
   _task.isBackground = true;
@@ -144,13 +150,15 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
 
     result.push(
       createOradewTask(createOradewTaskDefinition({
-        name: "compile",
+        name: "compile--changed",
         params: [
           "compile",
           "--env",
           "${command:oradew.getEnvironment}",
           "--changed",
-          "true"
+          "true",
+          "--user",
+          "${command:oradew.getUser}"
         ]
       }))
     );
@@ -172,11 +180,13 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
 
     result.push(
       createOradewTask(createOradewTaskDefinition({
-        name: "compile--all",
+        name: "compile",
         params: [
           "compile",
           "--env",
-          "${command:oradew.getEnvironment}"
+          "${command:oradew.getEnvironment}",
+          "--user",
+          "${command:oradew.getUser}"
         ]
       }))
     );
@@ -291,7 +301,13 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
     result.push(
       createOradewTask(createOradewTaskDefinition({
         name: "test",
-        params: ["test", "--env", "${command:oradew.getEnvironment}"]
+        params: [
+          "test",
+          "--env",
+          "${command:oradew.getEnvironment}",
+          "--user",
+          "${command:oradew.getUser}"
+        ]
       }))
     );
 

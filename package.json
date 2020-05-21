@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Develop Oracle (PL/SQL) project in VS Code.",
-  "version": "0.3.19",
+  "version": "0.3.20",
   "publisher": "mp",
   "engines": {
     "vscode": "^1.45.0"
@@ -191,7 +191,7 @@
       },
       {
         "command": "oradew.createProjectTask",
-        "title": "Import All Source from DB",
+        "title": "Create Source from DB",
         "category": "Oradew"
       },
       {
@@ -205,12 +205,12 @@
       },
       {
         "command": "oradew.compileTask",
-        "title": "Compile Changes to DB",
+        "title": "Compile Changed Files",
         "category": "Oradew"
       },
       {
         "command": "oradew.compileAllTask",
-        "title": "Compile All Source to DB",
+        "title": "Compile Source",
         "category": "Oradew"
       },
       {
@@ -238,7 +238,7 @@
       },
       {
         "command": "oradew.importTask",
-        "title": "Import Changes from DB",
+        "title": "Import Source",
         "category": "Oradew"
       },
       {
@@ -268,7 +268,7 @@
       },
       {
         "command": "oradew.deployTask",
-        "title": "Deploy",
+        "title": "Deploy...",
         "category": "Oradew"
       },
       {

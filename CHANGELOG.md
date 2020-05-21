@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.20] - 2020-05-22
+
+- Added "Set DB User" command
+
 ## [0.3.19] - 2020-05-14
 
 - Added "oradew" task contribution

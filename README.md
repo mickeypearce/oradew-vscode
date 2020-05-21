@@ -45,11 +45,11 @@ oradewrc.json           Workspace configuration
 **Setup**
 
 - `Initialize Workspace` - Create configuration files: `dbconfig.json` and `oradewrc.json`, create workspace folder structure and initialize git repository when starting from scratch (new workspace). Clear logs, package and scripts: prepare workspace for a new version/feature when executed in a non-empty workspace.
-- `Import All Source from DB` - Create Source files from DB objects
+- `Create Source from DB` - Create Source files from DB objects and import
 
 **Build**
 
-- `Compile Changes to DB` (F6) - Compile changed Source objects (working tree) to DB
+- `Compile Changed Files` (F6) - Compile changed Source files (working tree) to DB
 - `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
 - `Run Current File as Script` (F5) - Execute a SQL script (with SQL\*Plus or SQLcl)
 - `Run Selected Statement` (Ctrl+Enter) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
@@ -59,21 +59,25 @@ oradewrc.json           Workspace configuration
 
 - `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
 - `Package Delta` (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD), and then generates SQL deployment script from those paths, TODO and BOL file.
-- `Deploy` - Run SQL deployment script on selected environment (with SQL\*Plus or SQLcl). Command prompts with environment selection.
+- `Deploy...` - Run SQL deployment script on selected environment and user (with SQL\*Plus or SQLcl). Command prompts with environment and user selection.
 
 ### Additional
 
-- `Import Changes from DB` (Shift+F6) - Walk Source files and import matching DB object from DB
+- `Import Source` (Shift+F6) - Walk Source files and import matching DB object from DB
 - `Import Current File`
 - `Import Selected Object` - Import new object from DB into a Source file
-- `Compile All Source to DB`
+- `Compile Source`
 - `Run tests` - Execute unit test files that are saved in the workspace
 - `Generate...` Generate PL/SQL code with a code generator
 
-### Switch DB environment
+### Switch environment
 
-- `Set DB Environment` - Set DB environment that is used for executing DB commands. Pick list is generated from `dbconfig.json`. The default value is `DEV`.
+- `Set DB Environment` - Set DB environment that will be used when executing commands. Pick list is generated from `dbconfig.json`. The default value is `DEV`.
 - `Clear DB Environment` - Set DB environment to `<None>`. This means that you choose DB environment every time you execute DB command.
+
+### Switch user
+
+- `Set DB User` - Set DB user that will be used when executing commands. Pick list is generated from `dbconfig.json`. The default value is `<Auto>` (user extracted from file path).
 
 ## Configuration
 
@@ -140,7 +144,7 @@ Default values will be used in the case workspace configuration file is not pres
 - `package.exclude` - Array of globs for excluding files from packaging. Scripts that start with "file" or "run" by default.
 - `package.encoding` - Encoding of deployment script file. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging. The default value is `false`.
-- `source.input` - Glob pattern for Source files. Used by general `Compile` and `Import` commands to match files that are targeted. For example, to compile only "HR" schema and exclude "HR" tables, set: ["./src/HR/**/\*.sql", "!./src/HR/TABLES/\*.sql"].
+- `source.input` - Glob pattern for Source files. Used by general `Compile`, `Import` and `Create` command to match files that are targeted. For example, to compile only "HR" schema and exclude "HR" tables, set: ["./src/HR/**/\*.sql", "!./src/HR/TABLES/\*.sql"].
 - `source.encoding` - Encoding of Source files. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
 - `source.pattern` - Define custom source structure by specifing path patterns for different object types. Ommited object types won't get exported. Single schema ex: {"packageSpec": "./src/pck/{object-name}-spec.sql", "packageBody": "./src/pck/{object-name}-body.sql"}
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
@@ -223,7 +227,7 @@ Usage: oradew <command> [options]
 
 Commands:
   init [options]            Initialize a new workspace
-  create [options]          Import All Objects from Db to Source
+  create [options]          Create Source files from DB objects
   compile [options]         Compile Source files to DB
   import [options]          Import Source files from DB
   package [options]         Package files to deployment script

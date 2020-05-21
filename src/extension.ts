@@ -126,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "oradew: compile"
+        "oradew: compile--changed"
       );
       Telemetry.sendEvent("compileTask");
     }
@@ -136,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       vscode.commands.executeCommand(
         "workbench.action.tasks.runTask",
-        "oradew: compile--all"
+        "oradew: compile"
       );
       Telemetry.sendEvent("compileAllTask");
     }

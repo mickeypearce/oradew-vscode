@@ -92,7 +92,7 @@ program
 
 program
   .command("create")
-  .description("Import All Objects from Db to Source")
+  .description("Create Source files and import from DB objects")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .option("--file <file>", "File path or a glob. \"source.input\" if not specified.")
   .action(() => execute());
@@ -105,7 +105,7 @@ program
   .option("--changed", "Only files in working tree (changes). False by default.")
   .option("--object <object>", "PL/SQL statement (query or block - in double quotes) to compile")
   .option("--line <line>", "Line offset of a statement in file. 1 by default.")
-  .option("--user <user>", "DB user. Extracted from file path if not specified or default user in dbconfig.")
+  .option("--user <user>", "DB User. <Auto> (extracted from file path) if not specified.")
   .action(() => execute());
 
 program
@@ -117,7 +117,7 @@ program
   .option("--ease", "Only files (objects) that changed on DB. False by default.")
   .option("--quiet", "Suppress console output. False by default.")
   .option("--object <object>", "DB object name to import")
-  .option("--user <user>", "DB user. Extracted from file path if not specified or default user in dbconfig.")
+  .option("--user <user>", "DB User. <Auto> (extracted from file path) if not specified.")
   .action(() => execute());
 
 program
@@ -134,13 +134,14 @@ program
   .description("Run script (with SQL*Plus or SQLcl)")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .option("--file <file>", "File path. \"package.output\" if not specified.")
-  .option("--user <user>", "DB user. Extracted from file path if not specified or default user in dbconfig.")
+  .option("--user <user>", "DB User. <Auto> (extracted from file path) if not specified.")
   .action(() => execute());
 
 program
   .command("test")
   .description("Run unit tests")
   .option("--env <env>", "DB Environment. DEV if not specified.")
+  .option("--user <user>", "DB User. <Auto> (extracted from file path) if not specified.")
   .action(() => execute());
 
 program
@@ -160,13 +161,14 @@ program
     "--output <output>",
     "Output file path. Generated file name if not specified."
   )
-  .option("--user <user>", "DB user. Extracted from file path if not specified or default user in dbconfig.")
+  .option("--user <user>", "DB User. <Auto> (extracted from file path) if not specified.")
   .action(() => execute());
 
 program
   .command("watch")
   .description("Compile when Source file changes")
   .option("--env <env>", "DB Environment. DEV if not specified.")
+  .option("--user <user>", "DB User. <Auto> (extracted from file path) if not specified.")
   .action(() => execute());
 
 program.parse(process.argv);

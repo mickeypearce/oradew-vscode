@@ -64,7 +64,7 @@
       "type": "boolean"
     },
     "compile.stageFile": {
-      "default": true,
+      "default": false,
       "description": "Automatically stage file after is succesfully compiled (git add).",
       "type": "boolean"
     },
@@ -166,7 +166,7 @@
     },
     "import.ease": {
       "default": false,
-      "description": "When true imports only DB objects that changed on DB in comparision to project Source files",
+      "description": "When set to 'true' it will import only DB objects that changed on DB in comparision to project Source files",
       "type": "boolean"
     }
   }

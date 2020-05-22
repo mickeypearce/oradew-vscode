@@ -129,7 +129,7 @@ Default values will be used in the case workspace configuration file is not pres
   },
   "compile.warnings": "NONE",
   "compile.force": true,
-  "compile.stageFile": true,
+  "compile.stageFile": false,
   "version.number": "0.0.1",
   "version.description": "New feature",
   "version.releaseDate": "2099-01-01",
@@ -149,7 +149,7 @@ Default values will be used in the case workspace configuration file is not pres
 - `source.pattern` - Define custom source structure by specifing path patterns for different object types. Ommited object types won't get exported. Single schema ex: {"packageSpec": "./src/pck/{object-name}-spec.sql", "packageBody": "./src/pck/{object-name}-body.sql"}
 - `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
 - `compile.force` - Ignore conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `false` to turn on conflict detection. The default value is `true`.
-- `compile.stageFile` - Automatically stage file after succesfully compiled (git add). Default value is `true`.
+- `compile.stageFile` - Automatically stage file after succesfully compiled (git add). Default value is `false`.
 - `version.number` - Version number
 - `version.description` - Version description
 - `version.releaseDate` - Version release date

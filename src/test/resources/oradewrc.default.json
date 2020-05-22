@@ -16,7 +16,7 @@
   "source.encoding": "utf8",
   "compile.warnings": "NONE",
   "compile.force": true,
-  "compile.stageFile": true,
+  "compile.stageFile": false,
   "version.number": "0.0.1",
   "version.description": "New feature",
   "version.releaseDate": "2099-01-01",

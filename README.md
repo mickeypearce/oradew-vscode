@@ -44,30 +44,30 @@ oradewrc.json           Workspace configuration
 
 **Setup**
 
-- `Initialize Workspace` - Create configuration files: `dbconfig.json` and `oradewrc.json`, create workspace folder structure and initialize git repository when starting from scratch (new workspace). Clear logs, package and scripts: prepare workspace for a new version/feature when executed in a non-empty workspace.
-- `Create Source from DB` - Create Source files from DB objects and import
+- `Initialize Workspace` - Create configuration files (`dbconfig.json` and `oradewrc.json`) and a clean workspace structure
+- `Create Source from DB` - Create Source files from existing DB objects
 
 **Build**
 
-- `Compile Changed Files` (F6) - Compile changed Source files (working tree) to DB
+- `Compile Changed Files` (F6) - Compile changed Source files in working tree to DB
 - `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
 - `Run Current File as Script` (F5) - Execute a SQL script (with SQL\*Plus or SQLcl)
 - `Run Selected Statement` (Ctrl+Enter) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
-- `Toggle Compile Watch` - Start/End compilaton on save. Compile working tree automatically whenever a Source file changes.
 
 **Install**
 
-- `Package` (F9) - Generate SQL deployment script, TODO and BOL file.
-- `Package Delta` (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD), and then generates SQL deployment script from those paths, TODO and BOL file.
-- `Deploy...` - Run SQL deployment script on selected environment and user (with SQL\*Plus or SQLcl). Command prompts with environment and user selection.
+- `Package` (F9) - Generate a deployment script from project files
+- `Package Delta` (Shift+F9) - Package current version changes. Command extracts changed file paths from Git history - starting from latest tagged commit (last version) up to the last commit (HEAD)
+- `Deploy...` - Run deployment script on the selected environment (with SQL\*Plus or SQLcl)
 
 ### Additional
 
 - `Import Source` (Shift+F6) - Walk Source files and import matching DB object from DB
-- `Import Current File`
+- `Import Current File` - Import matching DB object
 - `Import Selected Object` - Import new object from DB into a Source file
-- `Compile Source`
-- `Run tests` - Execute unit test files that are saved in the workspace
+- `Compile Source` - Walk Source files and compile each file to DB
+- `Toggle Compile Watch` - Start/End compilaton on save. Compile working tree automatically whenever a Source file changes.
+- `Run tests` - Compile unit test files
 - `Generate...` Generate PL/SQL code with a code generator
 
 ### Switch environment
@@ -104,15 +104,9 @@ Default values will be used in the case workspace configuration file is not pres
 
 ```json
 {
-  "package.input": [
-    "./scripts/**/initial*.sql",
-    "./src/**/*.sql",
-    "./scripts/**/final*.sql"
-  ],
-  "package.exclude": ["./scripts/**/+(file|run)*.sql"],
-  "package.output": "./deploy/Run.sql",
-  "package.encoding": "utf8",
-  "package.templating": false,
+  "compile.warnings": "NONE",
+  "compile.force": true,
+  "compile.stageFile": false,
   "source.input": ["./src/**/*.sql"],
   "source.encoding": "utf8",
   "source.pattern": {
@@ -127,39 +121,41 @@ Default values will be used in the case workspace configuration file is not pres
     "table": "./src/{schema-name}/TABLES/{object-name}.sql",
     "synonym": "./src/{schema-name}/SYNONYMS/{object-name}.sql"
   },
-  "compile.warnings": "NONE",
-  "compile.force": true,
-  "compile.stageFile": false,
+  "import.ease": false,
+  "import.getDdlFunction": "dbms_metadata.get_ddl",
+  "package.input": [
+    "./scripts/**/initial*.sql",
+    "./src/**/*.sql",
+    "./scripts/**/final*.sql"
+  ],
+  "package.exclude": ["./scripts/**/+(file|run)*.sql"],
+  "package.output": "./deploy/Run.sql",
+  "package.encoding": "utf8",
+  "package.templating": false,
+  "test.input": ["./test/**/*.test.sql"],
   "version.number": "0.0.1",
   "version.description": "New feature",
-  "version.releaseDate": "2099-01-01",
-  "test.input": ["./test/**/*.test.sql"],
-  "import.ease": false,
-  "import.getDdlFunction": "dbms_metadata.get_ddl"
+  "version.releaseDate": "2099-01-01"
 }
 ```
 
+- `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
+- `compile.force` - Ignore conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `false` to turn on conflict detection. The default value is `true`.
+- `compile.stageFile` - Automatically stage file after succesfully compiled (git add). Default value is `false`.
+- `source.input` - Glob pattern for Source files. Used by general `Compile`, `Import` and `Create` command to match files that are targeted. For example, to compile only "HR" schema and exclude "HR" tables, set: ["./src/HR/**/\*.sql", "!./src/HR/TABLES/\*.sql"].
+- `source.encoding` - Encoding of Source files. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
+- `source.pattern` - Define custom source structure by specifing path patterns for different object types. Ommited object types won't get exported. Single schema ex: {"packageSpec": "./src/pck/{object-name}-spec.sql", "packageBody": "./src/pck/{object-name}-body.sql"}
+- `import.ease` - When set to `true`, it will import only DB objects that changed on DB in comparision to project Source files. Default value is `false`.
+- `import.getDdlFunction` - Custom Get_DDL function name. Use your own DB function to customize import of object's DDL. It is used by `Import` commands. The default value is `DBMS_METADATA.GET_DDL`.
 - `package.input` - Array of globs for packaging files into deployment script file (package.output). `Package Delta` command populates it with changed file paths.
 - `package.output` - Deployment script file path. Created with `Package` commands from concatenated input files and prepared for deployment. (wrapped with "SPOOL deploy.log", "COMMIT;", etc )
 - `package.exclude` - Array of globs for excluding files from packaging. Scripts that start with "file" or "run" by default.
 - `package.encoding` - Encoding of deployment script file. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
 - `package.templating` - Turn on templating of config variables. Use existing ('\${config[\"version.releaseDate\"]}') or declare a new variable in config file and than use it in your sql file. Variables are replaced with actual values during packaging. The default value is `false`.
-- `source.input` - Glob pattern for Source files. Used by general `Compile`, `Import` and `Create` command to match files that are targeted. For example, to compile only "HR" schema and exclude "HR" tables, set: ["./src/HR/**/\*.sql", "!./src/HR/TABLES/\*.sql"].
-- `source.encoding` - Encoding of Source files. (ex.: "utf8", "win1250", ...) The default value is `utf8`.
-- `source.pattern` - Define custom source structure by specifing path patterns for different object types. Ommited object types won't get exported. Single schema ex: {"packageSpec": "./src/pck/{object-name}-spec.sql", "packageBody": "./src/pck/{object-name}-body.sql"}
-- `compile.warnings` - PL/SQL compilation warning scopes. The default value is `NONE`.
-- `compile.force` - Ignore conflict detection. If object you are compiling has changed on DB (has a different DDL timestamp), you are prevented from overriding the changes with a merge step. Resolve merge conflicts if necessary and than compile again. Set to `false` to turn on conflict detection. The default value is `true`.
-- `compile.stageFile` - Automatically stage file after succesfully compiled (git add). Default value is `false`.
+- `test.input` - Array of globs for matching test files. Executed with `Run tests` command.
 - `version.number` - Version number
 - `version.description` - Version description
 - `version.releaseDate` - Version release date
-- `test.input` - Array of globs for matching test files. Executed with `Run tests` command.
-- `import.ease` - When set to `true`, it will import only DB objects that changed on DB in comparision to project Source files. Default value is `false`.
-- `import.getDdlFunction` - Custom Get_DDL function name. Use your own DB function to customize import of object's DDL. It is used by `Import` commands. The default value is `DBMS_METADATA.GET_DDL`.
-  ```sql
-  -- Example of a DB function specification:
-  FUNCTION CustomGetDDL(object_type IN VARCHAR2, name IN VARCHAR2, schema IN VARCHAR2 DEFAULT NULL) RETURN CLOB;
-  ```
 
 ### Code Generator
 

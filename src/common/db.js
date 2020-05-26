@@ -132,7 +132,7 @@ export class DBConfig {
       return { ...head, ...byDefault[0] };
     } else {
       throw Error(
-        `dbconfig.json: No match for user "${user}" in "${env}". Add/Enable missing user or set default user for the environment.`
+        `dbconfig.json: No match for user "${user}" in "${env}". Add/Enable missing user or set default user for env ("default": true).`
       );
     }
   };

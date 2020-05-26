@@ -770,12 +770,13 @@ const runTest = ({ env = argv.env || "DEV" }) => {
 const exportObjectFromDb = async ({
   env = argv.env || "DEV",
   object = argv.object,
-  user = argv.user
+  user = argv.user,
+  file = argv.file
 }) => {
   try {
     if (!object) throw Error("Object cannot be empty.");
 
-    const objs = await base.resolveObjectInfo(env, object, user);
+    const objs = await base.resolveObjectInfo(env, object, user, file);
 
     // Create array of abs file paths
     let files = objs.map(obj => {

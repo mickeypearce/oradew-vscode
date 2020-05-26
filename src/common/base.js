@@ -255,17 +255,12 @@ obj.getObjectsInfoByType = async (env, owner, objectTypes) => {
   return result;
 };
 
-obj.resolveObjectInfo = async (env, objName, user = U_AUTO) => {
-  // U_AUTO is here nonexitent user, and getConfiguration retuns default user
-  let connCfg;
-  if (user === U_AUTO) {
-    connCfg = db.config.getConfiguration(env);
-  } else {
-    connCfg = db.config.getConfiguration(env, user);
-  }
+obj.resolveObjectInfo = async (env, objName, user = U_AUTO, file) => {
+  let {connCfg} = matchDbUser(file, env, user, false);
 
   let conn;
   let result;
+  let conn1;
   try {
     let schema, part1, part2;
     let objectName;
@@ -290,13 +285,12 @@ obj.resolveObjectInfo = async (env, objName, user = U_AUTO) => {
       if (objectName) break;
     }
 
-    if (!objectName) throw Error(`object ${objName} does not exist`);
+    if (!objectName) throw Error(`object ${objName} does not exist for user ${user}.`);
 
-    db.closeConnection(conn);
-    // Get connection to object schema
+    // Get connection to object actual schema
     connCfg = db.config.getConfiguration(env, schema);
-    conn = await db.getConnection(connCfg);
-    result = await db.getObjectsInfo(conn, {
+    conn1 = await db.getConnection(connCfg);
+    result = await db.getObjectsInfo(conn1, {
       owner: schema,
       objectName
     });
@@ -304,6 +298,7 @@ obj.resolveObjectInfo = async (env, objName, user = U_AUTO) => {
     throw error;
   } finally {
     db.closeConnection(conn);
+    db.closeConnection(conn1);
   }
   return result;
 };

@@ -82,9 +82,9 @@ export function getObjectInfoFromPath(path) {
   if (!pattern) {
     const pathSplit = pathPosix.split("/");
 
-    // If path don't include schema (too short :), we set it to "" which means default schema will be used
+    // If path don't include schema (too short :), we set it to undefined which means default schema will be used
     // ./scripts/HR/initial_dml.sql (4) or ./deploy/Release.sql (3)
-    schema = pathSplit.length > 3 ? pathSplit[2] : "";
+    schema = pathSplit.length > 3 ? pathSplit[2] : undefined;
     objectName = parse(absPath).name;
     return {
       owner: schema,

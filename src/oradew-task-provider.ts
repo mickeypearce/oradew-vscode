@@ -246,7 +246,9 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
           "--object",
           "${selectedText}",
           "--user",
-          "${command:oradew.getUser}"
+          "${command:oradew.getUser}",
+          "--file",
+          "${file}"
         ]
       }))
     );

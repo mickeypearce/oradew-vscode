@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const gulp = require("gulp");
 const noop = require("gulp-noop");
-const concat = require("gulp-concat");
+const concat = require("gulp-group-concat");
 const insert = require("gulp-insert");
 const argv = require("yargs").argv;
 const map = require("vinyl-map2");
@@ -26,18 +26,18 @@ import {
   getPathFromObjectInfo,
   getStructure,
   replaceVarsInPattern,
-  getObjectTypes
+  getObjectTypes,
+  getPackageOutputPath
 } from "./common/dbobject";
 
 let config = utils.workspaceConfig;
 
-const timestampHeader = `-- File created: ${new Date()} with Oradew for VS Code
-`;
+const timestampHeader = `-- File created: ${new Date()} with Oradew for VS Code`;
 
-const addDBObjectPrompt = (code, file, done) => {
+const wrapDBObject = (code, file, done) => {
   const obj = getObjectInfoFromPath(file);
 
-  const prompt = `
+  const header = `
 PROMPT ***********************************************************
 PROMPT ${obj.owner}: {${obj.objectType}} ${obj.objectName}
 PROMPT ***********************************************************
@@ -46,7 +46,7 @@ PROMPT ***********************************************************
   // Append slash char (/) to execute block in sqlplus to Source files
   const ending = obj.isSource ? "\n/" : "";
 
-  done(null, prompt + code + ending);
+  done(null, header + code + ending);
 };
 
 const getLogFilename = filename => `spool__${filename}.log`;
@@ -60,11 +60,7 @@ const packageSrcFromFile = ({ env = argv.env }) => {
   const templating = config.get({ field: "package.templating", env });
   const version = config.get({ field: "version.number", env });
   const srcEncoding = config.get({ field: "source.encoding", env });
-
-  let exclude = config.get({ field: "package.exclude", env });
-  exclude = exclude.map(utils.prependCheck("!"));
-
-  const src = [...input, ...exclude];
+  const exclude = config.get({ field: "package.exclude", env });
 
   const templateObject = {
     config: config.get({ env }),
@@ -76,20 +72,17 @@ const packageSrcFromFile = ({ env = argv.env }) => {
 
   // Log is spooled to "package.output" filename with prefix and .log extension
   // spool__Run.sql.log by default
-  const deployPrepend = `
+  const deployPrepend = `${timestampHeader}
 SPOOL ${getLogFilename(outputFileName)}
 SET FEEDBACK ON
 SET ECHO OFF
 SET VERIFY OFF
 SET DEFINE OFF
+PROMPT INFO: Deploying version ${version} ...
 `;
   const deployAppend = `
 COMMIT;
 SPOOL OFF
-`;
-
-  const deployVersionPrepend = `
-PROMPT INFO: Deploying version ${version} ...
 `;
 
   // --Warn If src encoding is changed but package encoding default...
@@ -101,26 +94,65 @@ PROMPT INFO: Deploying version ${version} ...
     );
   }
 
+  // Output path is based on file info..
+  // "package.output": "./deploy/{schema-name}/run.sql" for example
+
+  // First convert globs to actual file paths
+  const inputFiles = base.fromGlobsToFilesArray(input, {
+    ignore: exclude
+  });
+
+  // Then map to objects array of "input" file path and "output" file path
+  // {
+  //   input: './src/SCHEMA1/PACKAGE_BODIES/PCK_1.sql',
+  //   output: './deploy/SCHEMA1/run.sql'
+  // }, ....
+  const mapFileToOutput = inputFiles.map((path) => {
+    const obj = getObjectInfoFromPath(path);
+    const outputPath = getPackageOutputPath(obj);
+    return {
+      input: path,
+      output: outputPath
+    };
+  });
+
+  // gulp-group-concat input should look like this:
+  // let outputMapping = {
+  //   './deploy/SCHEMA1/run.sql': ['src/SCHEMA1/PACKAGE_BODIES/PCK_1.sql'],
+  //   './deploy/SCHEMA2/run.sql': ['src/SCHEMA2/PACKAGES/PCK_1.sql', 'src/SCHEMA2/PACKAGE_BODIES/PCK_2.sql']
+  // };
+  // removeRoot as plugin doesn't work with ./'s
+  let outputMapping = _.pipe(
+    _.groupBy("output"),
+    _.mapValues(
+      _.pipe(
+        _.map("input"),
+        _.map(utils.rootRemove)
+      )
+    )
+  )(mapFileToOutput);
+
   return (
     gulp
-      .src(src, { allowEmpty: true })
+      .src(inputFiles, { allowEmpty: true })
       // First convert to utf8, run through the pipes and back to desired encoding
       .pipe(convertEncoding({ from: srcEncoding }))
       // Replace template variables, ex. config["config.variable"]
       .pipe(templating ? template(templateObject) : noop())
-      // Adds object prompt to every file
-      .pipe(map(addDBObjectPrompt))
-      .pipe(concat(outputFileName))
-      .pipe(insert.prepend(deployVersionPrepend))
+      // Adds object header and ending to every file
+      .pipe(map(wrapDBObject))
+      // Concat files to one or more output files
+      .pipe(concat(outputMapping))
+      // Wrap every script with header and ending
       .pipe(insert.wrap(deployPrepend, deployAppend))
-      .pipe(insert.prepend(timestampHeader))
+      // Convert to desired encoding
       .pipe(convertEncoding({ to: pckEncoding }))
-      .pipe(gulp.dest(outputDirectory))
+      .pipe(gulp.dest("."))
       .on("end", () =>
         console.log(
-          `${outputDirectory}/${outputFileName} ${chalk.green(
-            "Script packaged."
-          )}`
+          `${Object.keys(outputMapping).map(val =>
+            `${val} ${chalk.green("packaged!")}`
+          ).join("\n")}`
         )
       )
   );
@@ -239,13 +271,18 @@ const makeBillOfLading = ({ env = argv.env }) => {
     }
   };
   const outputFile = config.get({ field: "package.output", env });
-  const outputDirectory = path.dirname(outputFile);
+  // OutputFile can contain {schema-user} varibable...
+  // Get first level directory for now
+  const outputDirectory = utils.rootPrepend(
+    path.dirname(outputFile).split(path.posix.sep)[1]
+  );
+
   // Add content to template object
   templateObject.data.content = content;
   return gulp
     .src(file)
     .pipe(template(templateObject))
-    .pipe(insert.prepend("<!---\n" + timestampHeader + "-->\n"))
+    .pipe(insert.prepend(`<!---\n${timestampHeader}\n-->\n`))
     .pipe(gulp.dest(outputDirectory))
     .on("end", () => console.log(`${outputDirectory}/BOL.md created`));
 };

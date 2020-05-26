@@ -160,6 +160,13 @@ export function getPathFromObjectInfo(owner, oraType, name) {
   return path;
 }
 
+export function getPackageOutputPath({ owner }) {
+  const pattern = config.get("package.output");
+  // Replace variables in pattern with values
+  const path = replaceVarsInPattern(pattern, owner);
+  return path;
+}
+
 /**
  * Return patters array without file (dir structure)
  *

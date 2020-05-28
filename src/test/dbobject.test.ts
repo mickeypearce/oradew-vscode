@@ -19,11 +19,15 @@ describe("#getObjectInfo with default structure", function () {
   });
   it("deploy: should get object type script", function () {
     assert.deepEqual(getObjectInfoFromPath("./deploy/Release.sql"),
-      { "owner": "", "objectType": "script", "objectType1": "script", "objectName": "Release", "isSource": false, "isScript": true });
+      { "owner": undefined, "objectType": "script", "objectType1": "script", "objectName": "Release", "isSource": false, "isScript": true });
+  });
+  it("deploy: should get object type deployScript", function () {
+    assert.deepEqual(getObjectInfoFromPath("./deploy/HR/Run.sql"),
+      { "owner": "HR", "objectType": "deployScript", "objectType1": "deployScript", "objectName": "Run", "isSource": false, "isScript": true });
   });
   it("script: should get object type script - no dir", function () {
     assert.deepEqual(getObjectInfoFromPath("./file.sql"),
-      { "owner": "", "objectType": "script", "objectType1": "script", "objectName": "file", "isSource": false, "isScript": true });
+      { "owner": undefined, "objectType": "script", "objectType1": "script", "objectName": "file", "isSource": false, "isScript": true });
   });
 
   it("src: should get object type body - windows sep", function () {
@@ -34,18 +38,18 @@ describe("#getObjectInfo with default structure", function () {
 
 describe("#getPath from default structure", function () {
   it("should get dir structure for packages", function () {
-    assert.deepEqual(getPathFromObjectInfo("HR", "PACKAGE BODY", "my_pck1"), './src/HR/PACKAGE_BODIES/my_pck1.sql');
-    assert.deepEqual(getPathFromObjectInfo("HR", "PACKAGE", "my_pck1"), './src/HR/PACKAGES/my_pck1.sql');
+    assert.deepEqual(getPathFromObjectInfo("HR", "PACKAGE BODY", "my_pck1"), "./src/HR/PACKAGE_BODIES/my_pck1.sql");
+    assert.deepEqual(getPathFromObjectInfo("HR", "PACKAGE", "my_pck1"), "./src/HR/PACKAGES/my_pck1.sql");
   });
 });
 
 
 describe("#getObjectInfo with custom config", function () {
   // delete the cached module and reload with different config
-  var decache = require('decache');
+  var decache = require("decache");
   decache("../common/dbobject");
-  process.env['ORADEW_WS_CONFIG_PATH'] = __dirname + "/resources/oradewrc.json";
-  const getObjectInfoFromPath = require('../common/dbobject').getObjectInfoFromPath;
+  process.env["ORADEW_WS_CONFIG_PATH"] = __dirname + "/resources/oradewrc.json";
+  const getObjectInfoFromPath = require("../common/dbobject").getObjectInfoFromPath;
 
   it("src: should get object type body", function () {
     assert.deepEqual(getObjectInfoFromPath("./src/HR/pck/my_pck1-body.sql"),
@@ -79,13 +83,13 @@ describe("#getObjectInfo with custom config", function () {
 
 describe("#getPath from custom structure", function () {
   // delete the cached module and reload with different config
-  var decache = require('decache');
+  var decache = require("decache");
   decache("../common/dbobject");
-  process.env['ORADEW_WS_CONFIG_PATH'] = __dirname + "/resources/oradewrc.json";
-  const getPathFromObjectInfo = require('../common/dbobject').getPathFromObjectInfo;
+  process.env["ORADEW_WS_CONFIG_PATH"] = __dirname + "/resources/oradewrc.json";
+  const getPathFromObjectInfo = require("../common/dbobject").getPathFromObjectInfo;
   it("should get custom dir structure for packages", function () {
-    assert.deepEqual(getPathFromObjectInfo("HR", "PACKAGE BODY", "my_pck1"), './src/HR/pck/my_pck1-body.sql');
-    assert.deepEqual(getPathFromObjectInfo("HR", "PACKAGE", "my_pck1"), './src/HR/pck/my_pck1-spec.sql');
+    assert.deepEqual(getPathFromObjectInfo("HR", "PACKAGE BODY", "my_pck1"), "./src/HR/pck/my_pck1-body.sql");
+    assert.deepEqual(getPathFromObjectInfo("HR", "PACKAGE", "my_pck1"), "./src/HR/pck/my_pck1-spec.sql");
   });
 });
 

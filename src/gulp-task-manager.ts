@@ -1,7 +1,7 @@
 import child = require("child_process");
 import path = require("path");
 
-export class TaskManager {
+export class GulpTaskManager {
   wsConfigPath: string;
   gulpPathJs: string;
   gulpFile: string;

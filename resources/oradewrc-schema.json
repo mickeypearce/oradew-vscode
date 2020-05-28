@@ -13,7 +13,7 @@
       "type": "array"
     },
     "package.output": {
-      "default": "./deploy/Run.sql",
+      "default": "./deploy/{schema-name}/Run.sql",
       "description": "Deployment script file path.",
       "type": "string"
     },

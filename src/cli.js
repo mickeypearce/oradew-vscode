@@ -2,7 +2,7 @@
 
 const { resolve } = require("path");
 const { homedir } = require("os");
-import { TaskManager } from "./gulp-task-manager";
+import { GulpTaskManager } from "./gulp-task-manager";
 import * as program from "commander";
 
 // ENVironment variables:
@@ -40,7 +40,7 @@ const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
 
 const cliExecutable = process.env.ORADEW_CLI_EXECUTABLE || "sql";
 
-const taskManager = new TaskManager({
+const taskManager = new GulpTaskManager({
   workspacePath,
   contextPath,
   storagePath,

@@ -1,34 +1,16 @@
 
 import * as vscode from "vscode";
-import { TaskManager } from "./gulp-task-manager";
-import { ConfigurationController } from "./configuration-controller";
+import { GulpTaskManager } from "./gulp-task-manager";
 
-let settings = ConfigurationController.getInstance();
-const { chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVariables } = settings;
 
-let taskManager: TaskManager;
+let taskManager: GulpTaskManager;
 
 export class OradewTaskProvider implements vscode.TaskProvider {
   static OradewType: string = "oradew";
   private oradewPromise: Thenable<vscode.Task[]> | undefined = undefined;
 
-  constructor(context: vscode.ExtensionContext) {
-    const workspacePath =
-      vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
-    const contextPath = context.extensionPath;
-    const storagePath = context.storagePath || context.extensionPath;
-
-    taskManager = new TaskManager({
-      workspacePath,
-      contextPath,
-      storagePath,
-      dbConfigPath: databaseConfigFile,
-      wsConfigPath: workspaceConfigFile,
-      isSilent: !chatty,
-      isColor: true,
-      cliExecutable,
-      envVariables
-    });
+  constructor(ptaskManager: GulpTaskManager) {
+    taskManager = ptaskManager;
   }
 
   public provideTasks(): Thenable<vscode.Task[]> | undefined {
@@ -280,7 +262,9 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
           "--env",
           "${command:oradew.pickEnvironment}",
           "--user",
-          "${command:oradew.getUser}"
+          "${command:oradew.getUser}",
+          "--file",
+          "${command:oradew.getPackageOutput}",
         ]
       }))
     );

@@ -46,8 +46,8 @@ export class GeneratorManager {
         label: generator.label,
         description: generator.description,
         detail: generator.function
-      }
-    })
+      };
+    });
   }
 
   public getGeneratorFunction = async (): Promise<string | null> => {

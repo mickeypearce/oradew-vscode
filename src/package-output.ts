@@ -1,0 +1,50 @@
+import { window, QuickPickOptions, QuickPickItem } from "vscode";
+import { matchOutputFiles } from "./common/dbobject";
+import { WorkspaceConfig } from "./common/utility";
+
+import { ConfigurationController } from "./configuration-controller";
+import { EnvironmentController } from "./environment-controller";
+
+const { workspaceConfigFile } = ConfigurationController.getInstance();
+
+export class PackageOutput {
+  private _workspacePath: string;
+  private _environmentController: EnvironmentController;
+
+  constructor(workspacePath: string, environmentController: EnvironmentController) {
+    this._workspacePath = workspacePath;
+    this._environmentController = environmentController;
+  }
+
+  public getPackageOutput = async (): Promise<string | null> => {
+    // It doesn't reload if a field changes, so here...
+    const config = new WorkspaceConfig(workspaceConfigFile);
+    const env = this._environmentController.currentPick;
+    const output = config.get({field: "package.output", env});
+
+    const files = matchOutputFiles(this._workspacePath, output);
+
+    let items: QuickPickItem[] = files.map(value => ({
+      label: value,
+      description: value
+    })
+    );
+
+    if (items.length === 0) {
+      window.showWarningMessage (
+        `Oradew: Cannot match any packaged file.`
+      );
+      return null;
+    }
+
+    const options: QuickPickOptions = {
+      placeHolder: `Select script to execute (${this._environmentController.currentPick})`,
+      matchOnDescription: true,
+      matchOnDetail: true
+    };
+    return window
+      .showQuickPick(items, options)
+      .then(item => (item ? item.label : null));
+  }
+
+}

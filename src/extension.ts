@@ -9,12 +9,16 @@ import { ConfigurationController } from "./configuration-controller";
 import { setInitialized } from "./activation";
 import { OradewTaskProvider, createCompileOnSaveTask } from "./oradew-task-provider";
 import { Telemetry } from "./telemetry";
+import { PackageOutput } from "./package-output";
+import { GulpTaskManager } from "./gulp-task-manager";
 
 
 let oradewTaskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
 let userController: UserController;
 let generatorManager: GeneratorManager;
+let packageOutput: PackageOutput;
+let taskManager: GulpTaskManager;
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -36,13 +40,33 @@ export function activate(context: vscode.ExtensionContext) {
     activate(context);
   });
 
+  const { chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVariables } = settings;
+
+  const workspacePath =
+    vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
+  const contextPath = context.extensionPath;
+  const storagePath = context.storagePath || context.extensionPath;
+
+  taskManager = new GulpTaskManager({
+    workspacePath,
+    contextPath,
+    storagePath,
+    dbConfigPath: databaseConfigFile,
+    wsConfigPath: workspaceConfigFile,
+    isSilent: !chatty,
+    isColor: true,
+    cliExecutable,
+    envVariables
+  });
+
 
   generatorManager = new GeneratorManager();
   environmentController = new EnvironmentController(context);
   userController = new UserController(context, environmentController);
 
-  oradewTaskProvider = vscode.tasks.registerTaskProvider(OradewTaskProvider.OradewType, new OradewTaskProvider(context));
+  oradewTaskProvider = vscode.tasks.registerTaskProvider(OradewTaskProvider.OradewType, new OradewTaskProvider(taskManager));
 
+  packageOutput = new PackageOutput(workspacePath, environmentController);
 
   // Internal command: env paramater selection in commands
   let cmdGetEnvironment = vscode.commands.registerCommand(
@@ -87,6 +111,11 @@ export function activate(context: vscode.ExtensionContext) {
     userController.setDbUser
   );
 
+  // Internal command: env paramater selection in commands
+  let cmdGetPackageOutput = vscode.commands.registerCommand(
+    "oradew.getPackageOutput",
+    packageOutput.getPackageOutput
+  );
 
   /************** */
 
@@ -282,6 +311,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdGetUser);
   context.subscriptions.push(cmdPickUser);
   context.subscriptions.push(cmdSetDbUser);
+  context.subscriptions.push(cmdGetPackageOutput);
 
   context.subscriptions.push(cmdSetDbEnvironment);
   context.subscriptions.push(cmdClearDbEnvironment);

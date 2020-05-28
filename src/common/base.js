@@ -62,7 +62,8 @@ obj.fromGlobsToFilesArray = (globArray, options) => {
   return glob.sync(globArray, options).map(utils.rootPrepend);
 };
 
-// Get filepaths from matchArray matched by globArray
+// Get filepaths from matchArray (file paths) matched by globArray
+// matchArray is not necesarry actual files on disk
 // (Intersection between globArray matches and matchArray)
 obj.getGlobMatches = (globArray, matchArray) => {
   return multimatch(matchArray, globArray);

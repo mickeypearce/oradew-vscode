@@ -3,26 +3,59 @@ const micromatch = require("micromatch");
 import { rootRemove, rootPrepend, workspaceConfig } from "./utility";
 import { parse, resolve, relative, posix, dirname } from "path";
 import { invert } from "lodash/fp";
+import { fromGlobsToFilesArray } from "./base";
 
 // const config = new WorkspaceConfig(
 //   __dirname + "/resources/oradewrc.default.json"
 // );
 
 const config = workspaceConfig; //new WorkspaceConfig();
-const patternsArray = config.get("source.pattern");
 
-function getObjectTypeFromPath(path) {
+const patternSrcObject = config.get("source.pattern");
+// {
+//   "packageSpec": "./src/{schema-name}/pck/{object-name}-spec.sql",
+//   "packageBody": "./src/{schema-name}/pck/{object-name}-body.sql",
+//   "trigger": "./src/{schema-name}/trigger-{object-name}.sql",
+//   "view": "./src/{schema-name}/view-{object-name}.sql",
+//   "function": "./test/src/{schema-name}/FUNCTIONS/{object-name}.sql",
+//   "procedure": "./src/PROCEDURES/{object-name}.sql",
+// }
+
+function getObjectTypeFromSrcPath(path) {
   // Filter patterns that match a path
-  const foundPattern = Object.keys(patternsArray).filter(element => {
-    const pattern = patternsArray[element];
+  const foundPattern = Object.keys(patternSrcObject).filter((element) => {
+    const pattern = patternSrcObject[element];
     // We use globs for matching, so replace variables with wildcard (*)
     const globPattern = pattern.replace(/{schema-name}|{object-name}/gi, "*");
     // Globpattern have to be without ./, but We have it in config for unknown reason...
     return micromatch.isMatch(path, globPattern, {
-      format: rootRemove
+      format: rootRemove,
     });
   });
   return foundPattern[0];
+}
+
+const patternPckOutput = config.get("package.output");
+//   "./deploy/{schema-name}/Run.sql"
+function isDeployPath(path) {
+  const globPattern = patternPckOutput.replace(/{schema-name}|{object-name}/gi, "*");
+  return micromatch.isMatch(path, globPattern, {
+    format: rootRemove,
+  });
+}
+
+// Match ./deploy/{schema-name}/Run.sql to actual files
+// This is called from vscode extension context...
+// therefore we must set "cwd" explicitly and getting pattern as a param
+export function matchOutputFiles(workspacePath, outputFilePattern) {
+  const globPattern = outputFilePattern.replace(
+    /{schema-name}|{object-name}/gi,
+    "*"
+  );
+  const files = fromGlobsToFilesArray(globPattern, {
+    cwd: workspacePath,
+  });
+  return files;
 }
 
 const mapToOraObjectType = {
@@ -35,14 +68,14 @@ const mapToOraObjectType = {
   typeSpec: "TYPE",
   typeBody: "TYPE BODY",
   table: "TABLE",
-  synonym: "SYNONYM"
+  synonym: "SYNONYM",
 };
 
 const mapToOraObjectTypeAlt = {
   packageSpec: "PACKAGE_SPEC",
   packageBody: "PACKAGE_BODY",
   typeSpec: "TYPE_SPEC",
-  typeBody: "TYPE_BODY"
+  typeBody: "TYPE_BODY",
 };
 
 const mapfromOraObjectType = invert(mapToOraObjectType);
@@ -54,10 +87,10 @@ const mapfromOraObjectType = invert(mapToOraObjectType);
 
 /**
  ** Extract object info from file path
-  * patters array define in "source.pattern"
-  * @param {string} path
-  * @returns {ObjectDefinition} object
-  */
+ * patters array define in "source.pattern"
+ * @param {string} path
+ * @returns {ObjectDefinition} object
+ */
 export function getObjectInfoFromPath(path) {
   if (!path) return { owner: undefined };
 
@@ -71,15 +104,80 @@ export function getObjectInfoFromPath(path) {
   // Convert path to posix with ./
   const pathPosix = rootPrepend(relPath.replace(/\\/gi, "/"));
 
-  objectType = getObjectTypeFromPath(pathPosix);
+  // Is it a SRC file?
+  objectType = getObjectTypeFromSrcPath(pathPosix);
 
-  // pattern="./src/{schema-name}/PACKAGES/{object-name}-spec.sql"
-  const pattern = patternsArray[objectType];
+  if (objectType) {
+    // pattern="./src/{schema-name}/PACKAGES/{object-name}-spec.sql"
+    const patternSrc = patternSrcObject[objectType];
+
+    /** extact schema*/
+    // Get left and right of schema path
+    // p1 = ["./src/", "/PACKAGES/{object-name}-spec.sql"]
+    const schemaSplit = patternSrc.split("{schema-name}");
+
+    // Convert to regex so we can find and replace
+    // p1 = ["/.\/src\//", "/\/PACKAGES\/\w+-spec.sql/"]
+    const schemaRegex = schemaSplit.map(
+      (v) => new RegExp(v.replace("{object-name}", "\\w+"))
+    );
+
+    // Remove both from path
+    // ex: path: "./src/HR/PACKAGES/pck1-spec.sql"
+    // replace ["./src/", "/PACKAGES/\w+-spec.sql"] with "", leaving "HR"
+    // actually: pathPosix.replace(schemaRegex[0]).replace(schemaRegex[1])
+    schema = schemaRegex.reduce((acc, val) => acc.replace(val, ""), pathPosix);
+
+    /** extact object-name*/
+    const objectSplit = patternSrc.split("{object-name}");
+    const objectRegex = objectSplit.map(
+      (v) => new RegExp(v.replace("{schema-name}", "\\w+"))
+    );
+    objectName = objectRegex.reduce(
+      (acc, val) => acc.replace(val, ""),
+      pathPosix
+    );
+
+    // Map to ora types
+    const objectTypeOra = mapToOraObjectType[objectType] || objectType;
+    const objectTypeOraAlt = mapToOraObjectTypeAlt[objectType] || objectTypeOra;
+
+    return {
+      owner: schema,
+      objectName,
+      objectType: objectTypeOra,
+      objectType1: objectTypeOraAlt,
+      isSource: true,
+      isScript: false,
+    };
+  }
+
+  // Is it a deploy script?
+  const isDeploy = isDeployPath(pathPosix);
+  if (isDeploy) {
+    // pattern="./deploy/{schema-name}/Run.sql"
+    const patternPck = patternPckOutput;// patternDeployObject[objectType];
+
+    /** extact schema*/
+    // Get left and right of schema path
+    // p1 = ["./deploy/", "/Run.sql"]
+    const schemaSplit = patternPck.split("{schema-name}");
+    schema = pathPosix.replace(schemaSplit[0], "").replace(schemaSplit[1], "");
+    objectName = parse(absPath).name;
+    return {
+      owner: schema,
+      objectType: "deployScript",
+      objectType1: "deployScript",
+      objectName,
+      isSource: false,
+      isScript: true,
+    };
+  }
 
   // If pattern is not configured for object type, we set objecttype=script
   // and objectname=filename, schema is second dir in path
   // we assume it as a script
-  if (!pattern) {
+  if (!objectType) {
     const pathSplit = pathPosix.split("/");
 
     // If path don't include schema (too short :), we set it to undefined which means default schema will be used
@@ -92,52 +190,9 @@ export function getObjectInfoFromPath(path) {
       objectType1: "script",
       objectName,
       isSource: false,
-      isScript: true
+      isScript: true,
     };
   }
-
-  /** extact schema*/
-  // Get left and right of schema path
-  // p1 = ["./src/", "/PACKAGES/{object-name}-spec.sql"]
-  const schemaSplit = pattern.split("{schema-name}");
-
-  // Convert to regex so we can find and replace
-  // p1 = ["/.\/src\//", "/\/PACKAGES\/\w+-spec.sql/"]
-  const schemaRegex = schemaSplit.map(
-    v => new RegExp(v.replace("{object-name}", "\\w+"))
-  );
-
-  // Remove both from path
-  // ex: path: "./src/HR/PACKAGES/pck1-spec.sql"
-  // replace ["./src/", "/PACKAGES/\w+-spec.sql"] with "", leaving "HR"
-  // actually: pathPosix.replace(schemaRegex[0]).replace(schemaRegex[1])
-  schema = schemaRegex.reduce((acc, val) => acc.replace(val, ""), pathPosix);
-
-  /** extact object-name*/
-  const objectSplit = pattern.split("{object-name}");
-  const objectRegex = objectSplit.map(
-    v => new RegExp(v.replace("{schema-name}", "\\w+"))
-  );
-  objectName = objectRegex.reduce(
-    (acc, val) => acc.replace(val, ""),
-    pathPosix
-  );
-
-  // Map to ora types
-  const objectTypeOra = mapToOraObjectType[objectType] || objectType;
-  const objectTypeOraAlt = mapToOraObjectTypeAlt[objectType] || objectTypeOra;
-
-  // Info if it is Source, @todo better way
-  // const isSource = objectType !== "script";
-  // const isScript = objectType === "script";
-  return {
-    owner: schema,
-    objectName,
-    objectType: objectTypeOra,
-    objectType1: objectTypeOraAlt,
-    isSource: true,
-    isScript: false
-  };
 }
 
 export function replaceVarsInPattern(pattern = "", owner, name) {
@@ -154,16 +209,15 @@ export function replaceVarsInPattern(pattern = "", owner, name) {
 export function getPathFromObjectInfo(owner, oraType, name) {
   // Get pattern for object type
   const type = mapfromOraObjectType[oraType] || oraType;
-  const pattern = patternsArray[type];
+  const pattern = patternSrcObject[type];
   // Replace variables in pattern with values
   const path = replaceVarsInPattern(pattern, owner, name);
   return path;
 }
 
 export function getPackageOutputPath({ owner }) {
-  const pattern = config.get("package.output");
   // Replace variables in pattern with values
-  const path = replaceVarsInPattern(pattern, owner);
+  const path = replaceVarsInPattern(patternPckOutput, owner);
   return path;
 }
 
@@ -181,7 +235,9 @@ export function getPackageOutputPath({ owner }) {
  */
 
 export function getStructure() {
-  return Object.keys(patternsArray).map(el => dirname(patternsArray[el]));
+  return Object.keys(patternSrcObject).map((el) =>
+    dirname(patternSrcObject[el])
+  );
 }
 
 export function getObjectTypes() {

@@ -5,6 +5,8 @@ import { WorkspaceConfig } from "./common/utility";
 import { ConfigurationController } from "./configuration-controller";
 import { EnvironmentController } from "./environment-controller";
 
+import { resolve } from "path";
+
 const { workspaceConfigFile } = ConfigurationController.getInstance();
 
 export class PackageOutput {
@@ -20,25 +22,25 @@ export class PackageOutput {
     // It doesn't reload if a field changes, so here...
     const config = new WorkspaceConfig(workspaceConfigFile);
     const env = this._environmentController.currentPick;
-    const output = config.get({field: "package.output", env});
+    const output = config.get({ field: "package.output", env });
 
     const files = matchOutputFiles(this._workspacePath, output);
 
-    let items: QuickPickItem[] = files.map(value => ({
-      label: value,
-      description: value
+    let items: QuickPickItem[] = files.map(file => ({
+      label: file,
+      description: resolve(this._workspacePath, file)
     })
     );
 
     if (items.length === 0) {
-      window.showWarningMessage (
+      window.showWarningMessage(
         `Oradew: Cannot match any packaged file.`
       );
       return null;
     }
 
     const options: QuickPickOptions = {
-      placeHolder: `Select script to execute (${this._environmentController.currentPick})`,
+      placeHolder: `Select script file to run (${this._environmentController.currentPick} environment)`,
       matchOnDescription: true,
       matchOnDetail: true
     };

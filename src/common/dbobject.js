@@ -87,7 +87,9 @@ const mapfromOraObjectType = invert(mapToOraObjectType);
 
 /**
  ** Extract object info from file path
- * patters array define in "source.pattern"
+ * SRC: patterns array defined in "source.pattern"
+ * deployScript: pattern "package.output"
+ * script otherwire
  * @param {string} path
  * @returns {ObjectDefinition} object
  */

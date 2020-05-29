@@ -3,7 +3,6 @@ const fs = require("fs-extra");
 const gulp = require("gulp");
 const noop = require("gulp-noop");
 const concat = require("gulp-group-concat");
-const insert = require("gulp-insert");
 const argv = require("yargs").argv;
 const map = require("vinyl-map2");
 const del = require("del");
@@ -33,6 +32,7 @@ import {
 let config = utils.workspaceConfig;
 
 const timestampHeader = `-- File created: ${new Date()} with Oradew for VS Code`;
+const getLogFilename = filename => `spool__${filename}.log`;
 
 const wrapDBObject = (code, file, done) => {
   const obj = getObjectInfoFromPath(file);
@@ -48,8 +48,6 @@ PROMPT ***********************************************************
 
   done(null, header + code + ending);
 };
-
-const getLogFilename = filename => `spool__${filename}.log`;
 
 const packageSrcFromFile = ({ env = argv.env }) => {
   const outputFile = config.get({ field: "package.output", env });
@@ -70,9 +68,15 @@ const packageSrcFromFile = ({ env = argv.env }) => {
     }
   };
 
-  // Log is spooled to "package.output" filename with prefix and .log extension
-  // spool__Run.sql.log by default
-  const deployPrepend = `${timestampHeader}
+
+  const wrapScript = (code, file, done) => {
+    const obj = getObjectInfoFromPath(file);
+    const outputPath = getPackageOutputPath(obj);
+    const outputFileName = path.basename(outputPath);
+
+    // Log is spooled to "package.output" filename with prefix and .log extension
+    // spool__Run.sql.log by default
+    const deployPrepend = `${timestampHeader}
 SPOOL ${getLogFilename(outputFileName)}
 SET FEEDBACK ON
 SET ECHO OFF
@@ -80,10 +84,13 @@ SET VERIFY OFF
 SET DEFINE OFF
 PROMPT INFO: Deploying version ${version} ...
 `;
-  const deployAppend = `
+    const deployAppend = `
 COMMIT;
 SPOOL OFF
 `;
+    done(null, deployPrepend + code + deployAppend);
+  }
+
 
   // --Warn If src encoding is changed but package encoding default...
   if (srcEncoding !== pckEncoding && pckEncoding === "utf8") {
@@ -144,7 +151,7 @@ SPOOL OFF
       // Concat files to one or more output files
       .pipe(concat(outputMapping))
       // Wrap every script with header and ending
-      .pipe(insert.wrap(deployPrepend, deployAppend))
+      .pipe(map(wrapScript))
       // Convert to desired encoding
       .pipe(convertEncoding({ to: pckEncoding }))
       .pipe(gulp.dest("."))
@@ -282,7 +289,11 @@ const makeBillOfLading = ({ env = argv.env }) => {
   return gulp
     .src(file)
     .pipe(template(templateObject))
-    .pipe(insert.prepend(`<!---\n${timestampHeader}\n-->\n`))
+    // Prepend timestamp header
+    .pipe(map((code, file, done) => {
+        done(null, `<!---\n${timestampHeader}\n-->\n` + code);
+      })
+    )
     .pipe(gulp.dest(outputDirectory))
     .on("end", () => console.log(`${outputDirectory}/BOL.md created`));
 };

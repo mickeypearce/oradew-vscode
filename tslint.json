@@ -10,7 +10,8 @@
 			"always"
 		],
 		"triple-equals": true,
-		"quotemark": true
+		"quotemark": true,
+		"indent": true
 	},
 	"defaultSeverity": "warning"
 }

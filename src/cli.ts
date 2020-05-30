@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const { resolve } = require("path");
-const { homedir } = require("os");
+import { resolve } from "path";
+import { homedir } from "os";
 import { GulpTaskManager } from "./gulp-task-manager";
 import * as program from "commander";
 
@@ -59,7 +59,7 @@ program
 
 program.on("--help", function() {
   console.log("");
-  console.log("(Use `oradew <command> --help` for command options.)")
+  console.log("(Use `oradew <command> --help` for command options.)");
   console.log("");
   console.log("Environment variables:");
   console.log(

@@ -1,7 +1,6 @@
 const assert = require("assert");
-const db = require("../common/db");
 
-import { getDefaultsFromSchema } from "../common/utility";
+import { getDefaultsFromSchema, dbConfig, DBConfig } from "../common/config";
 
 const templateDbconfig = require("./resources/dbconfig.default.json");
 
@@ -13,21 +12,21 @@ describe("#db getConfiguration", function() {
       user: "hr",
       password: "welcome"
     };
-    let cfgNonUser = db.config.getConfiguration("DEV", "XXX");
+    let cfgNonUser = dbConfig.getConfiguration("DEV", "XXX");
     assert.deepEqual(cfgNonUser, cfg);
 
     // No user parameter
-    let cfgNullUser = db.config.getConfiguration("DEV");
+    let cfgNullUser = dbConfig.getConfiguration("DEV");
     assert.deepEqual(cfgNullUser, cfg);
 
     // Also empty user parameter should be same result
-    let cfgEmptyUser = db.config.getConfiguration("DEV", "");
+    let cfgEmptyUser = dbConfig.getConfiguration("DEV", "");
     assert.deepEqual(cfgEmptyUser, cfg);
   });
 });
 
 describe("#DBConfig", function() {
-  const dbconfig = db.config;
+  const dbconfig = dbConfig;
   const defaults = getDefaultsFromSchema(
     "../../resources/dbconfig-schema.json"
   );
@@ -72,7 +71,7 @@ describe("#DBConfig", function() {
     schemas: ["schema1", "schema2"]
   };
 
-  const dbConfigInstance1 = new db.DBConfig(
+  const dbConfigInstance1 = new DBConfig(
     "./src/test/resources/dbconfig.json"
   );
 

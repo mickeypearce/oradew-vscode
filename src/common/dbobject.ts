@@ -1,15 +1,16 @@
 const micromatch = require("micromatch");
 
-import { rootRemove, rootPrepend, workspaceConfig } from "./utility";
-import { parse, resolve, relative, posix, dirname } from "path";
+import { rootRemove, rootPrepend } from "./utility";
+import { parse, resolve, relative, dirname } from "path";
 import { invert } from "lodash/fp";
 import { fromGlobsToFilesArray } from "./globs";
+import { workspaceConfig as config} from "./config";
 
 // const config = new WorkspaceConfig(
 //   __dirname + "/resources/oradewrc.default.json"
 // );
 
-const config = workspaceConfig; //new WorkspaceConfig();
+//new WorkspaceConfig();
 
 const patternSrcObject = config.get("source.pattern");
 // {
@@ -45,7 +46,7 @@ function isDeployPath(path) {
 }
 
 // Match ./deploy/{schema-name}/Run.sql to actual files
-export function matchOutputFiles(outputFilePattern, options) {
+export function matchOutputFiles(outputFilePattern, options?) {
   const globPattern = outputFilePattern.replace(
     /{schema-name}|{object-name}/gi,
     "*"
@@ -90,7 +91,7 @@ const mapfromOraObjectType = invert(mapToOraObjectType);
  * @returns {ObjectDefinition} object
  */
 export function getObjectInfoFromPath(path) {
-  if (!path) return { owner: undefined };
+  if (!path) { return { owner: undefined }; }
 
   let schema, objectName, objectType;
 
@@ -193,7 +194,7 @@ export function getObjectInfoFromPath(path) {
   }
 }
 
-export function replaceVarsInPattern(pattern = "", owner, name) {
+export function replaceVarsInPattern(pattern = "", owner, name?) {
   return pattern.replace("{schema-name}", owner).replace("{object-name}", name);
 }
 

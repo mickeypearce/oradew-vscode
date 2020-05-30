@@ -12,6 +12,9 @@ import { Telemetry } from "./telemetry";
 import { PackageOutput } from "./package-output";
 import { GulpTaskManager } from "./gulp-task-manager";
 
+// import * as gulpfile from "./gulpfile.js"
+// gulpfile.initProjectTask()
+
 
 let oradewTaskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;

@@ -14,9 +14,10 @@ import {
 } from "lodash/fp";
 
 import { rootPrepend, splitLines } from "./utility";
+import { getChangesNotStaged } from "./git";
 
 // Get array of files matched by glob patterns array
-export function fromGlobsToFilesArray(globArray, options) {
+export function fromGlobsToFilesArray(globArray, options?) {
   return glob.sync(globArray, options).map(rootPrepend);
 }
 
@@ -48,3 +49,11 @@ export function fromStdoutToFilesArray(stdout) {
     map(rootPrepend)
   )(stdout);
 }
+
+export const getOnlyChangedFiles = async source => {
+  // Get array of changed files from git
+  const stdout = await getChangesNotStaged();
+  const changed = fromStdoutToFilesArray(stdout);
+  // Get array of files matched by source array parameter
+  return getGlobMatches(source, changed);
+};

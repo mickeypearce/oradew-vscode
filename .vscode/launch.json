@@ -15,6 +15,7 @@
       "preLaunchTask": "npm: watch",
       "sourceMaps": true,
       "env": {
+        // For CLI
         "ORADEW_SILENT": "false"
       },
       "stopOnEntry": false

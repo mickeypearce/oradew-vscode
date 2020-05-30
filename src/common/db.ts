@@ -1,152 +1,26 @@
 const oracledb = require("oracledb");
-const _ = require("lodash/fp");
-const { readJsonSync, outputJsonSync } = require("fs-extra");
 
-const dbLoc = require("./nedb");
-const { getDefaultsFromSchema, includesCaseInsensitive } = require("./utility");
+import { getDdlTime, upsertDdlTime } from "./nedb";
+import { IConnectionConfig } from "./config";
 
 oracledb.fetchAsString = [oracledb.DATE, oracledb.CLOB, oracledb.NUMBER];
 
-export class DBConfig {
-  constructor(fileBase) {
-    // Defaults DB configuration object
-    this.defaults = getDefaultsFromSchema(
-      "../../resources/dbconfig-schema.json"
-    );
-    this.fileBase = fileBase || "./dbconfig.json";
-    // DB config JSON Object
-    this.object = null;
-    this.load();
-  }
-
-  // Create config file with default values
-  createFile() {
-    return outputJsonSync(this.fileBase, this.defaults);
-  }
-
-  load() {
-    try {
-      this.object = readJsonSync(this.fileBase);
-    } catch (e) {
-      // Defaults
-      console.log(`Cannot find ${this.fileBase} file...`);
-      this.object = this.defaults;
-    }
-  }
-
-  get(field) {
-    return _.get(field)(this.object);
-  }
-  set(field, value) {
-    this.object = _.set(field)(value)(this.object);
-    return outputJsonSync(this.fileBase, this.object);
-  }
-
-  // _getConnectString = (env = "DEV") => this.object[env].connectString;
-  // _getUserObjects = (env = "DEV") => this.object[env].users;
-
-  // Get "users" object array from json
-  // filter out disabled
-  _getAllUsersByEnv = env => data => {
-    return _.pipe(
-      _.get(env),
-      _.get("users"),
-      _.filter(v => !v.disabled)
-    )(data);
-  };
-
-  /**
-   * Get all schemas for environment.
-   * *If User has no objects, Schemas are used
-   *
-   *  @param {string} env
-   *  @returns {string[]} user
-   */
-  getSchemas = (env = "DEV") => {
-    return _.pipe(
-      this._getAllUsersByEnv(env),
-      _.flatMap(v => (v.schemas ? v.schemas : [v.user])),
-      _.map(_.toUpper),
-      _.uniq
-    )(this.object);
-  };
-
-  /**
-   * Connection config object from dbConfig.json
-   * @typedef {{env: string, user: string, password: string, connectString: string, default: ?boolean, schemas: ?string[], disabled: ?boolean}} ConnectionConfig
-   */
-
-  /**
-   ** Get connection configuration. Extracted from DB config file.
-   * Filter by env and user
-   * User parameter is optional, return default configuration if cannot be determined (user non existent)
-   * @param {string} env
-   * @param {string} [user]
-   * @returns {ConnectionConfig} Connection config
-   */
-  getConfiguration = (env, user) => {
-    if (!env) throw Error(`No env parameter.`);
-    if (!this.object[env])
-      throw Error(`Cannot find ${env} environment in dbconfig.json.`);
-
-    // Head of flattened object that we return
-    const head = { env, connectString: this.object[env].connectString };
-
-    // First filter by env param, if only one config return
-    let byEnv = this._getAllUsersByEnv(env)(this.object);
-
-    if (!byEnv)
-      throw Error(
-        `dbconfig.json: Invalid structure. Cannot find "${env}" env.`
-      );
-
-    if (byEnv.length === 0) {
-      throw Error(`dbconfig.json: No user for "${env}" env.`);
-    }
-    if (byEnv.length === 1) {
-      return { ...head, ...byEnv[0] };
-    }
-
-    // If user param exists, filter by v.user or v.schema
-    let byUser = user
-      ? _.filter(
-          v =>
-            v.user.toUpperCase() === user.toUpperCase() ||
-            // includesCaseInsensitive([v.user], user) ||
-            (v.schemas && includesCaseInsensitive(v.schemas, user))
-        )(byEnv)
-      : byEnv;
-
-    if (byUser.length === 1) {
-      return { ...head, ...byUser[0] };
-    }
-    // non existing user -> go for default
-    // if (byUser.length === 0) {
-    //   byUser = byEnv;
-    // }
-
-    // We couldn't match by user so go for default for env
-    let byDefault = _.filter({ default: true })(byEnv);
-
-    if (byDefault.length === 1) {
-      return { ...head, ...byDefault[0] };
-    } else {
-      throw Error(
-        `dbconfig.json: No match for user "${user}" in "${env}". Add/Enable missing user or set default user for env ("default": true).`
-      );
-    }
-  };
+interface IObjectParameter {
+  owner: string;
+  objectType?: string;
+  objectType1?: string;
+  objectName?: string;
 }
-export const config = new DBConfig(process.env.ORADEW_DB_CONFIG_PATH);
+
 
 // Each env has its own pool with users
 let _pool = {};
 
 /**
  ** Return existing connection from pool or creates a new one.
- * @param {ConnectionConfig} connCfg
+ * @param {IConnectionConfig} connCfg
  */
-const getConnection = connCfg => {
+const getConnection = (connCfg: IConnectionConfig) => {
   let { env, user, password, connectString } = connCfg;
   if (!_pool[env]) {
     _pool[env] = {};
@@ -178,9 +52,9 @@ const closeConnection = async conn => {
 
 /**
  ** Return connection string.
- * @param {ConnectionConfig} connCfg
+ * @param {IConnectionConfig} connCfg
  */
-const getConnectionString = connCfg => {
+const getConnectionString = (connCfg: IConnectionConfig) => {
   return `${connCfg.user}/${connCfg.password}@${connCfg.connectString}`;
 };
 
@@ -236,7 +110,7 @@ const getErrorsInfo = (connection, { owner, objectName, objectType }) => {
     .then(result => result.rows);
 };
 
-const getObjectsInfo = (connection, { owner, objectType, objectName }) => {
+const getObjectsInfo = (connection, { owner, objectType, objectName }: IObjectParameter) => {
   // Exclude types that are silently created when defined in packages (SYS_PLSQL)
   oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
   return connection
@@ -260,7 +134,7 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }) => {
 const getGeneratorFunction = (
   connection,
   getFunctionName,
-  { owner, objectName, objectType1 },
+  { owner, objectName, objectType1 }: IObjectParameter,
   selectedObject
 ) => {
   oracledb.outFormat = oracledb.OUT_FORMAT_ARRAY;
@@ -284,7 +158,7 @@ const getLastDdlTime = async (conn, obj) => {
 
 const isDifferentDdlTime = async (conn, obj, env) => {
   let timeOracle = await getLastDdlTime(conn, obj);
-  let timeLocal = await dbLoc.getDdlTime(obj, env);
+  let timeLocal = await getDdlTime(obj, env);
   return (
     timeOracle &&
     timeLocal &&
@@ -294,7 +168,7 @@ const isDifferentDdlTime = async (conn, obj, env) => {
 
 const syncDdlTime = async (conn, obj, env) => {
   let timeOracle = await getLastDdlTime(conn, obj);
-  return await dbLoc.upsertDdlTime(obj, timeOracle, env);
+  return await upsertDdlTime(obj, timeOracle, env);
 };
 
 const createError = ({ LINE, POSITION, ATTRIBUTE, TEXT, _ID }) => ({
@@ -547,28 +421,30 @@ const getDbmsOutput = async connection => {
 
   while (status === 0) {
     ({ line, status } = await getDbmsOutputLine(connection));
-    line && lines.push(line);
+    if (line) { lines.push(line); }
   }
 
   return lines;
 };
 
-module.exports.getConnection = getConnection;
-module.exports.getObjectDdl = getObjectDdl;
-module.exports.getErrorsInfo = getErrorsInfo;
-module.exports.getObjectsInfo = getObjectsInfo;
-module.exports.getLastDdlTime = getLastDdlTime;
-module.exports.syncDdlTime = syncDdlTime;
-module.exports.getConnectionString = getConnectionString;
-module.exports.closeConnection = closeConnection;
-module.exports.isDifferentDdlTime = isDifferentDdlTime;
-module.exports.compile = compile;
-module.exports.createError = createError;
-module.exports.createErrorList = createErrorList;
-module.exports.getErrorObjectChanged = getErrorObjectChanged;
-module.exports.getErrors = getErrors;
-module.exports.getErrorSystem = getErrorSystem;
-module.exports.getNameResolve = getNameResolve;
-module.exports.getDbmsOutput = getDbmsOutput;
-module.exports.getGeneratorFunction = getGeneratorFunction;
-module.exports.parseForErrors = parseForErrors;
+export {
+  getConnection,
+  getObjectDdl,
+  getErrorsInfo,
+  getObjectsInfo,
+  getLastDdlTime,
+  syncDdlTime,
+  getConnectionString,
+  closeConnection,
+  isDifferentDdlTime,
+  compile,
+  createError,
+  createErrorList,
+  getErrorObjectChanged,
+  getErrors,
+  getErrorSystem,
+  getNameResolve,
+  getDbmsOutput,
+  getGeneratorFunction,
+  parseForErrors
+};

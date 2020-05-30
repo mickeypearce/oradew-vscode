@@ -1,9 +1,10 @@
 import { pipe, replace, trim, trimCharsEnd } from "lodash/fp";
-import { parse, resolve } from "path";
+import { parse } from "path";
 
-import * as db from "./db"
+import * as db from "./db";
 import { splitLines, execPromise } from "./utility";
 import { getObjectInfoFromPath } from "./dbobject";
+import { dbConfig } from "./config";
 
 const U_AUTO = "<Auto>";
 
@@ -13,7 +14,7 @@ const U_AUTO = "<Auto>";
 function matchDbUser(file, env, user, changeOwner) {
   let obj = user === U_AUTO ? getObjectInfoFromPath(file) : { owner: user };
   // console.log('user='+user+ ' owner='+obj.owner);
-  const connCfg = db.config.getConfiguration(env, obj.owner);
+  const connCfg = dbConfig.getConfiguration(env, obj.owner);
   // When there is no user configuration for the owner
   // we force change the object owner to default user
   if (changeOwner) {
@@ -23,14 +24,15 @@ function matchDbUser(file, env, user, changeOwner) {
 }
 
 
-let obj = {};
+// let obj = {};
 
-obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
-  const {obj, connCfg} = matchDbUser(file, env, U_AUTO, false);
-
+export const exportFile = async (code, file, env, ease, getFunctionName, done) => {
   let exported = null;
   let conn;
+  let obj, connCfg;
   try {
+    ({obj, connCfg} = matchDbUser(file, env, U_AUTO, false));
+
     conn = await db.getConnection(connCfg);
     // try {
     if (!ease || (await db.isDifferentDdlTime(conn, obj, env))) {
@@ -85,7 +87,7 @@ function getLineAndPosition(code, offset) {
   return { line, position };
 }
 
-obj.compileFile = async (code, file, env, force, warnings, user = U_AUTO) => {
+export const compileFile = async (code, file, env, force, warnings, user = U_AUTO) => {
   const {obj, connCfg} = matchDbUser(file, env, user, true);
 
   code = simpleParse(code);
@@ -127,7 +129,7 @@ obj.compileFile = async (code, file, env, force, warnings, user = U_AUTO) => {
   };
 };
 
-obj.compileSelection = async (code, file, env, lineOffset, user = U_AUTO) => {
+export const compileSelection = async (code, file, env, lineOffset, user = U_AUTO) => {
   const {obj, connCfg} = matchDbUser(file, env, user, true);
 
   code = simpleParse(code);
@@ -163,7 +165,7 @@ obj.compileSelection = async (code, file, env, lineOffset, user = U_AUTO) => {
 };
 
 
-obj.runFileAsScript = async (file, env, user = U_AUTO) => {
+export const runFileAsScript = async (file, env, user = U_AUTO) => {
   const {obj, connCfg} = matchDbUser(file, env, user, true);
 
   const connString = db.getConnectionString(connCfg);
@@ -187,8 +189,8 @@ obj.runFileAsScript = async (file, env, user = U_AUTO) => {
   return { stdout, obj };
 };
 
-obj.getObjectsInfoByType = async (env, owner, objectTypes) => {
-  const connCfg = db.config.getConfiguration(env, owner);
+export const getObjectsInfoByType = async (env, owner, objectTypes) => {
+  const connCfg = dbConfig.getConfiguration(env, owner);
   let conn;
   let result = [];
   try {
@@ -205,7 +207,7 @@ obj.getObjectsInfoByType = async (env, owner, objectTypes) => {
   return result;
 };
 
-obj.resolveObjectInfo = async (env, objName, user = U_AUTO, file) => {
+export const resolveObjectInfo = async (env, objName, user = U_AUTO, file) => {
   let {connCfg} = matchDbUser(file, env, user, false);
 
   let conn;
@@ -232,13 +234,13 @@ obj.resolveObjectInfo = async (env, objName, user = U_AUTO, file) => {
       }
       // Break if we got objectName
       objectName = part1 || part2;
-      if (objectName) break;
+      if (objectName) { break; }
     }
 
-    if (!objectName) throw Error(`object ${objName} does not exist for user ${user}.`);
+    if (!objectName) { throw Error(`object ${objName} does not exist for user ${user}.`); }
 
     // Get connection to object actual schema
-    connCfg = db.config.getConfiguration(env, schema);
+    connCfg = dbConfig.getConfiguration(env, schema);
     conn1 = await db.getConnection(connCfg);
     result = await db.getObjectsInfo(conn1, {
       owner: schema,
@@ -253,7 +255,7 @@ obj.resolveObjectInfo = async (env, objName, user = U_AUTO, file) => {
   return result;
 };
 
-obj.getGenerator = async ({ func, file, env, object, user = U_AUTO}) => {
+export const getGenerator = async ({ func, file, env, object, user = U_AUTO}) => {
   const {obj, connCfg} = matchDbUser(file, env, user, true);
 
   let result = {};
@@ -274,4 +276,3 @@ obj.getGenerator = async ({ func, file, env, object, user = U_AUTO}) => {
   };
 };
 
-module.exports = obj;

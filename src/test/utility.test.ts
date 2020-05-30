@@ -1,9 +1,6 @@
 const assert = require("assert");
-import {
-  WorkspaceConfig,
-  getDefaultsFromSchema,
-  includesCaseInsensitive
-} from "../common/utility";
+import { includesCaseInsensitive } from "../common/utility";
+import { WorkspaceConfig, getDefaultsFromSchema } from "../common/config";
 
 const configDefault = new WorkspaceConfig();
 const configCustomrc = new WorkspaceConfig(

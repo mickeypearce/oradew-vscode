@@ -1,5 +1,4 @@
 const assert = require("assert");
-const base = require("../common/base");
 
 import { fromGlobsToFilesArray, getGlobMatches, isGlobMatch } from "../common/globs";
 

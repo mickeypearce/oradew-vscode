@@ -54,6 +54,7 @@ export class GulpTaskManager {
         ORADEW_DB_CONFIG_PATH: dbConfigPath,
         ORADEW_WS_CONFIG_PATH: wsConfigPath,
         ORADEW_CLI_EXECUTABLE: cliExecutable,
+        ORADEW_SILENT: isSilent,
         ...(envVariables || {})
       },
       // inherit stdio

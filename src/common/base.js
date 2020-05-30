@@ -1,24 +1,9 @@
-import {
-  pipe,
-  compact,
-  uniq,
-  sortBy,
-  identity,
-  map,
-  isEqual,
-  replace,
-  trim,
-  trimCharsEnd
-} from "lodash/fp";
+import { pipe, replace, trim, trimCharsEnd } from "lodash/fp";
 import { parse, resolve } from "path";
 
-const fs = require("fs-extra");
-const multimatch = require("multimatch");
-
-const utils = require("./utility");
+import * as db from "./db"
+import { splitLines, execPromise } from "./utility";
 import { getObjectInfoFromPath } from "./dbobject";
-
-const db = require("./db");
 
 const U_AUTO = "<Auto>";
 
@@ -39,39 +24,6 @@ function matchDbUser(file, env, user, changeOwner) {
 
 
 let obj = {};
-
-// Get array of files from output stream string
-obj.fromStdoutToFilesArray = stdout =>
-  pipe(
-    // Generate array from lines
-    utils.splitLines,
-    // Remove empty items and duplicates
-    compact,
-    uniq,
-    // Scripts first
-    sortBy(identity),
-    // Add ./ if it doesn't already exists
-    map(utils.rootPrepend)
-  )(stdout);
-
-  // Get array of files matched by glob patterns array
-// obj.fromGlobsToFilesArray = (globArray, options) => {
-//   return glob.sync(globArray, options).map(utils.rootPrepend);
-// };
-
-// Get filepaths from matchArray (file paths) matched by globArray
-// matchArray is not necesarry actual files on disk
-// (Intersection between globArray matches and matchArray)
-obj.getGlobMatches = (globArray, matchArray) => {
-  return multimatch(matchArray, globArray);
-};
-
-// True if matchArray equals globArray matches
-// Matches against a list instead of the filesystem
-obj.isGlobMatch = (globArray, matchArray) => {
-  const matches = multimatch(matchArray, globArray);
-  return isEqual(matchArray, matches);
-};
 
 obj.exportFile = async (code, file, env, ease, getFunctionName, done) => {
   const {obj, connCfg} = matchDbUser(file, env, U_AUTO, false);
@@ -127,7 +79,7 @@ function simpleParse(code) {
 }
 
 function getLineAndPosition(code, offset) {
-  let lines = utils.splitLines(code.substring(0, offset));
+  let lines = splitLines(code.substring(0, offset));
   let line = lines.length;
   let position = lines.pop().length + 1;
   return { line, position };
@@ -231,7 +183,7 @@ obj.runFileAsScript = async (file, env, user = U_AUTO) => {
   // We execute from file directory (change cwd)
   // mainly because of spooling to dir of the file (packaged script)
   // buffer: 5MB
-  let stdout = await utils.execPromise(cmd, { maxBuffer: 1024 * 5000, cwd });
+  let stdout = await execPromise(cmd, { maxBuffer: 1024 * 5000, cwd });
   return { stdout, obj };
 };
 

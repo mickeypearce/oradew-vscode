@@ -1,7 +1,7 @@
 const assert = require("assert");
 const base = require("../common/base");
 
-import { fromGlobsToFilesArray } from "../common/globs";
+import { fromGlobsToFilesArray, getGlobMatches, isGlobMatch } from "../common/globs";
 
 describe("#base", function() {
   it("fromGlobsToFilesArray", function() {
@@ -17,11 +17,11 @@ describe("#base", function() {
       "./test/src/HR/FUNCTIONS/FUNC_TEST.sql",
       "./test/src/HR/FUNCTIONS/FUNC_TEST1.sql"
     ];
-    let match = base.getGlobMatches(["./test/src/**/*.sql"], matches);
+    let match = getGlobMatches(["./test/src/**/*.sql"], matches);
     assert.deepEqual(match, matches);
 
     let matchesNot = ["./test/src/HR/FUNCTIONS/FUNC_TEST.sql"];
-    let matchNot = base.getGlobMatches(
+    let matchNot = getGlobMatches(
       ["./test/src/**/*.sql", "!./test/src/HR/FUNCTIONS/FUNC_TEST1.sql"],
       matchesNot
     );
@@ -29,18 +29,18 @@ describe("#base", function() {
   });
   it("isGlobMatch", function() {
     const matches = ["./test/src/FUNCTIONS/FUNC_TEST1.sql"];
-    let match = base.isGlobMatch(["./test/src/**/*.sql"], matches);
+    let match = isGlobMatch(["./test/src/**/*.sql"], matches);
     assert.ok(match);
 
     // Exclude file from glob
-    let matchIgnore = base.isGlobMatch(
+    let matchIgnore = isGlobMatch(
       ["./test/src/**/*.sql", `!./test/src/FUNCTIONS/*.sql`],
       matches
     );
     assert.ok(!matchIgnore);
 
     const matchesNotActualFile = ["./test/src/USERX/FUNCTIONS/FUNC_TEST1.sql"];
-    let matchNotActualFile = base.isGlobMatch(
+    let matchNotActualFile = isGlobMatch(
       ["./test/src/**/*.sql"],
       matchesNotActualFile
     );

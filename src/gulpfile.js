@@ -30,7 +30,12 @@ import {
   matchOutputFiles
 } from "./common/dbobject";
 
-import { fromGlobsToFilesArray } from "./common/globs";
+import {
+  fromGlobsToFilesArray,
+  getGlobMatches,
+  isGlobMatch,
+  fromStdoutToFilesArray,
+} from "./common/globs";
 
 let config = utils.workspaceConfig;
 
@@ -176,11 +181,11 @@ const createDeployInputFromGit = async ({ env = argv.env, from = argv.from }) =>
     console.log(`Starting from commit: ${firstCommit}`);
 
     const stdout = await git.getCommitedFilesSincePoint(firstCommit.trim());
-    const changedPaths = base.fromStdoutToFilesArray(stdout).sort();
+    const changedPaths = fromStdoutToFilesArray(stdout).sort();
 
     // Exclude files that are not generally icluded
     const includedFiles = ["./**/*.sql"];
-    const all = base.getGlobMatches(includedFiles, changedPaths);
+    const all = getGlobMatches(includedFiles, changedPaths);
 
     // Exclude excludes by config
     let excludeGlobs = config.get({ field: "package.exclude", env });
@@ -386,9 +391,9 @@ const printResults = resp => {
 const getOnlyChangedFiles = async source => {
   // Get array of changed files from git
   const stdout = await git.getChangesNotStaged();
-  const changed = base.fromStdoutToFilesArray(stdout);
+  const changed = fromStdoutToFilesArray(stdout);
   // Get array of files matched by source array parameter
-  return base.getGlobMatches(source, changed);
+  return getGlobMatches(source, changed);
 };
 
 const compileFilesToDb = async ({
@@ -745,7 +750,7 @@ const createSrcFromDbObjects = async ({
         );
         if (path !== "") {
           // is path inside "source" glob?
-          if (base.isGlobMatch(source, [path])) {
+          if (isGlobMatch(source, [path])) {
             fs.outputFileSync(path, "");
             console.log("Created file " + path);
           }

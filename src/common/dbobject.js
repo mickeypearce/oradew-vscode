@@ -3,7 +3,7 @@ const micromatch = require("micromatch");
 import { rootRemove, rootPrepend, workspaceConfig } from "./utility";
 import { parse, resolve, relative, posix, dirname } from "path";
 import { invert } from "lodash/fp";
-import { fromGlobsToFilesArray } from "./base";
+import { fromGlobsToFilesArray } from "./globs";
 
 // const config = new WorkspaceConfig(
 //   __dirname + "/resources/oradewrc.default.json"
@@ -45,16 +45,12 @@ function isDeployPath(path) {
 }
 
 // Match ./deploy/{schema-name}/Run.sql to actual files
-// This is called from vscode extension context...
-// therefore we must set "cwd" explicitly and getting pattern as a param
-export function matchOutputFiles(workspacePath, outputFilePattern) {
+export function matchOutputFiles(outputFilePattern, options) {
   const globPattern = outputFilePattern.replace(
     /{schema-name}|{object-name}/gi,
     "*"
   );
-  const files = fromGlobsToFilesArray(globPattern, {
-    cwd: workspacePath,
-  });
+  const files = fromGlobsToFilesArray(globPattern, options);
   return files;
 }
 

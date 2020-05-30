@@ -24,7 +24,9 @@ export class PackageOutput {
     const env = this._environmentController.currentPick;
     const output = config.get({ field: "package.output", env });
 
-    const files = matchOutputFiles(this._workspacePath, output);
+    const files = matchOutputFiles(output, {
+      cwd: this._workspacePath
+    });
 
     let items: QuickPickItem[] = files.map(file => ({
       label: file,

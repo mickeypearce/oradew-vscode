@@ -26,8 +26,11 @@ import {
   getStructure,
   replaceVarsInPattern,
   getObjectTypes,
-  getPackageOutputPath
+  getPackageOutputPath,
+  matchOutputFiles
 } from "./common/dbobject";
+
+import { fromGlobsToFilesArray } from "./common/globs";
 
 let config = utils.workspaceConfig;
 
@@ -105,7 +108,7 @@ SPOOL OFF
   // "package.output": "./deploy/{schema-name}/run.sql" for example
 
   // First convert globs to actual file paths
-  const inputFiles = base.fromGlobsToFilesArray(input, {
+  const inputFiles = fromGlobsToFilesArray(input, {
     ignore: exclude
   });
 
@@ -181,7 +184,7 @@ const createDeployInputFromGit = async ({ env = argv.env, from = argv.from }) =>
 
     // Exclude excludes by config
     let excludeGlobs = config.get({ field: "package.exclude", env });
-    const newInput = base.fromGlobsToFilesArray(all, {
+    const newInput = fromGlobsToFilesArray(all, {
       ignore: excludeGlobs
     });
 
@@ -265,7 +268,7 @@ const makeBillOfLading = ({ env = argv.env }) => {
   // Generate change log from deploy input array
   const input = config.get({ field: "package.input", env });
   const excludeGlobs = config.get({ field: "package.exclude", env });
-  const all = base.fromGlobsToFilesArray(input, {
+  const all = fromGlobsToFilesArray(input, {
     ignore: excludeGlobs
   });
 
@@ -448,12 +451,26 @@ const runFileOnDb = async ({
   env = argv.env || "DEV",
   user = argv.user,
 }) => {
-  const src = file || config.get({ field: "package.output", env });
+  // Convert to array as parameters can be arrays (--file a --file b)
+  let filesToRun = file && [].concat(file);
 
-  const filePath = path.resolve(src);
+  // Match file from package.output pattern if no --file
+  if (!filesToRun) {
+    const output = config.get({ field: "package.output", env });
+    filesToRun = matchOutputFiles(output);
+  }
+
+  if(filesToRun.length !== 1) {
+    console.log(`Multiple or none scripts detected: ${filesToRun}`);
+    console.log(`Use "--file" parameter to run a script.`);
+    return;
+  }
+
+  const filePath = path.resolve(filesToRun[0]);
+
   if (!fs.existsSync(filePath)) {
     console.log(`File does not exist: ${filePath}`);
-    console.log(`Try "Package" command to create a deployment script.`);
+    console.log(`Use "Package" command to create a deployment script.`);
     return;
   }
 

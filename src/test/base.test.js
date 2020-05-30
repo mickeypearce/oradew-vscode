@@ -1,13 +1,15 @@
 const assert = require("assert");
 const base = require("../common/base");
 
+import { fromGlobsToFilesArray } from "../common/globs";
+
 describe("#base", function() {
   it("fromGlobsToFilesArray", function() {
     let matches = [
       "./test/src/HR/FUNCTIONS/FUNC_TEST.sql",
       "./test/src/HR/FUNCTIONS/FUNC_TEST1.sql"
     ];
-    let match = base.fromGlobsToFilesArray(["./test/src/**/*.sql"]);
+    let match = fromGlobsToFilesArray(["./test/src/**/*.sql"]);
     assert.deepEqual(match, matches);
   });
   it("getGlobMatches", function() {

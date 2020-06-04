@@ -46,6 +46,6 @@ const createSrcFromDbObjects = async ({ env = argv.env || "DEV", file = argv.fil
   }
 };
 
-export function createTask() {
-  return gulp.series(createSrcFromDbObjects, exportFilesFromDbAsync);
+export async function createTask() {
+  return gulp.series(createSrcFromDbObjects, exportFilesFromDbAsync)();
 }

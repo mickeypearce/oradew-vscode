@@ -370,7 +370,9 @@
     "install-cli": "npm install -g ./ --ignore-scripts --no-optional",
     "fix": "rd node_modules /S /Q & del package-lock.json & npm install --no-optional",
     "format": "prettier --check \"**/*.{js,ts}\"",
-    "format:fix": "prettier --write \"**/*.{js,ts}\""
+    "format:fix": "npm run format -- --write",
+    "tslint": "tslint --project tsconfig.json --config tslint.json",
+    "tslint:fix": "npm run tslint -- --fix"
   },
   "devDependencies": {
     "@types/gulp": "^4.0.6",
@@ -382,8 +384,9 @@
     "decache": "^4.6.0",
     "mocha": "^7.2.0",
     "prettier": "2.0.5",
-    "tslint": "^5.20.1",
+    "tslint": "6.1.2",
     "typescript": "^3.9.3",
+    "typescript-tslint-plugin": "^0.5.5",
     "vsce": "^1.75.0",
     "vscode-test": "^1.3.0"
   },

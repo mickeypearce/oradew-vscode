@@ -23,10 +23,10 @@ const wrapDBObject = (code, file, done) => {
   const obj = getObjectInfoFromPath(file);
 
   const header = `
-  PROMPT ***********************************************************
-  PROMPT ${obj.owner}: {${obj.objectType}} ${obj.objectName}
-  PROMPT ***********************************************************
-  `;
+PROMPT ***********************************************************
+PROMPT ${obj.owner}: {${obj.objectType}} ${obj.objectName}
+PROMPT ***********************************************************
+`;
 
   // Append slash char (/) to execute block in sqlplus to Source files
   const ending = obj.isSource ? "\n/" : "";
@@ -58,17 +58,17 @@ const packageSrcFromFile = ({ env = argv.env }) => {
     // Log is spooled to "package.output" filename with prefix and .log extension
     // spool__Run.sql.log by default
     const deployPrepend = `${timestampHeader}
-  SPOOL ${getLogFilename(outputFileName)}
-  SET FEEDBACK ON
-  SET ECHO OFF
-  SET VERIFY OFF
-  SET DEFINE OFF
-  PROMPT INFO: Deploying version ${version} ...
-  `;
+SPOOL ${getLogFilename(outputFileName)}
+SET FEEDBACK ON
+SET ECHO OFF
+SET VERIFY OFF
+SET DEFINE OFF
+PROMPT INFO: Deploying version ${version} ...
+`;
     const deployAppend = `
-  COMMIT;
-  SPOOL OFF
-  `;
+COMMIT;
+SPOOL OFF
+`;
     done(null, deployPrepend + code + deployAppend);
   };
 

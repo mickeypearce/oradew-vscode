@@ -1,4 +1,4 @@
-import * as gulp from "gulp";
+const gulp = require("gulp");
 import * as inquirer from "inquirer";
 import * as multiDest from "gulp-multi-dest";
 import del from "del";
@@ -35,10 +35,10 @@ const createDbConfigFile = async ({}) => {
 
     console.log(
       `This utility will walk you through creating a dbconfig.json file.
-  It only covers basic items for DB connection for one environment (DEV).
-  You can edit, add DB environments or users later.
+It only covers basic items for DB connection for one environment (DEV).
+You can edit, add DB environments or users later.
 
-  Press ^C at any time to quit or enter to skip.`
+Press ^C at any time to quit or enter to skip.`
     );
 
     let res = await inquirer.prompt([
@@ -74,19 +74,19 @@ const createProjectFiles = () => {
   const scriptsDirs = schemas.map((v) => `./scripts/${v}`);
   gulp
     .src([
-      path.join(__dirname, "/templates/scripts/initial*.sql"),
-      path.join(__dirname, "/templates/scripts/final*.sql"),
+      path.join(__dirname, "../templates/scripts/initial*.sql"),
+      path.join(__dirname, "../templates/scripts/final*.sql"),
     ])
     .pipe(multiDest(scriptsDirs));
 
   // Array of test directoris with schema in path, if it don't already exists
   const testsDirs = schemas.filter((v) => !fs.existsSync(`./test/${v}`)).map((v) => `./test/${v}`);
 
-  gulp.src([path.join(__dirname, "/templates/test/*.test.sql")]).pipe(multiDest(testsDirs));
+  gulp.src([path.join(__dirname, "../templates/test/*.test.sql")]).pipe(multiDest(testsDirs));
 
   let src = [];
   if (!fs.existsSync("./.gitignore")) {
-    src.push(path.join(__dirname, "/templates/.gitignore"));
+    src.push(path.join(__dirname, "../templates/.gitignore"));
   }
 
   if (src.length === 0) {
@@ -95,7 +95,7 @@ const createProjectFiles = () => {
   return gulp
     .src(src, {
       allowEmpty: true,
-      base: path.join(__dirname, "/templates/"),
+      base: path.join(__dirname, "../templates/"),
     })
     .pipe(gulp.dest("."))
     .on("end", () => console.log(`workspace structure initialized for user(s): ${schemas}`));
@@ -169,7 +169,7 @@ const initConfigFile = async ({}) => {
   console.log(`${config.getFileEnv()} updated.`);
 };
 
-export function initTask() {
+export async function initTask() {
   return gulp.series(
     createDbConfigFile,
     cleanProject,
@@ -177,5 +177,5 @@ export function initTask() {
     createSrcEmpty,
     initConfigFile,
     initGit
-  );
+  )();
 }

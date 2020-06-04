@@ -8,6 +8,7 @@
   },
   "eslint.autoFixOnSave": true,
   "tslint.autoFixOnSave": true,
+  "editor.codeActionsOnSave": {"source.fixAll": true},
   // "editor.formatOnSave": true,
   "editor.trimAutoWhitespace": true,
   "files.trimTrailingWhitespace": true,
@@ -15,5 +16,6 @@
   "typescript.tsc.autoDetect": "off",
   "git.confirmSync": true,
   "gitlens.views.repositories.location": "scm",
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

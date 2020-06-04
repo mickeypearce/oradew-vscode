@@ -24,11 +24,14 @@ let taskManager: GulpTaskManager;
 
 export function activate(context: vscode.ExtensionContext) {
   let settings = ConfigurationController.getInstance();
+  const { chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVariables } = settings;
 
-  // let watcher = vscode.workspace.createFileSystemWatcher(dbConfigPath);
-  // watcher.onDidCreate(() => {
-  //   activate(context);
-  // });
+  // Reload if dbconfig created...
+  let watcher = vscode.workspace.createFileSystemWatcher(databaseConfigFile);
+  watcher.onDidCreate(() => {
+    deactivate();
+    activate(context);
+  });
 
   // Set context inOradewProject
   setInitialized();
@@ -40,8 +43,6 @@ export function activate(context: vscode.ExtensionContext) {
     deactivate();
     activate(context);
   });
-
-  const { chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVariables } = settings;
 
   const workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
   const contextPath = context.extensionPath;

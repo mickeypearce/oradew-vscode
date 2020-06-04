@@ -27,23 +27,17 @@ export class ConfigurationController {
     const oradewConfiguration = workspace.getConfiguration("oradew");
     const workspacePath = workspace.workspaceFolders![0].uri.fsPath || "";
 
-    const configParamWsConfigPath: string = oradewConfiguration.get(
-      "workspaceConfigFile"
-    );
+    const configParamWsConfigPath: string = oradewConfiguration.get("workspaceConfigFile");
     this.workspaceConfigFile = resolve(
       configParamWsConfigPath.replace("${workspaceFolder}", workspacePath)
     );
 
-    const configParamDbConfigPath: string = oradewConfiguration.get(
-      "databaseConfigFile"
-    );
+    const configParamDbConfigPath: string = oradewConfiguration.get("databaseConfigFile");
     this.databaseConfigFile = resolve(
       configParamDbConfigPath.replace("${workspaceFolder}", workspacePath)
     );
 
-    const configParamGeneratorPath: string = oradewConfiguration.get(
-      "generatorConfigFile"
-    );
+    const configParamGeneratorPath: string = oradewConfiguration.get("generatorConfigFile");
     this.generatorConfigFile = resolve(
       configParamGeneratorPath.replace("${workspaceFolder}", workspacePath)
     );

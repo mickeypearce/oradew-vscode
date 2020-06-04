@@ -4,7 +4,7 @@ import { rootRemove, rootPrepend } from "./utility";
 import { parse, resolve, relative, dirname } from "path";
 import { invert } from "lodash/fp";
 import { fromGlobsToFilesArray } from "./globs";
-import { workspaceConfig as config} from "./config";
+import { workspaceConfig as config } from "./config";
 
 // const config = new WorkspaceConfig(
 //   __dirname + "/resources/oradewrc.default.json"
@@ -47,10 +47,7 @@ function isDeployPath(path) {
 
 // Match ./deploy/{schema-name}/Run.sql to actual files
 export function matchOutputFiles(outputFilePattern, options?) {
-  const globPattern = outputFilePattern.replace(
-    /{schema-name}|{object-name}/gi,
-    "*"
-  );
+  const globPattern = outputFilePattern.replace(/{schema-name}|{object-name}/gi, "*");
   const files = fromGlobsToFilesArray(globPattern, options);
   return files;
 }
@@ -91,7 +88,9 @@ const mapfromOraObjectType = invert(mapToOraObjectType);
  * @returns {ObjectDefinition} object
  */
 export function getObjectInfoFromPath(path) {
-  if (!path) { return { owner: undefined }; }
+  if (!path) {
+    return { owner: undefined };
+  }
 
   let schema, objectName, objectType;
 
@@ -117,9 +116,7 @@ export function getObjectInfoFromPath(path) {
 
     // Convert to regex so we can find and replace
     // p1 = ["/.\/src\//", "/\/PACKAGES\/\w+-spec.sql/"]
-    const schemaRegex = schemaSplit.map(
-      (v) => new RegExp(v.replace("{object-name}", "\\w+"))
-    );
+    const schemaRegex = schemaSplit.map((v) => new RegExp(v.replace("{object-name}", "\\w+")));
 
     // Remove both from path
     // ex: path: "./src/HR/PACKAGES/pck1-spec.sql"
@@ -129,13 +126,8 @@ export function getObjectInfoFromPath(path) {
 
     /** extact object-name*/
     const objectSplit = patternSrc.split("{object-name}");
-    const objectRegex = objectSplit.map(
-      (v) => new RegExp(v.replace("{schema-name}", "\\w+"))
-    );
-    objectName = objectRegex.reduce(
-      (acc, val) => acc.replace(val, ""),
-      pathPosix
-    );
+    const objectRegex = objectSplit.map((v) => new RegExp(v.replace("{schema-name}", "\\w+")));
+    objectName = objectRegex.reduce((acc, val) => acc.replace(val, ""), pathPosix);
 
     // Map to ora types
     const objectTypeOra = mapToOraObjectType[objectType] || objectType;
@@ -155,7 +147,7 @@ export function getObjectInfoFromPath(path) {
   const isDeploy = isDeployPath(pathPosix);
   if (isDeploy) {
     // pattern="./deploy/{schema-name}/Run.sql"
-    const patternPck = patternPckOutput;// patternDeployObject[objectType];
+    const patternPck = patternPckOutput; // patternDeployObject[objectType];
 
     /** extact schema*/
     // Get left and right of schema path
@@ -234,9 +226,7 @@ export function getPackageOutputPath({ owner }) {
  */
 
 export function getStructure() {
-  return Object.keys(patternSrcObject).map((el) =>
-    dirname(patternSrcObject[el])
-  );
+  return Object.keys(patternSrcObject).map((el) => dirname(patternSrcObject[el]));
 }
 
 export function getObjectTypes() {

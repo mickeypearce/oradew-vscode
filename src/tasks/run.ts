@@ -9,11 +9,7 @@ import { getLogFilename, printResults } from "../common/utility";
 import { workspaceConfig as config } from "../common/config";
 import { matchOutputFiles } from "../common/dbobject";
 
-export async function runTask({
-  file = argv.file,
-  env = argv.env || "DEV",
-  user = argv.user,
-}) {
+export async function runTask({ file = argv.file, env = argv.env || "DEV", user = argv.user }) {
   // Convert to array as parameters can be arrays (--file a --file b)
   let filesToRun = file && [].concat(file);
 
@@ -44,10 +40,7 @@ export async function runTask({
   const logPath = path.join(outputDirectory, getLogFilename(outputFileName));
 
   // Append 'env' to the log's filename to differentiate beetwen logs
-  const logPathEnv = path.join(
-    outputDirectory,
-    getLogFilename(`${outputFileName}-${env}`)
-  );
+  const logPathEnv = path.join(outputDirectory, getLogFilename(`${outputFileName}-${env}`));
 
   // Simple output err colorizer
   const sanitize = (text) =>
@@ -73,9 +66,7 @@ export async function runTask({
     printResults({ errors, obj, env, file: filePath });
 
     // Outputs stdout
-    console.log(
-      "=============================== STDOUT ==============================="
-    );
+    console.log("=============================== STDOUT ===============================");
     console.log(out);
 
     // Add env suffix to log file if it exists
@@ -86,4 +77,3 @@ export async function runTask({
     console.error(`${error.message}`);
   }
 }
-

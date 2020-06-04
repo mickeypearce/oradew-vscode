@@ -1,14 +1,11 @@
 import * as Datastore from "nedb";
 import { join } from "path";
 
-const filename = join(
-  process.env.ORADEW_STORAGE_DIR || __dirname,
-  "exported.db"
-);
+const filename = join(process.env.ORADEW_STORAGE_DIR || __dirname, "exported.db");
 
 const db = new Datastore({
   filename,
-  autoload: true
+  autoload: true,
 });
 
 const user = process.env.username;
@@ -24,7 +21,9 @@ const upsertDdlTime = ({ owner, objectName, objectType }, lastDdlTime, env) =>
       { upsert: true, returnUpdatedDocs: true },
       // Then
       (err, numReplaced, upsert) => {
-        if (err) { rej(err); }
+        if (err) {
+          rej(err);
+        }
         res(upsert);
       }
     );
@@ -33,7 +32,9 @@ const upsertDdlTime = ({ owner, objectName, objectType }, lastDdlTime, env) =>
 const getDdlTime = ({ owner, objectName, objectType }, env) =>
   new Promise((res, rej) => {
     db.find({ owner, objectName, objectType, env }, (err, findObj) => {
-      if (err) { rej(err); }
+      if (err) {
+        rej(err);
+      }
       res(findObj.length !== 0 ? findObj[0].lastDdlTime : null);
     });
   });

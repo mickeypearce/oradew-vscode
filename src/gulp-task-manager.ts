@@ -28,13 +28,10 @@ export class GulpTaskManager {
       isSilent,
       isColor,
       cliExecutable,
-      envVariables
+      envVariables,
     } = tmConfig;
 
-    this.gulpPathJs = path.resolve(
-      contextPath,
-      "node_modules/gulp/bin/gulp.js"
-    );
+    this.gulpPathJs = path.resolve(contextPath, "node_modules/gulp/bin/gulp.js");
     this.gulpFile = path.resolve(contextPath, "out/gulpfile.js");
 
     this.gulpParams = [
@@ -45,7 +42,7 @@ export class GulpTaskManager {
       `${this.gulpFile}`,
       // Set only when true, had some problems with false
       ...(isColor ? ["--color", "true"] : []),
-      ...(isSilent ? ["--silent", "true"] : [])
+      ...(isSilent ? ["--silent", "true"] : []),
     ];
 
     this.processEnv = {
@@ -55,14 +52,14 @@ export class GulpTaskManager {
         ORADEW_WS_CONFIG_PATH: wsConfigPath,
         ORADEW_CLI_EXECUTABLE: cliExecutable,
         ORADEW_SILENT: isSilent,
-        ...(envVariables || {})
+        ...(envVariables || {}),
       },
       // inherit stdio
-      stdio: "inherit"
+      stdio: "inherit",
     };
   }
 
-  executeOradewTask = argv => {
+  executeOradewTask = (argv) => {
     const params = [...this.gulpParams, ...argv.slice(2)];
     console.log("Executing oradew task: " + params.join(" "));
 
@@ -74,5 +71,5 @@ export class GulpTaskManager {
     // ls.on("error", (data) => {
     //   console.log(`error: ${data}`);
     // });
-  }
+  };
 }

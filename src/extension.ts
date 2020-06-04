@@ -15,7 +15,6 @@ import { GulpTaskManager } from "./gulp-task-manager";
 // import * as gulpfile from "./gulpfile.js"
 // gulpfile.initProjectTask()
 
-
 let oradewTaskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
 let userController: UserController;
@@ -24,7 +23,6 @@ let packageOutput: PackageOutput;
 let taskManager: GulpTaskManager;
 
 export function activate(context: vscode.ExtensionContext) {
-
   let settings = ConfigurationController.getInstance();
 
   // let watcher = vscode.workspace.createFileSystemWatcher(dbConfigPath);
@@ -45,8 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const { chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVariables } = settings;
 
-  const workspacePath =
-    vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
+  const workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
   const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
 
@@ -59,15 +56,17 @@ export function activate(context: vscode.ExtensionContext) {
     isSilent: !chatty,
     isColor: true,
     cliExecutable,
-    envVariables
+    envVariables,
   });
-
 
   generatorManager = new GeneratorManager();
   environmentController = new EnvironmentController(context);
   userController = new UserController(context, environmentController);
 
-  oradewTaskProvider = vscode.tasks.registerTaskProvider(OradewTaskProvider.OradewType, new OradewTaskProvider(taskManager));
+  oradewTaskProvider = vscode.tasks.registerTaskProvider(
+    OradewTaskProvider.OradewType,
+    new OradewTaskProvider(taskManager)
+  );
 
   packageOutput = new PackageOutput(workspacePath, environmentController);
 
@@ -99,20 +98,11 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   // Internal command: env paramater selection in commands
-  let cmdGetUser = vscode.commands.registerCommand(
-    "oradew.getUser",
-    userController.getUser
-  );
+  let cmdGetUser = vscode.commands.registerCommand("oradew.getUser", userController.getUser);
   // Internal command: used for deploy task command
-  let cmdPickUser = vscode.commands.registerCommand(
-    "oradew.pickUser",
-    userController.pickUser
-  );
+  let cmdPickUser = vscode.commands.registerCommand("oradew.pickUser", userController.pickUser);
 
-  let cmdSetDbUser = vscode.commands.registerCommand(
-    "oradew.setDbUser",
-    userController.setDbUser
-  );
+  let cmdSetDbUser = vscode.commands.registerCommand("oradew.setDbUser", userController.setDbUser);
 
   // Internal command: env paramater selection in commands
   let cmdGetPackageOutput = vscode.commands.registerCommand(
@@ -122,173 +112,83 @@ export function activate(context: vscode.ExtensionContext) {
 
   /************** */
 
-  let cmdTaskGenerate = vscode.commands.registerCommand(
-    "oradew.generateTask",
-    async () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: generator"
-      );
-      Telemetry.sendEvent("generateTask");
-    }
-  );
-  let cmdTaskInitProject = vscode.commands.registerCommand(
-    "oradew.initProjectTask",
-    async () => {
-      await vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: init"
-      );
-      setInitialized();
-      Telemetry.sendEvent("initProjectTask");
-    }
-  );
-  let cmdTaskCreateProject = vscode.commands.registerCommand(
-    "oradew.createProjectTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: create"
-      );
-      Telemetry.sendEvent("createProjectTask");
-    }
-  );
-  let cmdTaskCompile = vscode.commands.registerCommand(
-    "oradew.compileTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: compile--changed"
-      );
-      Telemetry.sendEvent("compileTask");
-    }
-  );
-  let cmdTaskCompileAll = vscode.commands.registerCommand(
-    "oradew.compileAllTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: compile"
-      );
-      Telemetry.sendEvent("compileAllTask");
-    }
-  );
-  let cmdTaskCompileFile = vscode.commands.registerCommand(
-    "oradew.compileFileTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: compile--file"
-      );
-      Telemetry.sendEvent("compileFileTask");
-    }
-  );
-  let cmdTaskCompileObject = vscode.commands.registerCommand(
-    "oradew.compileObjectTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: compile--object"
-      );
-      Telemetry.sendEvent("compileObjectTask");
-    }
-  );
-  let cmdTaskExport = vscode.commands.registerCommand(
-    "oradew.importTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: import"
-      );
-      Telemetry.sendEvent("importTask");
-    }
-  );
-  let cmdTaskExportFile = vscode.commands.registerCommand(
-    "oradew.importFileTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: import--file"
-      );
-      Telemetry.sendEvent("importFileTask");
-    }
-  );
-  let cmdTaskExportObject = vscode.commands.registerCommand(
-    "oradew.importObjectTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: import--object"
-      );
-      Telemetry.sendEvent("importObjectTask");
-    }
-  );
-  let cmdTaskPackage = vscode.commands.registerCommand(
-    "oradew.packageTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: package"
-      );
-      Telemetry.sendEvent("packageTask");
-    }
-  );
-  let cmdTaskPackageDelta = vscode.commands.registerCommand(
-    "oradew.packageDeltaTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: package--delta"
-      );
-      Telemetry.sendEvent("packageDeltaTask");
-    }
-  );
-  let cmdTaskDeploy = vscode.commands.registerCommand(
-    "oradew.deployTask",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: deploy"
-      );
-      Telemetry.sendEvent("deployTask");
-    }
-  );
-  let cmdTaskDeployFile = vscode.commands.registerCommand(
-    "oradew.deployTaskFile",
-    () => {
-      vscode.commands.executeCommand(
-        "workbench.action.tasks.runTask",
-        "oradew: deploy--file"
-      );
-      Telemetry.sendEvent("deployTaskFile");
-    }
-  );
+  let cmdTaskGenerate = vscode.commands.registerCommand("oradew.generateTask", async () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: generator");
+    Telemetry.sendEvent("generateTask");
+  });
+  let cmdTaskInitProject = vscode.commands.registerCommand("oradew.initProjectTask", async () => {
+    await vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: init");
+    setInitialized();
+    Telemetry.sendEvent("initProjectTask");
+  });
+  let cmdTaskCreateProject = vscode.commands.registerCommand("oradew.createProjectTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: create");
+    Telemetry.sendEvent("createProjectTask");
+  });
+  let cmdTaskCompile = vscode.commands.registerCommand("oradew.compileTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: compile--changed");
+    Telemetry.sendEvent("compileTask");
+  });
+  let cmdTaskCompileAll = vscode.commands.registerCommand("oradew.compileAllTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: compile");
+    Telemetry.sendEvent("compileAllTask");
+  });
+  let cmdTaskCompileFile = vscode.commands.registerCommand("oradew.compileFileTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: compile--file");
+    Telemetry.sendEvent("compileFileTask");
+  });
+  let cmdTaskCompileObject = vscode.commands.registerCommand("oradew.compileObjectTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: compile--object");
+    Telemetry.sendEvent("compileObjectTask");
+  });
+  let cmdTaskExport = vscode.commands.registerCommand("oradew.importTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: import");
+    Telemetry.sendEvent("importTask");
+  });
+  let cmdTaskExportFile = vscode.commands.registerCommand("oradew.importFileTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: import--file");
+    Telemetry.sendEvent("importFileTask");
+  });
+  let cmdTaskExportObject = vscode.commands.registerCommand("oradew.importObjectTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: import--object");
+    Telemetry.sendEvent("importObjectTask");
+  });
+  let cmdTaskPackage = vscode.commands.registerCommand("oradew.packageTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: package");
+    Telemetry.sendEvent("packageTask");
+  });
+  let cmdTaskPackageDelta = vscode.commands.registerCommand("oradew.packageDeltaTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: package--delta");
+    Telemetry.sendEvent("packageDeltaTask");
+  });
+  let cmdTaskDeploy = vscode.commands.registerCommand("oradew.deployTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: deploy");
+    Telemetry.sendEvent("deployTask");
+  });
+  let cmdTaskDeployFile = vscode.commands.registerCommand("oradew.deployTaskFile", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: deploy--file");
+    Telemetry.sendEvent("deployTaskFile");
+  });
   let cmdTaskTest = vscode.commands.registerCommand("oradew.testTask", () => {
-    vscode.commands.executeCommand(
-      "workbench.action.tasks.runTask",
-      "oradew: test"
-    );
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: test");
     Telemetry.sendEvent("testTask");
   });
   let taskExec: Thenable<vscode.TaskExecution>;
-  let cmdTaskCompileOnSave = vscode.commands.registerCommand(
-    "oradew.compileOnSaveTask",
-    () => {
-      // Get our task from active executions (terminate doesn't delete from taskexecution!)
-      // let taskExec = vscode.tasks.taskExecutions.filter(
-      //   t => t.task.name === "compileOnSave"
-      // )[0];
-      // If if doesn't exist - execute, otherwise terminate.
-      if (!taskExec) {
-        let _task = createCompileOnSaveTask();
-        taskExec = vscode.tasks.executeTask(_task);
-      } else {
-        taskExec.then(task => task.terminate());
-        taskExec = null;
-      }
-      Telemetry.sendEvent("compileOnSaveTask");
+  let cmdTaskCompileOnSave = vscode.commands.registerCommand("oradew.compileOnSaveTask", () => {
+    // Get our task from active executions (terminate doesn't delete from taskexecution!)
+    // let taskExec = vscode.tasks.taskExecutions.filter(
+    //   t => t.task.name === "compileOnSave"
+    // )[0];
+    // If if doesn't exist - execute, otherwise terminate.
+    if (!taskExec) {
+      let _task = createCompileOnSaveTask();
+      taskExec = vscode.tasks.executeTask(_task);
+    } else {
+      taskExec.then((task) => task.terminate());
+      taskExec = null;
     }
-  );
+    Telemetry.sendEvent("compileOnSaveTask");
+  });
 
   context.subscriptions.push(cmdTaskGenerate);
   context.subscriptions.push(cmdTaskInitProject);

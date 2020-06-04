@@ -4,7 +4,7 @@ import {
   StatusBarAlignment,
   StatusBarItem,
   QuickPickOptions,
-  ExtensionContext
+  ExtensionContext,
 } from "vscode";
 import { ConfigurationController } from "./configuration-controller";
 import { Telemetry } from "./telemetry";
@@ -16,11 +16,11 @@ import { readJson, existsSync } from "fs-extra";
 export class UserController {
   private static readonly NONE: QuickPickItem = {
     label: "<None>",
-    description: "Select user when executing command"
+    description: "Select user when executing command",
   };
   private static readonly AUTO: QuickPickItem = {
     label: "<Auto>",
-    description: "User will be extracted from file path"
+    description: "User will be extracted from file path",
   };
   private _context: ExtensionContext;
   private _dbConfigPath: string;
@@ -37,10 +37,7 @@ export class UserController {
     this._context = context;
     this._dbConfigPath = ConfigurationController.getInstance().databaseConfigFile;
     this._environmentController = environmentController;
-    UserController._statusBar = window.createStatusBarItem(
-      StatusBarAlignment.Left,
-      9
-    );
+    UserController._statusBar = window.createStatusBarItem(StatusBarAlignment.Left, 9);
     UserController._statusBar.tooltip = "Oradew: Set DB User";
     UserController._statusBar.command = `oradew.setDbUser`;
     this.updateStatusBar();
@@ -53,26 +50,23 @@ export class UserController {
     } else {
       UserController._statusBar.hide();
     }
-  }
+  };
 
   // Create user pick list from dbconfig file
   private createUserList = (env): QuickPickItem[] => {
-    return readJson(this._dbConfigPath).then(config => {
-      const users = config[env]?.users.filter(val => !val.disabled) || [];
-      return users.map(value => ({
+    return readJson(this._dbConfigPath).then((config) => {
+      const users = config[env]?.users.filter((val) => !val.disabled) || [];
+      return users.map((value) => ({
         label: value.user.toUpperCase(),
         description: `${value.user}@${config[env].connectString}`,
-        picked: this.currentUser === value.user
-      })
-      );
+        picked: this.currentUser === value.user,
+      }));
     });
-  }
+  };
 
   // User picker
   // addNoneOption = true is called from set command (status bar)
-  public pickUser = async (
-    addNoneOption?: boolean
-  ): Promise<string | null> => {
+  public pickUser = async (addNoneOption?: boolean): Promise<string | null> => {
     let currEnv;
     if (addNoneOption === true) {
       currEnv = this._environmentController.currentEnvironment;
@@ -83,26 +77,23 @@ export class UserController {
     const options: QuickPickOptions = {
       placeHolder: "Select DB user for executing command",
       matchOnDescription: true,
-      matchOnDetail: true
+      matchOnDetail: true,
     };
     envs.push(UserController.AUTO);
     if (addNoneOption === true) {
       envs.push(UserController.NONE);
     }
-    return window
-      .showQuickPick(envs, options)
-      .then(item => (item ? item.label : null));
-  }
+    return window.showQuickPick(envs, options).then((item) => (item ? item.label : null));
+  };
 
   // Returns "currentUser" if it is set, otherwise let's you pick from the list
   public getUser = async (): Promise<string | null> => {
     if (this.currentUser === UserController.NONE.label) {
       return this.pickUser(false);
-    }
-    else {
+    } else {
       return this.currentUser;
     }
-  }
+  };
 
   public setDbUser = async (): Promise<void> => {
     const pickedUser = await this.pickUser(true);
@@ -111,13 +102,13 @@ export class UserController {
       this.updateStatusBar();
     }
     Telemetry.sendEvent("setDbUser", { user: pickedUser });
-  }
+  };
 
   public clearDbUser = async (): Promise<void> => {
     this.currentUser = UserController.NONE.label;
     this.updateStatusBar();
     Telemetry.sendEvent("clearDbUser");
-  }
+  };
 
   public dispose() {
     UserController._statusBar.dispose();

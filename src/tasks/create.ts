@@ -1,5 +1,3 @@
-
-
 import { outputFileSync } from "fs-extra";
 // import * as gulp from "gulp";
 const gulp = require("gulp");
@@ -11,7 +9,6 @@ import { isGlobMatch } from "../common/globs";
 import { exportFilesFromDbAsync } from "./import";
 import { workspaceConfig as config } from "../common/config";
 import { dbConfig } from "../common/config";
-
 
 /*
  * Merge task (-t) from branch (-b) to current branch.
@@ -26,11 +23,7 @@ import { dbConfig } from "../common/config";
 //   console.log(`Files changed: ${stdout}`);
 // };
 
-
-const createSrcFromDbObjects = async ({
-  env = argv.env || "DEV",
-  file = argv.file
-}) => {
+const createSrcFromDbObjects = async ({ env = argv.env || "DEV", file = argv.file }) => {
   const source = file || config.get({ field: "source.input", env });
   const schemas = dbConfig.getSchemas();
   const objectTypes = getObjectTypes();
@@ -38,11 +31,7 @@ const createSrcFromDbObjects = async ({
     for (const owner of schemas) {
       const objs = await getObjectsInfoByType(env, owner, objectTypes);
       for (const obj of objs) {
-        const path = getPathFromObjectInfo(
-          owner,
-          obj.OBJECT_TYPE,
-          obj.OBJECT_NAME
-        );
+        const path = getPathFromObjectInfo(owner, obj.OBJECT_TYPE, obj.OBJECT_NAME);
         if (path !== "") {
           // is path inside "source" glob?
           if (isGlobMatch(source, [path])) {
@@ -57,10 +46,6 @@ const createSrcFromDbObjects = async ({
   }
 };
 
-
 export function createTask() {
   return gulp.series(createSrcFromDbObjects, exportFilesFromDbAsync);
 }
-
-
-

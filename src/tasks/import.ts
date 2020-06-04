@@ -9,7 +9,7 @@ import * as convertEncoding from "gulp-convert-encoding";
 
 import { workspaceConfig as config } from "../common/config";
 import { getOnlyChangedFiles } from "../common/globs";
-import { exportFile, resolveObjectInfo }  from "../common/base";
+import { exportFile, resolveObjectInfo } from "../common/base";
 import { getPathFromObjectInfo } from "../common/dbobject";
 
 export const exportFilesFromDbAsync = async ({
@@ -45,9 +45,7 @@ const exportFilesFromDb = async ({
     try {
       res = await exportFile(code, file, env, ease, getFunctionName, done);
       if (!quiet && res.exported) {
-        console.log(
-          `${chalk.green("Imported")} <= ${res.obj.owner}@${env} $${file}`
-        );
+        console.log(`${chalk.green("Imported")} <= ${res.obj.owner}@${env} $${file}`);
       }
     } catch (error) {
       console.error(error.message);
@@ -83,11 +81,7 @@ const exportObjectFromDb = async ({
 
     // Create array of abs file paths
     let files = objs.map((obj) => {
-      const relativePath = getPathFromObjectInfo(
-        obj.OWNER,
-        obj.OBJECT_TYPE,
-        obj.OBJECT_NAME
-      );
+      const relativePath = getPathFromObjectInfo(obj.OWNER, obj.OBJECT_TYPE, obj.OBJECT_NAME);
       return path.resolve(relativePath);
     });
 

@@ -15,26 +15,14 @@ export class Telemetry {
   public static reporter: TelemetryReporter;
 
   public static initialize() {
-    Telemetry.reporter = new TelemetryReporter(
-      extensionId,
-      extensionVersion,
-      key
-    );
+    Telemetry.reporter = new TelemetryReporter(extensionId, extensionVersion, key);
   }
 
-  public static sendEvent = (
-    eventName: string,
-    properties?: any,
-    measurements?: any
-  ) => {
+  public static sendEvent = (eventName: string, properties?: any, measurements?: any) => {
     try {
-      Telemetry.reporter.sendTelemetryEvent(
-        eventName,
-        properties,
-        measurements
-      );
+      Telemetry.reporter.sendTelemetryEvent(eventName, properties, measurements);
     } catch {}
-  }
+  };
 
   public static deactivate() {
     Telemetry.reporter.dispose();

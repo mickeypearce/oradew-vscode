@@ -1,4 +1,3 @@
-
 // Imports make type with errors for functions
 const gulp = require("gulp");
 
@@ -9,7 +8,6 @@ import { runTask } from "./tasks/run";
 import { compileTask, compileOnSaveTask, runTestTask } from "./tasks/compile";
 import { generateTask } from "./tasks/generate";
 import { createTask } from "./tasks/create";
-
 
 gulp.task("init", initTask);
 gulp.task("create", createTask);

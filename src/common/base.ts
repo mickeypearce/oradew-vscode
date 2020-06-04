@@ -23,7 +23,6 @@ function matchDbUser(file, env, user, changeOwner) {
   return { obj, connCfg };
 }
 
-
 // let obj = {};
 
 export const exportFile = async (code, file, env, ease, getFunctionName, done) => {
@@ -31,7 +30,7 @@ export const exportFile = async (code, file, env, ease, getFunctionName, done) =
   let conn;
   let obj, connCfg;
   try {
-    ({obj, connCfg} = matchDbUser(file, env, U_AUTO, false));
+    ({ obj, connCfg } = matchDbUser(file, env, U_AUTO, false));
 
     conn = await db.getConnection(connCfg);
     // try {
@@ -88,7 +87,7 @@ function getLineAndPosition(code, offset) {
 }
 
 export const compileFile = async (code, file, env, force, warnings, user = U_AUTO) => {
-  const {obj, connCfg} = matchDbUser(file, env, user, true);
+  const { obj, connCfg } = matchDbUser(file, env, user, true);
 
   code = simpleParse(code);
 
@@ -125,12 +124,12 @@ export const compileFile = async (code, file, env, force, warnings, user = U_AUT
     env,
     errors,
     result,
-    lines
+    lines,
   };
 };
 
 export const compileSelection = async (code, file, env, lineOffset, user = U_AUTO) => {
-  const {obj, connCfg} = matchDbUser(file, env, user, true);
+  const { obj, connCfg } = matchDbUser(file, env, user, true);
 
   code = simpleParse(code);
 
@@ -160,13 +159,12 @@ export const compileSelection = async (code, file, env, lineOffset, user = U_AUT
     env,
     errors,
     result,
-    lines
+    lines,
   };
 };
 
-
 export const runFileAsScript = async (file, env, user = U_AUTO) => {
-  const {obj, connCfg} = matchDbUser(file, env, user, true);
+  const { obj, connCfg } = matchDbUser(file, env, user, true);
 
   const connString = db.getConnectionString(connCfg);
 
@@ -208,7 +206,7 @@ export const getObjectsInfoByType = async (env, owner, objectTypes) => {
 };
 
 export const resolveObjectInfo = async (env, objName, user = U_AUTO, file) => {
-  let {connCfg} = matchDbUser(file, env, user, false);
+  let { connCfg } = matchDbUser(file, env, user, false);
 
   let conn;
   let result;
@@ -222,7 +220,7 @@ export const resolveObjectInfo = async (env, objName, user = U_AUTO, file) => {
       try {
         ({ schema, part1, part2 } = await db.getNameResolve(conn, {
           name: objName,
-          context
+          context,
         }));
       } catch (error) {
         // Triggers throw 06564 if not correct context (3)?
@@ -234,17 +232,21 @@ export const resolveObjectInfo = async (env, objName, user = U_AUTO, file) => {
       }
       // Break if we got objectName
       objectName = part1 || part2;
-      if (objectName) { break; }
+      if (objectName) {
+        break;
+      }
     }
 
-    if (!objectName) { throw Error(`object ${objName} does not exist for user ${user}.`); }
+    if (!objectName) {
+      throw Error(`object ${objName} does not exist for user ${user}.`);
+    }
 
     // Get connection to object actual schema
     connCfg = dbConfig.getConfiguration(env, schema);
     conn1 = await db.getConnection(connCfg);
     result = await db.getObjectsInfo(conn1, {
       owner: schema,
-      objectName
+      objectName,
     });
   } catch (error) {
     throw error;
@@ -255,8 +257,8 @@ export const resolveObjectInfo = async (env, objName, user = U_AUTO, file) => {
   return result;
 };
 
-export const getGenerator = async ({ func, file, env, object, user = U_AUTO}) => {
-  const {obj, connCfg} = matchDbUser(file, env, user, true);
+export const getGenerator = async ({ func, file, env, object, user = U_AUTO }) => {
+  const { obj, connCfg } = matchDbUser(file, env, user, true);
 
   let result = {};
   let conn;
@@ -272,7 +274,6 @@ export const getGenerator = async ({ func, file, env, object, user = U_AUTO}) =>
     obj,
     file,
     env,
-    result
+    result,
   };
 };
-

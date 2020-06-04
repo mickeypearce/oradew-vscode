@@ -10,13 +10,12 @@ import { workspaceConfig as config } from "../common/config";
 import { getStructure, replaceVarsInPattern } from "../common/dbobject";
 import { dbConfig } from "../common/config";
 
-
-const createSrcEmpty = done => {
+const createSrcEmpty = (done) => {
   try {
     const schemas = dbConfig.getSchemas();
     const dirs = getStructure();
     for (const owner of schemas) {
-      dirs.forEach(pattern => {
+      dirs.forEach((pattern) => {
         const dirPath = replaceVarsInPattern(pattern, owner);
         return fs.ensureDirSync(dirPath);
       });
@@ -29,7 +28,7 @@ const createSrcEmpty = done => {
   }
 };
 
-const createDbConfigFile = async ({ }) => {
+const createDbConfigFile = async ({}) => {
   // Create db config file if it doesn't exists already...
   if (!fs.existsSync(dbConfig.fileBase)) {
     dbConfig.createFile();
@@ -46,32 +45,23 @@ const createDbConfigFile = async ({ }) => {
       {
         type: "input",
         name: "connectString",
-        message: "Connection string?"
+        message: "Connection string?",
       },
       {
         type: "input",
         name: "user",
-        message: "Username?"
+        message: "Username?",
       },
       {
         type: "input",
         name: "password",
-        message: "Password?"
-      }
+        message: "Password?",
+      },
     ]);
     // Save prompts to config file, leave defaults if empty
-    dbConfig.set(
-      "DEV.connectString",
-      res.connectString || dbConfig.get("DEV.connectString")
-    );
-    dbConfig.set(
-      "DEV.users[0].user",
-      res.user || dbConfig.get("DEV.users[0].user")
-    );
-    dbConfig.set(
-      "DEV.users[0].password",
-      res.password || dbConfig.get("DEV.users[0].password")
-    );
+    dbConfig.set("DEV.connectString", res.connectString || dbConfig.get("DEV.connectString"));
+    dbConfig.set("DEV.users[0].user", res.user || dbConfig.get("DEV.users[0].user"));
+    dbConfig.set("DEV.users[0].password", res.password || dbConfig.get("DEV.users[0].password"));
     console.log(`${dbConfig.fileBase} updated.`);
   }
 };
@@ -81,52 +71,50 @@ const createProjectFiles = () => {
   // and copy scripts templates
   dbConfig.load();
   const schemas = dbConfig.getSchemas();
-  const scriptsDirs = schemas.map(v => `./scripts/${v}`);
+  const scriptsDirs = schemas.map((v) => `./scripts/${v}`);
   gulp
     .src([
       path.join(__dirname, "/templates/scripts/initial*.sql"),
-      path.join(__dirname, "/templates/scripts/final*.sql")
+      path.join(__dirname, "/templates/scripts/final*.sql"),
     ])
     .pipe(multiDest(scriptsDirs));
 
   // Array of test directoris with schema in path, if it don't already exists
-  const testsDirs = schemas
-    .filter(v => !fs.existsSync(`./test/${v}`))
-    .map(v => `./test/${v}`);
+  const testsDirs = schemas.filter((v) => !fs.existsSync(`./test/${v}`)).map((v) => `./test/${v}`);
 
-  gulp
-    .src([path.join(__dirname, "/templates/test/*.test.sql")])
-    .pipe(multiDest(testsDirs));
+  gulp.src([path.join(__dirname, "/templates/test/*.test.sql")]).pipe(multiDest(testsDirs));
 
   let src = [];
   if (!fs.existsSync("./.gitignore")) {
     src.push(path.join(__dirname, "/templates/.gitignore"));
   }
 
-  if (src.length === 0) { src.push("nonvalidfile"); }
+  if (src.length === 0) {
+    src.push("nonvalidfile");
+  }
   return gulp
     .src(src, {
       allowEmpty: true,
-      base: path.join(__dirname, "/templates/")
+      base: path.join(__dirname, "/templates/"),
     })
     .pipe(gulp.dest("."))
-    .on("end", () =>
-      console.log(`workspace structure initialized for user(s): ${schemas}`)
-    );
+    .on("end", () => console.log(`workspace structure initialized for user(s): ${schemas}`));
 };
 
 const cleanProject = () => {
   // Delete temp directories
-  return del(["./scripts/*", "./deploy/*", "./**/*.log"]).then(rDel => {
-    if (rDel.length !== 0) { console.log("workspace cleaned."); }
+  return del(["./scripts/*", "./deploy/*", "./**/*.log"]).then((rDel) => {
+    if (rDel.length !== 0) {
+      console.log("workspace cleaned.");
+    }
   });
 };
 
-const initGit = async ({ }) => {
+const initGit = async ({}) => {
   let isInitialized;
   try {
     isInitialized = await git.exec({
-      args: "rev-parse --is-inside-work-tree"
+      args: "rev-parse --is-inside-work-tree",
     });
   } catch (error) {
     isInitialized = false;
@@ -137,7 +125,7 @@ const initGit = async ({ }) => {
       type: "confirm",
       name: "repo",
       message: `Initialize git repository?`,
-      default: true
+      default: true,
     });
 
     if (answer.repo) {
@@ -147,44 +135,39 @@ const initGit = async ({ }) => {
   }
 };
 
-const initConfigFile = async ({ }) => {
+const initConfigFile = async ({}) => {
   let answer = await inquirer.prompt({
     type: "confirm",
     name: "ws",
     message: `Do you want to edit oradewrc.json file?`,
-    default: false
+    default: false,
   });
-  if (!answer.ws) { return; }
+  if (!answer.ws) {
+    return;
+  }
   let res = await inquirer.prompt([
     {
       type: "input",
       name: "number",
-      message: "Version number [major.minor.patch]?"
+      message: "Version number [major.minor.patch]?",
     },
     {
       type: "input",
       name: "description",
-      message: "Version description?"
+      message: "Version description?",
     },
     {
       type: "input",
       name: "releaseDate",
-      message: "Version release date [YYYY-MM-DD]?"
-    }
+      message: "Version release date [YYYY-MM-DD]?",
+    },
   ]);
   // Save prompts to config file, leave defaults if empty
   config.set("version.number", res.number || config.get("version.number"));
-  config.set(
-    "version.description",
-    res.description || config.get("version.description")
-  );
-  config.set(
-    "version.releaseDate",
-    res.releaseDate || config.get("version.releaseDate")
-  );
+  config.set("version.description", res.description || config.get("version.description"));
+  config.set("version.releaseDate", res.releaseDate || config.get("version.releaseDate"));
   console.log(`${config.getFileEnv()} updated.`);
 };
-
 
 export function initTask() {
   return gulp.series(

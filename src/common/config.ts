@@ -12,8 +12,6 @@ export function getDefaultsFromSchema(schema) {
   }, {});
 }
 
-
-
 interface IUser {
   user: string;
   password: string;
@@ -33,9 +31,7 @@ export class DBConfig {
   object: Object;
   constructor(fileBase) {
     // Defaults DB configuration object
-    this.defaults = getDefaultsFromSchema(
-      "../../resources/dbconfig-schema.json"
-    );
+    this.defaults = getDefaultsFromSchema("../../resources/dbconfig-schema.json");
     this.fileBase = fileBase || "./dbconfig.json";
     // DB config JSON Object
     this.object = null;
@@ -70,13 +66,13 @@ export class DBConfig {
 
   // Get "users" object array from json
   // filter out disabled
-  _getAllUsersByEnv = env => (data): IUser[] => {
+  _getAllUsersByEnv = (env) => (data): IUser[] => {
     return pipe(
       get(env),
       get("users"),
       filter((v: IUser) => !v.disabled)
     )(data);
-  }
+  };
 
   /**
    * Get all schemas for environment.
@@ -88,12 +84,11 @@ export class DBConfig {
   getSchemas = (env = "DEV") => {
     return pipe(
       this._getAllUsersByEnv(env),
-      flatMap(v => (v.schemas ? v.schemas : [v.user])),
+      flatMap((v) => (v.schemas ? v.schemas : [v.user])),
       map(toUpper),
       uniq
     )(this.object);
-  }
-
+  };
 
   /**
    ** Get connection configuration. Extracted from DB config file.
@@ -104,7 +99,9 @@ export class DBConfig {
    * @returns {IConnectionConfig} Connection config
    */
   getConfiguration = (env, user?): IConnectionConfig => {
-    if (!env) { throw Error(`No env parameter.`); }
+    if (!env) {
+      throw Error(`No env parameter.`);
+    }
     if (!this.object[env]) {
       throw Error(`Cannot find ${env} environment in dbconfig.json.`);
     }
@@ -116,9 +113,7 @@ export class DBConfig {
     let byEnv = this._getAllUsersByEnv(env)(this.object);
 
     if (!byEnv) {
-      throw Error(
-        `dbconfig.json: Invalid structure. Cannot find "${env}" env.`
-      );
+      throw Error(`dbconfig.json: Invalid structure. Cannot find "${env}" env.`);
     }
 
     if (byEnv.length === 0) {
@@ -131,11 +126,11 @@ export class DBConfig {
     // If user param exists, filter by v.user or v.schema
     let byUser = user
       ? filter(
-        (v: IUser) =>
-          v.user.toUpperCase() === user.toUpperCase() ||
-          // includesCaseInsensitive([v.user], user) ||
-          (v.schemas && includesCaseInsensitive(v.schemas, user))
-      )(byEnv)
+          (v: IUser) =>
+            v.user.toUpperCase() === user.toUpperCase() ||
+            // includesCaseInsensitive([v.user], user) ||
+            (v.schemas && includesCaseInsensitive(v.schemas, user))
+        )(byEnv)
       : byEnv;
 
     if (byUser.length === 1) {
@@ -156,10 +151,9 @@ export class DBConfig {
         `dbconfig.json: No match for user "${user}" in "${env}". Add/Enable missing user or set default user for env ("default": true).`
       );
     }
-  }
+  };
 }
 export const dbConfig = new DBConfig(process.env.ORADEW_DB_CONFIG_PATH);
-
 
 /**
  * Workspace configuration
@@ -184,9 +178,7 @@ export class WorkspaceConfig {
   object: Object;
   constructor(fileBase?: string) {
     // Defaults configuration object
-    this.defaults = getDefaultsFromSchema(
-      "../../resources/oradewrc-schema.json"
-    );
+    this.defaults = getDefaultsFromSchema("../../resources/oradewrc-schema.json");
     this.filePathBase = fileBase || "./oradewrc.json";
 
     this.object = {};
@@ -199,7 +191,9 @@ export class WorkspaceConfig {
   }
 
   getFileEnv(env = "BASE") {
-    if (env === "BASE") { return this.filePathBase; }
+    if (env === "BASE") {
+      return this.filePathBase;
+    }
     let parsed = parse(this.filePathBase);
     return resolve(parsed.dir, `${parsed.name}.${env}${parsed.ext}`);
   }
@@ -242,7 +236,9 @@ export class WorkspaceConfig {
 
   set(field, value, env = "BASE") {
     // Update local object
-    if (this.object[env]) { this.object[env][field] = value; }
+    if (this.object[env]) {
+      this.object[env][field] = value;
+    }
 
     // If BASE changes discard all other env because are inherited
     if (env === "BASE") {
@@ -256,11 +252,9 @@ export class WorkspaceConfig {
     const object = this.readFile(env);
     return outputJsonSync(filename, {
       ...object,
-      ...{ [field]: value }
+      ...{ [field]: value },
     });
   }
 }
-export const workspaceConfig = new WorkspaceConfig(
-  process.env.ORADEW_WS_CONFIG_PATH
-);
+export const workspaceConfig = new WorkspaceConfig(process.env.ORADEW_WS_CONFIG_PATH);
 // export const createConfig = file => new Config(file);

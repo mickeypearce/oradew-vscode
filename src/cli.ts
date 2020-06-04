@@ -30,10 +30,8 @@ const contextPath = resolve(__dirname, "..");
 const storagePath = process.env.ORADEW_STORAGE_DIR || homedir();
 
 // Configs are in WS dir by default
-const dbConfigPath =
-  process.env.ORADEW_DB_CONFIG_PATH || resolve(workspacePath, "dbconfig.json");
-const wsConfigPath =
-  process.env.ORADEW_WS_CONFIG_PATH || resolve(workspacePath, "oradewrc.json");
+const dbConfigPath = process.env.ORADEW_DB_CONFIG_PATH || resolve(workspacePath, "dbconfig.json");
+const wsConfigPath = process.env.ORADEW_WS_CONFIG_PATH || resolve(workspacePath, "oradewrc.json");
 
 const isColor = (process.env.ORADEW_COLOR || "true") === "true";
 const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
@@ -48,41 +46,26 @@ const taskManager = new GulpTaskManager({
   wsConfigPath,
   isSilent,
   isColor,
-  cliExecutable
+  cliExecutable,
 });
 const execute = () => taskManager.executeOradewTask(process.argv);
 
-program
-  .name("oradew")
-  .version("0.1.0")
-  .usage("<command> [options]");
+program.name("oradew").version("0.1.0").usage("<command> [options]");
 
-program.on("--help", function() {
+program.on("--help", function () {
   console.log("");
   console.log("(Use `oradew <command> --help` for command options.)");
   console.log("");
   console.log("Environment variables:");
-  console.log(
-    "ORADEW_CWD             Workspace directory (current working dir by default)"
-  );
-  console.log(
-    "ORADEW_DB_CONFIG_PATH  DB config file path (./dbconfig.json by default)"
-  );
-  console.log(
-    "ORADEW_WS_CONFIG_PATH  Workspace config file path (./oradewrc.json by default)"
-  );
+  console.log("ORADEW_CWD             Workspace directory (current working dir by default)");
+  console.log("ORADEW_DB_CONFIG_PATH  DB config file path (./dbconfig.json by default)");
+  console.log("ORADEW_WS_CONFIG_PATH  Workspace config file path (./oradewrc.json by default)");
   console.log(
     "ORADEW_STORAGE_DIR     Storage directory (current user's home directory by default)"
   );
-  console.log(
-    "ORADEW_CLI_EXECUTABLE  OracleDB executable CLI (sql or sqlplus, 'sql' by default)"
-  );
-  console.log(
-    "ORADEW_COLOR           Debug: Gulp outputs in colors (true by default)"
-  );
-  console.log(
-    "ORADEW_SILENT          Debug: Gulp outputs silent (true by default)"
-  );
+  console.log("ORADEW_CLI_EXECUTABLE  OracleDB executable CLI (sql or sqlplus, 'sql' by default)");
+  console.log("ORADEW_COLOR           Debug: Gulp outputs in colors (true by default)");
+  console.log("ORADEW_SILENT          Debug: Gulp outputs silent (true by default)");
 });
 
 program
@@ -153,14 +136,8 @@ program
     "--file <file>",
     "File path. (func. param mapping: ./src/${schema}/${object_type}/${name}.sql)"
   )
-  .option(
-    "--object <object>",
-    "Object name. (func. param mapping: selected_object)"
-  )
-  .option(
-    "--output <output>",
-    "Output file path. Generated file name if not specified."
-  )
+  .option("--object <object>", "Object name. (func. param mapping: selected_object)")
+  .option("--output <output>", "Output file path. Generated file name if not specified.")
   .option("--user <user>", "DB User. <Auto> (extracted from file path) if not specified.")
   .action(() => execute());
 

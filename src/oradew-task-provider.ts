@@ -1,7 +1,5 @@
-
 import * as vscode from "vscode";
 import { GulpTaskManager } from "./gulp-task-manager";
-
 
 let taskManager: GulpTaskManager;
 
@@ -41,13 +39,13 @@ export function createCompileOnSaveTask(): vscode.Task {
       "--env",
       "${command:oradew.getEnvironment}",
       "--user",
-      "${command:oradew.getUser}"
-    ]
+      "${command:oradew.getUser}",
+    ],
   });
   let _task = createOradewTask(_def);
   _task.isBackground = true;
   _task.presentationOptions = {
-    reveal: vscode.TaskRevealKind.Silent
+    reveal: vscode.TaskRevealKind.Silent,
   };
   return _task;
 }
@@ -69,7 +67,7 @@ function createOradewTaskDefinition({ name, params }): OradewTaskDefinition {
   return {
     type: OradewTaskProvider.OradewType,
     name,
-    params
+    params,
   };
 }
 
@@ -94,211 +92,228 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
   let emptyTasks: vscode.Task[] = [];
 
   try {
-
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "generator",
-        params: [
-          "generate",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--func",
-          "${command:oradew.getGeneratorFunction}",
-          "--file",
-          "${file}",
-          "--object",
-          "${selectedText}",
-          // ...(generator.output ? ["--output", generator.output] : [])
-          "--user",
-          "${command:oradew.getUser}"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "generator",
+          params: [
+            "generate",
+            "--env",
+            "${command:oradew.getEnvironment}",
+            "--func",
+            "${command:oradew.getGeneratorFunction}",
+            "--file",
+            "${file}",
+            "--object",
+            "${selectedText}",
+            // ...(generator.output ? ["--output", generator.output] : [])
+            "--user",
+            "${command:oradew.getUser}",
+          ],
+        })
+      )
     );
 
     result.push(
       createOradewTask({
         type: OradewTaskProvider.OradewType,
         name: "init",
-        params: ["init"]
+        params: ["init"],
       })
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "create",
-        params: ["create", "--env", "${command:oradew.getEnvironment}"]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "create",
+          params: ["create", "--env", "${command:oradew.getEnvironment}"],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "compile--changed",
-        params: [
-          "compile",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--changed",
-          "true",
-          "--user",
-          "${command:oradew.getUser}"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "compile--changed",
+          params: [
+            "compile",
+            "--env",
+            "${command:oradew.getEnvironment}",
+            "--changed",
+            "true",
+            "--user",
+            "${command:oradew.getUser}",
+          ],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "compile--file",
-        params: [
-          "compile",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--file",
-          "${file}",
-          "--user",
-          "${command:oradew.getUser}"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "compile--file",
+          params: [
+            "compile",
+            "--env",
+            "${command:oradew.getEnvironment}",
+            "--file",
+            "${file}",
+            "--user",
+            "${command:oradew.getUser}",
+          ],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "compile",
-        params: [
-          "compile",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--user",
-          "${command:oradew.getUser}"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "compile",
+          params: [
+            "compile",
+            "--env",
+            "${command:oradew.getEnvironment}",
+            "--user",
+            "${command:oradew.getUser}",
+          ],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "compile--object",
-        params: [
-          "compile",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--file",
-          "${file}",
-          "--object",
-          "${selectedText}",
-          "--line",
-          "${lineNumber}",
-          "--user",
-          "${command:oradew.getUser}"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "compile--object",
+          params: [
+            "compile",
+            "--env",
+            "${command:oradew.getEnvironment}",
+            "--file",
+            "${file}",
+            "--object",
+            "${selectedText}",
+            "--line",
+            "${lineNumber}",
+            "--user",
+            "${command:oradew.getUser}",
+          ],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "import",
-        params: [
-          "import",
-          "--env",
-          "${command:oradew.getEnvironment}"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "import",
+          params: ["import", "--env", "${command:oradew.getEnvironment}"],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "import--file",
-        params: [
-          "import",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--file",
-          "${file}",
-          "--ease",
-          "false"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "import--file",
+          params: [
+            "import",
+            "--env",
+            "${command:oradew.getEnvironment}",
+            "--file",
+            "${file}",
+            "--ease",
+            "false",
+          ],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "import--object",
-        params: [
-          "import",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--object",
-          "${selectedText}",
-          "--user",
-          "${command:oradew.getUser}",
-          "--file",
-          "${file}"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "import--object",
+          params: [
+            "import",
+            "--env",
+            "${command:oradew.getEnvironment}",
+            "--object",
+            "${selectedText}",
+            "--user",
+            "${command:oradew.getUser}",
+            "--file",
+            "${file}",
+          ],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "package",
-        params: ["package", "--env", "${command:oradew.getEnvironment}"]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "package",
+          params: ["package", "--env", "${command:oradew.getEnvironment}"],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "package--delta",
-        params: [
-          "package",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--delta"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "package--delta",
+          params: ["package", "--env", "${command:oradew.getEnvironment}", "--delta"],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "deploy",
-        params: [
-          "run",
-          "--env",
-          "${command:oradew.pickEnvironment}",
-          "--user",
-          "${command:oradew.getUser}",
-          "--file",
-          "${command:oradew.getPackageOutput}",
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "deploy",
+          params: [
+            "run",
+            "--env",
+            "${command:oradew.pickEnvironment}",
+            "--user",
+            "${command:oradew.getUser}",
+            "--file",
+            "${command:oradew.getPackageOutput}",
+          ],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "deploy--file",
-        params: [
-          "run",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--file",
-          "${file}",
-          "--user",
-          "${command:oradew.getUser}"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "deploy--file",
+          params: [
+            "run",
+            "--env",
+            "${command:oradew.getEnvironment}",
+            "--file",
+            "${file}",
+            "--user",
+            "${command:oradew.getUser}",
+          ],
+        })
+      )
     );
 
     result.push(
-      createOradewTask(createOradewTaskDefinition({
-        name: "test",
-        params: [
-          "test",
-          "--env",
-          "${command:oradew.getEnvironment}",
-          "--user",
-          "${command:oradew.getUser}"
-        ]
-      }))
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "test",
+          params: [
+            "test",
+            "--env",
+            "${command:oradew.getEnvironment}",
+            "--user",
+            "${command:oradew.getUser}",
+          ],
+        })
+      )
     );
 
     return result;
-
   } catch (err) {
     let channel = getOutputChannel();
     if (err.stderr) {

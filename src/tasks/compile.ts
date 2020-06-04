@@ -30,14 +30,7 @@ const compileFilesToDb = async ({
     let resp;
     try {
       // Compile file and get errors
-      resp = await compileFile(
-        file.contents,
-        file.path,
-        env,
-        force,
-        warnings,
-        user
-      );
+      resp = await compileFile(file.contents, file.path, env, force, warnings, user);
       printResults(resp);
       // Stage file if no errors
       if (stageFile && !resp.errors.hasErrors()) {
@@ -52,7 +45,9 @@ const compileFilesToDb = async ({
   };
 
   // gulp4 rejects empty src
-  if (src.length === 0) { src.push("nonvalidfile"); }
+  if (src.length === 0) {
+    src.push("nonvalidfile");
+  }
   return (
     gulp
       .src(src, { allowEmpty: true })
@@ -84,7 +79,7 @@ export const compileOnSaveTask = ({ env = argv.env || "DEV" }) => {
   const source = config.get("source.input");
   const watcher = gulp.watch(source, { awaitWriteFinish: true });
   console.log(chalk.magenta(`Watching for file changes in ${source} ...`));
-  watcher.on("change", async file => {
+  watcher.on("change", async (file) => {
     // Print pattern for start problem matching
     console.log(`\nStarting compilation...`);
     // Compile changes in working tree
@@ -99,13 +94,12 @@ export const compileOnSaveTask = ({ env = argv.env || "DEV" }) => {
   });
 };
 
-
 const compileFilesToDbAsync = async ({ file, env, changed = false }) => {
   let results = [];
   return new Promise(async (res, rej) => {
     const p = await compileFilesToDb({ file, env, changed });
     // Collect results
-    p.on("data", resp => results.push(resp.data));
+    p.on("data", (resp) => results.push(resp.data));
     // Return results
     p.on("end", () => res(results));
     p.on("error", rej);
@@ -115,7 +109,7 @@ const compileFilesToDbAsync = async ({ file, env, changed = false }) => {
 const mergeLocalAndDbChanges = async ({
   file = argv.file,
   env = argv.env,
-  changed = argv.changed
+  changed = argv.changed,
 }) => {
   const source = config.get({ field: "source.input", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
@@ -135,13 +129,13 @@ const mergeLocalAndDbChanges = async ({
 const compileAndMergeFilesToDb = async ({
   file = argv.file,
   env = argv.env || "DEV",
-  changed = argv.changed || false
+  changed = argv.changed || false,
 }) => {
   try {
     // Compile and get error results
     const results: any = await compileFilesToDbAsync({ file, env, changed });
     // Merge unstaged (if any dirty file)
-    if (results.some(file => file.errors && file.errors.hasDirt())) {
+    if (results.some((file) => file.errors && file.errors.hasDirt())) {
       mergeLocalAndDbChanges({ file, env, changed });
     }
 
@@ -163,10 +157,12 @@ const compileObjectToDb = async ({
   env = argv.env || "DEV",
   object = argv.object,
   line = argv.line,
-  user = argv.user
+  user = argv.user,
 }) => {
   try {
-    if (!object) { throw Error("Object cannot be empty."); }
+    if (!object) {
+      throw Error("Object cannot be empty.");
+    }
     let resp = await compileSelection(object, file, env, line, user);
     printResults(resp);
   } catch (err) {
@@ -179,8 +175,11 @@ export function compileTask({
   file = argv.file,
   changed = argv.changed || false,
   object = argv.object,
-  line = argv.line
+  line = argv.line,
 }) {
-  if (object) { return compileObjectToDb({ file, env, object, line }); }
-  else { return compileAndMergeFilesToDb({ file, env, changed }); }
+  if (object) {
+    return compileObjectToDb({ file, env, object, line });
+  } else {
+    return compileAndMergeFilesToDb({ file, env, changed });
+  }
 }

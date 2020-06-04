@@ -12,7 +12,6 @@ interface IObjectParameter {
   objectName?: string;
 }
 
-
 // Each env has its own pool with users
 let _pool = {};
 
@@ -32,15 +31,15 @@ const getConnection = (connCfg: IConnectionConfig) => {
     .createPool({
       user,
       password,
-      connectString
+      connectString,
     })
-    .then(newPool => {
+    .then((newPool) => {
       _pool[env][user] = newPool;
       return _pool[env][user].getConnection();
     });
 };
 
-const closeConnection = async conn => {
+const closeConnection = async (conn) => {
   if (conn) {
     try {
       await conn.close();
@@ -70,11 +69,7 @@ const compile = async (connection, code, warningScope = "NONE") => {
   return connection.execute(code);
 };
 
-const getObjectDdl = (
-  connection,
-  getFunctionName,
-  { owner, objectName, objectType1 }
-) => {
+const getObjectDdl = (connection, getFunctionName, { owner, objectName, objectType1 }) => {
   oracledb.outFormat = oracledb.OUT_FORMAT_ARRAY;
   return connection
     .execute(
@@ -82,10 +77,10 @@ const getObjectDdl = (
       {
         owner,
         objectName,
-        objectType1
+        objectType1,
       }
     )
-    .then(result => result.rows[0][0]);
+    .then((result) => result.rows[0][0]);
 };
 
 const getErrorsInfo = (connection, { owner, objectName, objectType }) => {
@@ -104,10 +99,10 @@ const getErrorsInfo = (connection, { owner, objectName, objectType }) => {
       {
         owner,
         objectName,
-        objectType
+        objectType,
       }
     )
-    .then(result => result.rows);
+    .then((result) => result.rows);
 };
 
 const getObjectsInfo = (connection, { owner, objectType, objectName }: IObjectParameter) => {
@@ -125,10 +120,10 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }: IObjectPa
       {
         owner,
         objectName,
-        objectType
+        objectType,
       }
     )
-    .then(result => result.rows);
+    .then((result) => result.rows);
 };
 
 const getGeneratorFunction = (
@@ -145,10 +140,10 @@ const getGeneratorFunction = (
         owner,
         objectName,
         objectType1,
-        selectedObject
+        selectedObject,
       }
     )
-    .then(result => result.rows[0][0]);
+    .then((result) => result.rows[0][0]);
 };
 
 const getLastDdlTime = async (conn, obj) => {
@@ -159,11 +154,7 @@ const getLastDdlTime = async (conn, obj) => {
 const isDifferentDdlTime = async (conn, obj, env) => {
   let timeOracle = await getLastDdlTime(conn, obj);
   let timeLocal = await getDdlTime(obj, env);
-  return (
-    timeOracle &&
-    timeLocal &&
-    timeLocal.toLocaleString() !== timeOracle.toLocaleString()
-  );
+  return timeOracle && timeLocal && timeLocal.toLocaleString() !== timeOracle.toLocaleString();
 };
 
 const syncDdlTime = async (conn, obj, env) => {
@@ -176,29 +167,29 @@ const createError = ({ LINE, POSITION, ATTRIBUTE, TEXT, _ID }) => ({
   isWarning: () => ATTRIBUTE === "WARNING",
   isInfo: () => ATTRIBUTE === "INFO",
   isDirty: () => _ID === "0001",
-  toString: () => `${LINE}/${POSITION} ${ATTRIBUTE} ${TEXT}`
+  toString: () => `${LINE}/${POSITION} ${ATTRIBUTE} ${TEXT}`,
 });
 
 const createErrorList = (arr = []) => {
   let _arr = [];
   // Construct errors from input array
-  arr.forEach(err => _arr.push(createError(err)));
+  arr.forEach((err) => _arr.push(createError(err)));
   let obj = {
-    add: err => {
+    add: (err) => {
       _arr.push(err);
       return obj;
     },
     get: () => _arr,
-    hasErrors: () => _arr.some(err => err.isError()),
-    hasWarnings: () => _arr.some(err => err.isWarning()),
-    hasInfos: () => _arr.some(err => err.isInfo()),
-    hasDirt: () => _arr.some(err => err.isDirty()),
-    toString: () => _arr.map(err => err.toString()).join("\n")
+    hasErrors: () => _arr.some((err) => err.isError()),
+    hasWarnings: () => _arr.some((err) => err.isWarning()),
+    hasInfos: () => _arr.some((err) => err.isInfo()),
+    hasDirt: () => _arr.some((err) => err.isDirty()),
+    toString: () => _arr.map((err) => err.toString()).join("\n"),
   };
   return obj;
 };
 
-const parseForErrors = msg => {
+const parseForErrors = (msg) => {
   // Matches only one line of error msg
   const regCommon = /.*Error starting at line : (\d+)[\s\S]*?Error report -\n(.*line (\d+), column (\d+):\n(.*)|[\s\S]*?at line (\d+)|.*)/g;
   const regCommands = /.*Error starting at line : (\d+)[\s\S]*?Line : (\d+) Column : (\d+)[\s\S]*?Error report -\n(.*)/g;
@@ -221,7 +212,7 @@ const parseForErrors = msg => {
           POSITION: s[4],
           TEXT: s[5],
           ATTRIBUTE: "ERROR",
-          _ID: "0003"
+          _ID: "0003",
         })
       );
     } else if (s[1] && s[2] && s[6]) {
@@ -235,7 +226,7 @@ const parseForErrors = msg => {
           POSITION: 1,
           TEXT: s[2],
           ATTRIBUTE: "ERROR",
-          _ID: "0003"
+          _ID: "0003",
         })
       );
     } else {
@@ -248,7 +239,7 @@ const parseForErrors = msg => {
           POSITION: 1,
           TEXT: s[2],
           ATTRIBUTE: "ERROR",
-          _ID: "0003"
+          _ID: "0003",
         })
       );
     }
@@ -262,7 +253,7 @@ const parseForErrors = msg => {
         POSITION: s[3],
         TEXT: s[4],
         ATTRIBUTE: "ERROR",
-        _ID: "0003"
+        _ID: "0003",
       })
     );
   }
@@ -278,7 +269,7 @@ const parseForErrors = msg => {
         POSITION: s[2],
         TEXT: s[3],
         ATTRIBUTE: "ERROR",
-        _ID: "0003"
+        _ID: "0003",
       })
     );
   }
@@ -302,7 +293,7 @@ const parseForErrors = msg => {
           POSITION: s[4],
           TEXT: s[5],
           ATTRIBUTE: "ERROR",
-          _ID: "0003"
+          _ID: "0003",
         })
       );
     } else if (s[1] && s[2] && s[6]) {
@@ -316,7 +307,7 @@ const parseForErrors = msg => {
           POSITION: 1,
           TEXT: s[2],
           ATTRIBUTE: "ERROR",
-          _ID: "0003"
+          _ID: "0003",
         })
       );
     } else {
@@ -329,7 +320,7 @@ const parseForErrors = msg => {
           POSITION: 1,
           TEXT: s[2],
           ATTRIBUTE: "ERROR",
-          _ID: "0003"
+          _ID: "0003",
         })
       );
     }
@@ -346,7 +337,7 @@ const getErrorSystem = (msg, lineOffset = 1, line = 1, position = 1) => {
         POSITION: position,
         TEXT: msg,
         ATTRIBUTE: "ERROR",
-        _ID: "0002"
+        _ID: "0002",
       })
     );
   }
@@ -359,11 +350,10 @@ const getErrorObjectChanged = () => {
     {
       LINE: 1,
       POSITION: 1,
-      TEXT:
-        "Db Object has changed. Resolve any merge failure and compile again.",
+      TEXT: "Db Object has changed. Resolve any merge failure and compile again.",
       ATTRIBUTE: "ERROR",
-      _ID: "0001"
-    }
+      _ID: "0001",
+    },
   ]);
 };
 
@@ -397,31 +387,33 @@ const getNameResolve = (connection, { name, context }) => {
         part1_type: {
           dir: oracledb.BIND_OUT,
           type: oracledb.STRING,
-          maxSize: 30
+          maxSize: 30,
         },
-        object_number: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+        object_number: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
       }
     )
-    .then(result => result.outBinds);
+    .then((result) => result.outBinds);
 };
 
-const getDbmsOutputLine = connection => {
+const getDbmsOutputLine = (connection) => {
   return connection
     .execute("begin dbms_output.get_line(:line, :status); end;", {
       line: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 32767 },
-      status: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+      status: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     })
-    .then(result => result.outBinds);
+    .then((result) => result.outBinds);
 };
 
-const getDbmsOutput = async connection => {
+const getDbmsOutput = async (connection) => {
   let line,
     status = 0,
     lines = [];
 
   while (status === 0) {
     ({ line, status } = await getDbmsOutputLine(connection));
-    if (line) { lines.push(line); }
+    if (line) {
+      lines.push(line);
+    }
   }
 
   return lines;
@@ -446,5 +438,5 @@ export {
   getNameResolve,
   getDbmsOutput,
   getGeneratorFunction,
-  parseForErrors
+  parseForErrors,
 };

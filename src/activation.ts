@@ -9,15 +9,11 @@ let settings = ConfigurationController.getInstance();
 export const existPrerequisites = (): boolean => {
   let bCheck = true;
   if (!commandExists("git")) {
-    window.showErrorMessage(
-      `Oradew: "git" command (Git) is required in command-line.`
-    );
+    window.showErrorMessage(`Oradew: "git" command (Git) is required in command-line.`);
     bCheck = false;
   }
   if (!commandExists("node")) {
-    window.showErrorMessage(
-      `Oradew: "node" command (Node.js) is required in command-line.`
-    );
+    window.showErrorMessage(`Oradew: "node" command (Node.js) is required in command-line.`);
     bCheck = false;
   }
   // Optional - SQL*Plus or SQLcl is required only for certain oradew commands

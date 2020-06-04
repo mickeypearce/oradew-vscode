@@ -3,15 +3,7 @@
 const glob = require("fast-glob");
 const multimatch = require("multimatch");
 
-import {
-  pipe,
-  compact,
-  uniq,
-  sortBy,
-  identity,
-  map,
-  isEqual
-} from "lodash/fp";
+import { pipe, compact, uniq, sortBy, identity, map, isEqual } from "lodash/fp";
 
 import { rootPrepend, splitLines } from "./utility";
 import { getChangesNotStaged } from "./git";
@@ -50,7 +42,7 @@ export function fromStdoutToFilesArray(stdout) {
   )(stdout);
 }
 
-export const getOnlyChangedFiles = async source => {
+export const getOnlyChangedFiles = async (source) => {
   // Get array of changed files from git
   const stdout = await getChangesNotStaged();
   const changed = fromStdoutToFilesArray(stdout);

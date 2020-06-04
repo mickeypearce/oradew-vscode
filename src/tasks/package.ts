@@ -140,10 +140,7 @@ const packageSrcFromFile = ({ env = argv.env }) => {
   );
 };
 
-const createDeployInputFromGit = async ({
-  env = argv.env,
-  from = argv.from,
-}) => {
+const createDeployInputFromGit = async ({ env = argv.env, from = argv.from }) => {
   try {
     console.log("Retrieving changed paths from git history...");
     // Get changed file paths from git history
@@ -179,9 +176,7 @@ const createDeployInputFromGit = async ({
     // Save new input to config
     config.set("package.input", newInput);
     console.log(
-      `${newInput.join("\n")} \n./oradewrc.json ${chalk.magenta(
-        "package.input updated."
-      )}`
+      `${newInput.join("\n")} \n./oradewrc.json ${chalk.magenta("package.input updated.")}`
     );
   } catch (error) {
     console.error(error.message);
@@ -242,9 +237,7 @@ const makeBillOfLading = ({ env = argv.env }) => {
   const outputFile = config.get({ field: "package.output", env });
   // OutputFile can contain {schema-user} varibable...
   // Get first level directory for now
-  const outputDirectory = rootPrepend(
-    path.dirname(outputFile).split(path.posix.sep)[1]
-  );
+  const outputDirectory = rootPrepend(path.dirname(outputFile).split(path.posix.sep)[1]);
 
   // Add content to template object
   templateObject.data["content"] = content;

@@ -368,7 +368,9 @@
     "publish": "vsce publish",
     "precompile": "node ./scripts/precompile.js",
     "install-cli": "npm install -g ./ --ignore-scripts --no-optional",
-    "fix": "rd node_modules /S /Q & del package-lock.json & npm install --no-optional"
+    "fix": "rd node_modules /S /Q & del package-lock.json & npm install --no-optional",
+    "format": "prettier --check \"**/*.{js,ts}\"",
+    "format:fix": "prettier --write \"**/*.{js,ts}\""
   },
   "devDependencies": {
     "@types/gulp": "^4.0.6",
@@ -379,6 +381,7 @@
     "@types/vscode": "^1.45.0",
     "decache": "^4.6.0",
     "mocha": "^7.2.0",
+    "prettier": "2.0.5",
     "tslint": "^5.20.1",
     "typescript": "^3.9.3",
     "vsce": "^1.75.0",

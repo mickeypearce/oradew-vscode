@@ -4,7 +4,7 @@ import {
   StatusBarAlignment,
   StatusBarItem,
   QuickPickOptions,
-  ExtensionContext
+  ExtensionContext,
 } from "vscode";
 import { ConfigurationController } from "./configuration-controller";
 import { Telemetry } from "./telemetry";
@@ -14,7 +14,7 @@ import { readJson, existsSync } from "fs-extra";
 export class EnvironmentController {
   private static readonly NONE: QuickPickItem = {
     label: "<None>",
-    description: "Select environment when executing command"
+    description: "Select environment when executing command",
   };
   private _context: ExtensionContext;
   private _dbConfigPath: string;
@@ -36,10 +36,7 @@ export class EnvironmentController {
   public constructor(context: ExtensionContext) {
     this._context = context;
     this._dbConfigPath = ConfigurationController.getInstance().databaseConfigFile;
-    EnvironmentController._statusBar = window.createStatusBarItem(
-      StatusBarAlignment.Left,
-      10
-    );
+    EnvironmentController._statusBar = window.createStatusBarItem(StatusBarAlignment.Left, 10);
     EnvironmentController._statusBar.tooltip = "Oradew: Set DB Environment";
     EnvironmentController._statusBar.command = `oradew.setDbEnvironment`;
     this.updateStatusBar();
@@ -53,48 +50,44 @@ export class EnvironmentController {
     } else {
       EnvironmentController._statusBar.hide();
     }
-  }
+  };
 
   // Create environment pick list from dbconfig file
   private createEnvironmentList = (): QuickPickItem[] => {
-    return readJson(this._dbConfigPath).then(config => {
+    return readJson(this._dbConfigPath).then((config) => {
       return Object.keys(config).reduce((acc, value) => {
         return [
           ...acc,
           {
             label: value,
             description: config[value].connectString,
-            picked: this.currentEnvironment === value
-          }
+            picked: this.currentEnvironment === value,
+          },
         ];
       }, []);
     });
-  }
+  };
 
   // Environment picker
-  public pickEnvironment = async (
-    addNoneOption?: boolean
-  ): Promise<string | null> => {
+  public pickEnvironment = async (addNoneOption?: boolean): Promise<string | null> => {
     let envs: QuickPickItem[] = await this.createEnvironmentList();
     const options: QuickPickOptions = {
       placeHolder: "Select DB environment for executing command",
       matchOnDescription: true,
-      matchOnDetail: true
+      matchOnDetail: true,
     };
     if (addNoneOption === true) {
       envs.push(EnvironmentController.NONE);
     }
-    return window
-      .showQuickPick(envs, options)
-      .then(item => {
-        if (item) {
-          this.currentPick = item.label;
-          return this.currentPick;
-        } else {
-          return null;
-        }
-      });
-  }
+    return window.showQuickPick(envs, options).then((item) => {
+      if (item) {
+        this.currentPick = item.label;
+        return this.currentPick;
+      } else {
+        return null;
+      }
+    });
+  };
 
   // Returns "currentEnvironment" if it is set, otherwise let's you pick from the list
   public getEnvironment = async (): Promise<string | null> => {
@@ -103,7 +96,7 @@ export class EnvironmentController {
     } else {
       return this.currentEnvironment;
     }
-  }
+  };
 
   public setDbEnvironment = async (): Promise<void> => {
     const pickEnv = await this.pickEnvironment(true);
@@ -112,13 +105,13 @@ export class EnvironmentController {
       this.updateStatusBar();
     }
     Telemetry.sendEvent("setDbEnvironment", { env: pickEnv });
-  }
+  };
 
   public clearDbEnvironment = async (): Promise<void> => {
     this.currentEnvironment = EnvironmentController.NONE.label;
     this.updateStatusBar();
     Telemetry.sendEvent("clearDbEnvironment");
-  }
+  };
 
   public dispose() {
     EnvironmentController._statusBar.dispose();

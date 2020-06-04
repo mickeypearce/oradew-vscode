@@ -25,30 +25,24 @@ export class PackageOutput {
     const output = config.get({ field: "package.output", env });
 
     const files = matchOutputFiles(output, {
-      cwd: this._workspacePath
+      cwd: this._workspacePath,
     });
 
-    let items: QuickPickItem[] = files.map(file => ({
+    let items: QuickPickItem[] = files.map((file) => ({
       label: file,
-      description: resolve(this._workspacePath, file)
-    })
-    );
+      description: resolve(this._workspacePath, file),
+    }));
 
     if (items.length === 0) {
-      window.showWarningMessage(
-        `Oradew: Cannot match any packaged file.`
-      );
+      window.showWarningMessage(`Oradew: Cannot match any packaged file.`);
       return null;
     }
 
     const options: QuickPickOptions = {
       placeHolder: `Select script file to run (${this._environmentController.currentPick} environment)`,
       matchOnDescription: true,
-      matchOnDetail: true
+      matchOnDetail: true,
     };
-    return window
-      .showQuickPick(items, options)
-      .then(item => (item ? item.label : null));
-  }
-
+    return window.showQuickPick(items, options).then((item) => (item ? item.label : null));
+  };
 }

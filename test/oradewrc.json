@@ -12,14 +12,18 @@
     "./scripts/**/final*.sql",
     "!./**/*EXCLUDE*.sql"
   ],
-  "package.output": "./deploy/Run.sql",
+  "package.output": "./deploy/{schema-name}.sql",
   "package.encoding": "utf8",
   "package.templating": false,
-  "source.input": ["./src/**/*.sql"],
+  "source.input": [
+    "./src/**/*.sql"
+  ],
   "compile.warnings": "NONE",
   "compile.force": false,
   "version.number": "0.0.1",
   "version.description": "New feature",
   "version.releaseDate": "2099-01-01",
-  "test.input": ["./test/**/*.test.sql"]
+  "test.input": [
+    "./test/**/*.test.sql"
+  ]
 }

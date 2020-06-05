@@ -7,7 +7,7 @@
   "package.exclude": [
     "./scripts/**/+(file|run)*.sql"
   ],
-  "package.output": "./deploy/{schema-name}/Run.sql",
+  "package.output": "./deploy/{schema-name}.sql",
   "package.encoding": "utf8",
   "package.templating": false,
   "source.input": [

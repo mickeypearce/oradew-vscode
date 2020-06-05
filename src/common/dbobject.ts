@@ -37,7 +37,7 @@ function getObjectTypeFromSrcPath(path) {
 }
 
 const patternPckOutput = config.get("package.output");
-//   "./deploy/{schema-name}/Run.sql"
+//   "./deploy/{schema-name}.sql"
 function isDeployPath(path) {
   const globPattern = patternPckOutput.replace(/{schema-name}|{object-name}/gi, "*");
   return micromatch.isMatch(path, globPattern, {
@@ -45,7 +45,7 @@ function isDeployPath(path) {
   });
 }
 
-// Match ./deploy/{schema-name}/Run.sql to actual files
+// Match ./deploy/{schema-name}.sql to actual files
 export function matchOutputFiles(outputFilePattern, options?) {
   const globPattern = outputFilePattern.replace(/{schema-name}|{object-name}/gi, "*");
   const files = fromGlobsToFilesArray(globPattern, options);
@@ -146,7 +146,7 @@ export function getObjectInfoFromPath(path) {
   // Is it a deploy script?
   const isDeploy = isDeployPath(pathPosix);
   if (isDeploy) {
-    // pattern="./deploy/{schema-name}/Run.sql"
+    // pattern="./deploy/{schema-name}.sql"
     const patternPck = patternPckOutput; // patternDeployObject[objectType];
 
     /** extact schema*/

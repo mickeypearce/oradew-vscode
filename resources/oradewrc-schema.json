@@ -13,8 +13,8 @@
       "type": "array"
     },
     "package.output": {
-      "default": "./deploy/{schema-name}/Run.sql",
-      "description": "Deployment script file path. \nVariable {schema-name} is used to group files by schema into separate scripts. It can be used anywhere in the path or removed altogether to create a single script.",
+      "default": "./deploy/{schema-name}.sql",
+      "description": "Deployment script file path. \nVariable {schema-name} is used to group files by schema into separate scripts. It can be used anywhere in the path or removed altogether.",
       "type": "string"
     },
     "package.encoding": {

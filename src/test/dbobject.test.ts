@@ -36,21 +36,21 @@ describe("#getObjectInfo with default structure", function () {
     });
   });
   it("deploy: should get object type script", function () {
-    assert.deepEqual(getObjectInfoFromPath("./deploy/Release.sql"), {
+    assert.deepEqual(getObjectInfoFromPath("./Run.sql"), {
       "owner": undefined,
       "objectType": "script",
       "objectType1": "script",
-      "objectName": "Release",
+      "objectName": "Run",
       "isSource": false,
       "isScript": true,
     });
   });
   it("deploy: should get object type deployScript", function () {
-    assert.deepEqual(getObjectInfoFromPath("./deploy/HR/Run.sql"), {
+    assert.deepEqual(getObjectInfoFromPath("./deploy/HR.sql"), {
       "owner": "HR",
       "objectType": "deployScript",
       "objectType1": "deployScript",
-      "objectName": "Run",
+      "objectName": "HR",
       "isSource": false,
       "isScript": true,
     });

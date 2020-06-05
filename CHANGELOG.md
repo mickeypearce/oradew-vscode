@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.3.22] - 2020-06-05
+
+- Added multi-schema packaging (schema based deployment scripts)
+- Added script selection to Deploy command
+
 ## [0.3.20] - 2020-05-22
 
 - Added "Set DB User" command

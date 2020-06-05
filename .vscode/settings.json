@@ -9,6 +9,7 @@
   "eslint.autoFixOnSave": true,
   "tslint.autoFixOnSave": true,
   "editor.codeActionsOnSave": {"source.fixAll": true},
+  "editor.formatOnSave": true,
   // "editor.formatOnSave": true,
   "editor.trimAutoWhitespace": true,
   "files.trimTrailingWhitespace": true,

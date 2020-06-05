@@ -15,7 +15,7 @@ import { getObjectInfoFromPath, getPackageOutputPath } from "../common/dbobject"
 import { getLogFilename, rootPrepend, rootRemove } from "../common/utility";
 import { workspaceConfig as config } from "../common/config";
 import { fromGlobsToFilesArray, fromStdoutToFilesArray, getGlobMatches } from "../common/globs";
-import { getFirstCommitOnBranch, getCommitedFilesSincePoint } from "../common/git";
+import { getFirstCommitOnBranch, getCommitedFilesSincePoint, getCommitedFilesByCommits } from "../common/git";
 
 const timestampHeader = `-- File created: ${new Date()} with Oradew for VS Code`;
 
@@ -71,6 +71,11 @@ SPOOL OFF
 `;
     done(null, deployPrepend + code + deployAppend);
   };
+
+  console.log(
+    `Packaging version ${version}...
+Bundling files from "package.input": ${input} to deployment scripts:`
+  );
 
   // --Warn If src encoding is changed but package encoding default...
   if (srcEncoding !== pckEncoding && pckEncoding === "utf8") {
@@ -140,14 +145,23 @@ SPOOL OFF
   );
 };
 
-const createDeployInputFromGit = async ({ env = argv.env, from = argv.from }) => {
+const createDeployInputFromGit = async ({ env = argv.env, from = argv.from, commit = argv.commit }) => {
   try {
     console.log("Retrieving changed paths from git history...");
     // Get changed file paths from git history
-    let firstCommit = from || (await getFirstCommitOnBranch());
-    console.log(`Starting from commit: ${firstCommit}`);
+    let stdout;
+    if (commit) {
+      // Convert to array as parameters can be arrays (--commit a --commit b)
+      let commits = commit && [].concat(commit);
+      console.log(`From commit(s): ${commits}`);
+      stdout = await getCommitedFilesByCommits(commits);
+    }
+    else {
+      let firstCommit = from || (await getFirstCommitOnBranch() as string).trim();
+      console.log(`Starting from commit: ${firstCommit} up to the head.`);
+      stdout = await getCommitedFilesSincePoint(firstCommit);
+    }
 
-    const stdout = await getCommitedFilesSincePoint(firstCommit.trim());
     const changedPaths = fromStdoutToFilesArray(stdout).sort();
 
     // Exclude files that are not generally icluded
@@ -267,13 +281,14 @@ const extractTodos = ({ env = argv.env }) => {
     .on("end", () => console.log("./TODO.md created"));
 };
 
-export const packageTask = async ({ delta = argv.delta, from = argv.from }) => {
+export const packageTask = async ({ delta = argv.delta, from = argv.from, commit = argv.commit }) => {
   // If delta or from, first populate package input
   let tasks = [
-    ...[delta || from ? createDeployInputFromGit : []],
+    ...[delta || from || commit ? createDeployInputFromGit : []],
+    packageSrcFromFile,
     extractTodos,
     makeBillOfLading,
-    packageSrcFromFile,
+    // (done) => { console.log(chalk.green("done.")); done(); }
   ];
   return gulp.series(...tasks)();
 };

@@ -23,6 +23,12 @@ export const getCommitedFilesSincePoint = (from) =>
     args: `log --diff-filter=ACMR --name-only --pretty="" ${from}..head ./src ./scripts`,
   });
 
+// Files from specific commits (only from src and scripts dir)
+export const getCommitedFilesByCommits = (commits: string[]) => exec({
+  args: `show --diff-filter=ACMR --name-only --pretty="" ${commits.join(" ")} ./src ./scripts`,
+});
+
+
 // Get first commit on the current branch
 export const getFirstCommitOnBranch = () =>
   exec({

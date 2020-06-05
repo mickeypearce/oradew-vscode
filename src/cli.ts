@@ -109,6 +109,7 @@ program
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .option("--delta", "Changed files from latest tagged commit up to head")
   .option("--from <commit>", "Changed files from specified commit up to head")
+  .option("--commit <commit>", "Changed files from specific commit(s)")
   .action(() => execute());
 
 program

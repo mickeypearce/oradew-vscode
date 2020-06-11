@@ -1,7 +1,7 @@
 // const glob = require("glob");
 // const glob = require("globby");
-const glob = require("fast-glob");
-const multimatch = require("multimatch");
+import { sync } from "fast-glob";
+import * as multimatch from "multimatch";
 
 import { pipe, compact, uniq, sortBy, identity, map, isEqual } from "lodash/fp";
 
@@ -10,7 +10,7 @@ import { getChangesNotStaged } from "./git";
 
 // Get array of files matched by glob patterns array
 export function fromGlobsToFilesArray(globArray, options?) {
-  return glob.sync(globArray, options).map(rootPrepend);
+  return sync(globArray, options).map(rootPrepend);
 }
 
 // Get filepaths from matchArray (file paths) matched by globArray

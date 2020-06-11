@@ -398,7 +398,6 @@
     "fast-glob": "^3.2.2",
     "fs-extra": "^7.0.1",
     "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
     "gulp-convert-encoding": "^2.1.0",
     "gulp-data": "^1.2.1",
     "gulp-git": "^2.10.1",

@@ -241,3 +241,7 @@ Commands:
 > oradew package
 > oradew deploy --env TEST
 ```
+
+## Aditional information
+
+[How-tos](https://github.com/mickeypearce/oradew-vscode/wiki)

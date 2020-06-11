@@ -12,9 +12,6 @@ import { Telemetry } from "./telemetry";
 import { PackageOutput } from "./package-output";
 import { GulpTaskManager } from "./gulp-task-manager";
 
-// import * as gulpfile from "./gulpfile.js"
-// gulpfile.initProjectTask()
-
 let oradewTaskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
 let userController: UserController;
@@ -98,7 +95,7 @@ export function activate(context: vscode.ExtensionContext) {
     generatorManager.getGeneratorFunction
   );
 
-  // Internal command: env paramater selection in commands
+  // Internal command: user paramater selection in commands
   let cmdGetUser = vscode.commands.registerCommand("oradew.getUser", userController.getUser);
   // Internal command: used for deploy task command
   let cmdPickUser = vscode.commands.registerCommand("oradew.pickUser", userController.pickUser);

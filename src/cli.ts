@@ -77,14 +77,14 @@ program
   .command("create")
   .description("Create Source files and import from DB objects")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--file <file>", "File path or a glob. \"source.input\" if not specified.")
+  .option("--file <file>", 'File path or a glob. "source.input" if not specified.')
   .action(() => execute());
 
 program
   .command("compile")
   .description("Compile Source files to DB")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--file <file>", "File path or a glob. \"source.input\" if not specified.")
+  .option("--file <file>", 'File path or a glob. "source.input" if not specified.')
   .option("--changed", "Only files in working tree (changes). False by default.")
   .option("--object <object>", "PL/SQL statement (query or block - in double quotes) to compile")
   .option("--line <line>", "Line offset of a statement in file. 1 by default.")
@@ -95,7 +95,7 @@ program
   .command("import")
   .description("Import Source files from DB")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--file <file>", "File path or a glob. \"source.input\" if not specified.")
+  .option("--file <file>", 'File path or a glob. "source.input" if not specified.')
   .option("--changed", "Only files in working tree (changes). False by default.")
   .option("--ease", "Only files (objects) that changed on DB. False by default.")
   .option("--quiet", "Suppress console output. False by default.")
@@ -110,6 +110,7 @@ program
   .option("--delta", "Changed files from latest tagged commit up to head")
   .option("--from <commit>", "Changed files from specified commit up to head")
   .option("--commit <commit>", "Changed files from specific commit(s)")
+  .option("--append", 'Append file paths not yet included to "package.input"')
   .action(() => execute());
 
 program
@@ -117,7 +118,7 @@ program
   .alias("run")
   .description("Run script (with SQL*Plus or SQLcl)")
   .option("--env <env>", "DB Environment. DEV if not specified.")
-  .option("--file <file>", "File path. \"package.output\" if not specified.")
+  .option("--file <file>", 'File path. "package.output" if not specified.')
   .option("--user <user>", "DB User. <Auto> (extracted from file path) if not specified.")
   .action(() => execute());
 

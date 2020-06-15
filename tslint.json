@@ -11,7 +11,11 @@
 			"ignore-bound-class-methods"
 		],
 		"triple-equals": true,
-		"quotemark": true,
+		"quotemark": [
+			true,
+			"double",
+			"avoid-escape"
+		],
 		"indent": true
 	},
 	"defaultSeverity": "warning"

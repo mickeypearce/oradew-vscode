@@ -1,5 +1,5 @@
 import * as path from "path";
-import { pipe, map, mapValues, groupBy, clone, isEqual } from "lodash/fp";
+import { pipe, map, mapValues, groupBy, clone, isEqual, uniq } from "lodash/fp";
 
 import * as template from "gulp-template";
 import * as map2 from "vinyl-map2";
@@ -15,7 +15,11 @@ import { getObjectInfoFromPath, getPackageOutputPath } from "../common/dbobject"
 import { getLogFilename, rootPrepend, rootRemove } from "../common/utility";
 import { workspaceConfig as config } from "../common/config";
 import { fromGlobsToFilesArray, fromStdoutToFilesArray, getGlobMatches } from "../common/globs";
-import { getFirstCommitOnBranch, getCommitedFilesSincePoint, getCommitedFilesByCommits } from "../common/git";
+import {
+  getFirstCommitOnBranch,
+  getCommitedFilesSincePoint,
+  getCommitedFilesByCommits,
+} from "../common/git";
 
 const timestampHeader = `-- File created: ${new Date()} with Oradew for VS Code`;
 
@@ -145,34 +149,37 @@ Bundling files from "package.input": ${input} to deployment scripts:`
   );
 };
 
-const createDeployInputFromGit = async ({ env = argv.env, from = argv.from, commit = argv.commit }) => {
+const createDeployInputFromGit = async ({
+  env = argv.env,
+  from = argv.from,
+  commit = argv.commit,
+  append = argv.append,
+}) => {
   try {
     console.log("Retrieving changed paths from git history...");
     // Get changed file paths from git history
     let stdout;
     if (commit) {
       // Convert to array as parameters can be arrays (--commit a --commit b)
-      let commits = commit && [].concat(commit);
+      let commits = [].concat(commit);
       console.log(`From commit(s): ${commits}`);
       stdout = await getCommitedFilesByCommits(commits);
-    }
-    else {
-      let firstCommit = from || (await getFirstCommitOnBranch() as string).trim();
+    } else {
+      let firstCommit = from || ((await getFirstCommitOnBranch()) as string).trim();
       console.log(`Starting from commit: ${firstCommit} up to the head.`);
       stdout = await getCommitedFilesSincePoint(firstCommit);
     }
 
-    const changedPaths = fromStdoutToFilesArray(stdout).sort();
+    const changedPaths = fromStdoutToFilesArray(stdout);
 
     // Exclude files that are not generally icluded
-    const includedFiles = ["./**/*.sql"];
-    const all = getGlobMatches(includedFiles, changedPaths);
-
+    const allSqlFiles = ["./**/*.sql"];
+    const all = getGlobMatches(allSqlFiles, changedPaths);
     // Exclude excludes by config
     let excludeGlobs = config.get({ field: "package.exclude", env });
     const newInput = fromGlobsToFilesArray(all, {
       ignore: excludeGlobs,
-    });
+    }).sort();
 
     if (newInput.length === 0) {
       console.log(`No changed files found or no tagged commit to start from.`);
@@ -182,13 +189,16 @@ const createDeployInputFromGit = async ({ env = argv.env, from = argv.from, comm
     // Get saved package input from config file
     let savedInput = clone(config.get("package.input") || []).sort();
 
-    if (isEqual(savedInput, newInput)) {
+    const inputToSave = append ? uniq(savedInput.concat(newInput)).sort() : newInput;
+
+    if (isEqual(savedInput, inputToSave)) {
       console.log(`No new file paths added to package input.`);
       return;
     }
 
     // Save new input to config
-    config.set("package.input", newInput);
+    config.set("package.input", inputToSave);
+
     console.log(
       `${newInput.join("\n")} \n./oradewrc.json ${chalk.magenta("package.input updated.")}`
     );
@@ -281,8 +291,13 @@ const extractTodos = ({ env = argv.env }) => {
     .on("end", () => console.log("./TODO.md created"));
 };
 
-export const packageTask = async ({ delta = argv.delta, from = argv.from, commit = argv.commit }) => {
-  // If delta or from, first populate package input
+export const packageTask = async ({
+  delta = argv.delta,
+  from = argv.from,
+  commit = argv.commit,
+  append = argv.append,
+}) => {
+  // If delta or from or commit, first populate package input
   let tasks = [
     ...[delta || from || commit ? createDeployInputFromGit : []],
     packageSrcFromFile,

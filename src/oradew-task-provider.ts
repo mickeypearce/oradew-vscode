@@ -284,7 +284,7 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
     result.push(
       createOradewTask(
         createOradewTaskDefinition({
-          name: "deploy--file",
+          name: "run--file",
           params: [
             "run",
             "--env",

@@ -147,7 +147,7 @@ const compileAndMergeFilesToDb = async ({
   }
 };
 
-export const runTestTask = ({ env = argv.env || "DEV" }) => {
+export const compileTestTask = ({ env = argv.env || "DEV" }) => {
   const input = config.get({ field: "test.input", env });
   return compileFilesToDbAsync({ file: input, env });
 };

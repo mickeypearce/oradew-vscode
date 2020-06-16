@@ -45,7 +45,7 @@
           "alt": "oradew.compileObjectTask"
         },
         {
-          "command": "oradew.deployTaskFile",
+          "command": "oradew.runFileTask",
           "when": "inOradewProject && resourceExtname == .sql",
           "group": "navigation@2"
         }
@@ -110,7 +110,7 @@
         "when": "inOradewProject"
       },
       {
-        "command": "oradew.deployTaskFile",
+        "command": "oradew.runFileTask",
         "key": "f5",
         "when": "inOradewProject"
       },
@@ -195,7 +195,7 @@
         "category": "Oradew"
       },
       {
-        "command": "oradew.deployTaskFile",
+        "command": "oradew.runFileTask",
         "title": "Run Current File As Script",
         "category": "Oradew",
         "icon": {

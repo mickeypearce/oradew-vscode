@@ -163,9 +163,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: deploy");
     Telemetry.sendEvent("deployTask");
   });
-  let cmdTaskDeployFile = vscode.commands.registerCommand("oradew.deployTaskFile", () => {
-    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: deploy--file");
-    Telemetry.sendEvent("deployTaskFile");
+  let cmdTaskRunFile = vscode.commands.registerCommand("oradew.runFileTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: run--file");
+    Telemetry.sendEvent("runFileTask");
   });
   let cmdTaskTest = vscode.commands.registerCommand("oradew.testTask", () => {
     vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: test");
@@ -201,7 +201,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(cmdTaskPackage);
   context.subscriptions.push(cmdTaskPackageDelta);
   context.subscriptions.push(cmdTaskDeploy);
-  context.subscriptions.push(cmdTaskDeployFile);
+  context.subscriptions.push(cmdTaskRunFile);
   context.subscriptions.push(cmdTaskTest);
   context.subscriptions.push(cmdTaskCompileOnSave);
 

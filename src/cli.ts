@@ -5,6 +5,8 @@ import { homedir } from "os";
 import { GulpTaskManager } from "./gulp-task-manager";
 import * as program from "commander";
 
+const pkg = require("../package.json");
+
 // ENVironment variables:
 
 // ORADEW_CWD: workspace directory (current working dir by default)
@@ -50,7 +52,7 @@ const taskManager = new GulpTaskManager({
 });
 const execute = () => taskManager.executeOradewTask(process.argv);
 
-program.name("oradew").version("0.1.0").usage("<command> [options]");
+program.name("oradew").version(pkg.version).usage("<command> [options]");
 
 program.on("--help", function () {
   console.log("");

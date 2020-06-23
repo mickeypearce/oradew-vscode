@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.23] - 2020-06-25
+
+- Added "askForPassword" to DB users (dbconfig.json) [#34](github.com/mickeypearce/oradew-vscode/issues/34)
+
 ## [0.3.22] - 2020-06-05
 
 - Added multi-schema packaging (schema based deployment scripts)

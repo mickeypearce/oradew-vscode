@@ -166,7 +166,7 @@ export const compileSelection = async (code, file, env, lineOffset, user = U_AUT
 export const runFileAsScript = async (file, env, user = U_AUTO) => {
   const { obj, connCfg } = matchDbUser(file, env, user, true);
 
-  const connString = db.getConnectionString(connCfg);
+  const connString = await db.getConnectionString(connCfg);
 
   const cwd = parse(file).dir;
   const filename = parse(file).base;

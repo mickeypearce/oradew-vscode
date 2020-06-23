@@ -15,6 +15,7 @@ export function getDefaultsFromSchema(schema) {
 interface IUser {
   user: string;
   password: string;
+  askForPassword?: boolean;
   default?: boolean;
   disabled?: boolean;
   schemas?: string[];

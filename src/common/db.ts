@@ -1,5 +1,6 @@
 const oracledb = require("oracledb");
 
+import * as inquirer from "inquirer";
 import { getDdlTime, upsertDdlTime } from "./nedb";
 import { IConnectionConfig } from "./config";
 
@@ -15,18 +16,35 @@ interface IObjectParameter {
 // Each env has its own pool with users
 let _pool = {};
 
+async function getPassword(connCfg: IConnectionConfig) {
+  if (connCfg.askForPassword || !connCfg.password) {
+    const res = await inquirer.prompt([
+      {
+        type: "password",
+        name: "password",
+        message: `${connCfg.user.toUpperCase()} password?`,
+        mask: "*",
+      },
+    ]);
+    return res.password;
+  } else {
+    return connCfg.password;
+  }
+}
+
 /**
  ** Return existing connection from pool or creates a new one.
  * @param {IConnectionConfig} connCfg
  */
-const getConnection = (connCfg: IConnectionConfig) => {
-  let { env, user, password, connectString } = connCfg;
+const getConnection = async (connCfg: IConnectionConfig) => {
+  let { env, user, connectString } = connCfg;
   if (!_pool[env]) {
     _pool[env] = {};
   }
   if (_pool[env][user]) {
     return _pool[env][user].getConnection();
   }
+  const password = await getPassword(connCfg);
   return oracledb
     .createPool({
       user,
@@ -53,8 +71,9 @@ const closeConnection = async (conn) => {
  ** Return connection string.
  * @param {IConnectionConfig} connCfg
  */
-const getConnectionString = (connCfg: IConnectionConfig) => {
-  return `${connCfg.user}/${connCfg.password}@${connCfg.connectString}`;
+const getConnectionString = async (connCfg: IConnectionConfig) => {
+  const password = await getPassword(connCfg);
+  return `${connCfg.user}/${password}@${connCfg.connectString}`;
 };
 
 const compile = async (connection, code, warningScope = "NONE") => {

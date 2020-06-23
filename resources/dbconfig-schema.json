@@ -48,21 +48,30 @@
       "type": "object",
       "properties": {
         "connectString": {
-          "type": "string"
+          "type": "string",
+          "description": "The Oracle database instance. \nThe string can be an Easy Connect string, a Net Service Name from a tnsnames.ora file, or the name of a local Oracle Database instance."
         },
         "users": {
           "type": "array",
+          "description": "Array of database user objects",
           "items": {
             "type": "object",
             "properties": {
               "user": {
-                "type": "string"
+                "type": "string",
+                "description": "Database user id"
               },
               "password": {
-                "type": "string"
+                "type": "string",
+                "description": "Password to be used for connecting"
+              },
+              "askForPassword": {
+                "description": "Specify if password should be typed when executing command instead of stored in this file",
+                "type": "boolean",
+                "default": false
               },
               "schemas": {
-                "description": "User's schemas. \nIf \"user\" doesn't own any object, at least one schema must be specified.",
+                "description": "User schema array. \nIf user doesn't own any object, at least one schema must be specified.",
                 "type": "array"
               },
               "default": {
@@ -77,8 +86,7 @@
               }
             },
             "required": [
-              "user",
-              "password"
+              "user"
             ],
             "default": {
               "user": "hr",

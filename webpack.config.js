@@ -27,11 +27,14 @@ const config = {
     libraryTarget: "commonjs2",
     devtoolModuleFilenameTemplate: "../[resource-path]",
   },
+  node: {
+    __dirname: false, // leave the __dirname behavior intact
+  },
   devtool: "source-map",
   externals: {
     vscode: "commonjs vscode", // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
     oracledb: "commonjs oracledb",
-    "vscode-extension-telemetry": "commonjs vscode-extension-telemetry", // commonly used
+    // "vscode-extension-telemetry": "commonjs vscode-extension-telemetry", // commonly used
     yargs: "commonjs2 yargs",
     gulp: "commonjs2 gulp",
     "gulp-git": "commonjs2 gulp-git",
@@ -76,6 +79,9 @@ const config = {
         ],
       },
     ],
+  },
+  optimization: {
+    minimize: false,
   },
 };
 

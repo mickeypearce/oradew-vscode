@@ -420,7 +420,7 @@
     "nedb": "^1.8.0",
     "oracledb": "4.1.0",
     "vinyl-map2": "^1.2.1",
-    "vscode-extension-telemetry": "^0.1.6",
+    "vscode-extension-telemetry": "^0.1.2",
     "yargs": "^4.8.1"
   }
 }

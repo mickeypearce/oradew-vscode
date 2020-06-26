@@ -6,9 +6,9 @@ import { parse, resolve } from "path";
 // Build default object from json schema defaults
 // simplified - only defaults from first level in tree
 export function getDefaultsFromSchema(schema) {
-  const template = require(schema).properties;
-  return Object.keys(template).reduce((acc, value) => {
-    return { ...acc, [value]: template[value].default };
+  // const template = require(schema).properties;
+  return Object.keys(schema).reduce((acc, value) => {
+    return { ...acc, [value]: schema[value].default };
   }, {});
 }
 
@@ -26,13 +26,15 @@ export interface IConnectionConfig extends IUser {
   connectString: string;
 }
 
+import { properties as dbConfSchema } from "../resources/dbconfig-schema.json";
+
 export class DBConfig {
   defaults: Object;
   fileBase: String;
   object: Object;
   constructor(fileBase) {
     // Defaults DB configuration object
-    this.defaults = getDefaultsFromSchema("../../resources/dbconfig-schema.json");
+    this.defaults = getDefaultsFromSchema(dbConfSchema);
     this.fileBase = fileBase || "./dbconfig.json";
     // DB config JSON Object
     this.object = null;
@@ -41,12 +43,12 @@ export class DBConfig {
 
   // Create config file with default values
   createFile() {
-    return outputJsonSync(this.fileBase, this.defaults);
+    return outputJsonSync(<string>this.fileBase, this.defaults);
   }
 
   load() {
     try {
-      this.object = readJsonSync(this.fileBase);
+      this.object = readJsonSync(<string>this.fileBase);
     } catch (e) {
       // Defaults
       console.log(`Cannot find ${this.fileBase} file...`);
@@ -59,7 +61,7 @@ export class DBConfig {
   }
   set(field, value) {
     this.object = set(field)(value)(this.object);
-    return outputJsonSync(this.fileBase, this.object);
+    return outputJsonSync(<string>this.fileBase, this.object);
   }
 
   // _getConnectString = (env = "DEV") => this.object[env].connectString;
@@ -173,13 +175,15 @@ export const dbConfig = new DBConfig(process.env.ORADEW_DB_CONFIG_PATH);
  * ...
  * customEnv: ./oradewrc.customEnv.json (optional)
  */
+import { properties as wsConfSchema } from "../resources/oradewrc-schema.json";
+
 export class WorkspaceConfig {
   defaults: Object;
   filePathBase: string;
   object: Object;
   constructor(fileBase?: string) {
     // Defaults configuration object
-    this.defaults = getDefaultsFromSchema("../../resources/oradewrc-schema.json");
+    this.defaults = getDefaultsFromSchema(wsConfSchema);
     this.filePathBase = fileBase || "./oradewrc.json";
 
     this.object = {};
@@ -201,7 +205,7 @@ export class WorkspaceConfig {
 
   readFile(env) {
     let filename = this.getFileEnv(env);
-    let res = existsSync(filename) ? readJsonSync(filename, "utf8") : {};
+    let res = existsSync(filename) ? readJsonSync(filename, { encoding: "utf8" }) : {};
     return res;
   }
 

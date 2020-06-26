@@ -54,7 +54,7 @@ export class UserController {
 
   // Create user pick list from dbconfig file
   private createUserList = (env): QuickPickItem[] => {
-    return readJson(this._dbConfigPath).then((config) => {
+    return <any>readJson(this._dbConfigPath).then((config) => {
       const users = config[env]?.users.filter((val) => !val.disabled) || [];
       return users.map((value) => ({
         label: value.user.toUpperCase(),

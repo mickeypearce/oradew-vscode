@@ -65,7 +65,7 @@ export class EnvironmentController {
           },
         ];
       }, []);
-    });
+    }) as any;
   };
 
   // Environment picker

@@ -1,11 +1,9 @@
-#!/usr/bin/env node
-
 import { resolve } from "path";
 import { homedir } from "os";
 import { GulpTaskManager } from "./gulp-task-manager";
 import * as program from "commander";
 
-const pkg = require("../package.json");
+import pkg from "../package.json";
 
 // ENVironment variables:
 
@@ -152,4 +150,4 @@ program
   .option("--user <user>", "DB User. <Auto> (extracted from file path) if not specified.")
   .action(() => execute());
 
-program.parse(process.argv);
+export { program };

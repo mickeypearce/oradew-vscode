@@ -30,7 +30,7 @@ const createSrcEmpty = (done) => {
 
 const createDbConfigFile = async ({}) => {
   // Create db config file if it doesn't exists already...
-  if (!fs.existsSync(dbConfig.fileBase)) {
+  if (!fs.existsSync(dbConfig.fileBase as string)) {
     dbConfig.createFile();
 
     console.log(

@@ -30,7 +30,7 @@ const compileFilesToDb = async ({
     let resp;
     try {
       // Compile file and get errors
-      resp = await compileFile(file.contents, file.path, env, force, warnings, user);
+      resp = await compileFile(file.contents, file.path, env, force, warnings, <string>user);
       printResults(resp);
       // Stage file if no errors
       if (stageFile && !resp.errors.hasErrors()) {
@@ -129,7 +129,7 @@ const mergeLocalAndDbChanges = async ({
 const compileAndMergeFilesToDb = async ({
   file = argv.file,
   env = argv.env || "DEV",
-  changed = argv.changed || false,
+  changed = (argv.changed as boolean) || false,
 }) => {
   try {
     // Compile and get error results
@@ -157,7 +157,7 @@ const compileObjectToDb = async ({
   env = argv.env || "DEV",
   object = argv.object,
   line = argv.line,
-  user = argv.user,
+  user = argv.user as string,
 }) => {
   try {
     if (!object) {
@@ -173,7 +173,7 @@ const compileObjectToDb = async ({
 export function compileTask({
   env = argv.env || "DEV",
   file = argv.file,
-  changed = argv.changed || false,
+  changed = (argv.changed as boolean) || false,
   object = argv.object,
   line = argv.line,
 }) {

@@ -11,7 +11,7 @@ tslint.json
 *.tlog
 !dbconfig.json
 # webpack
-#node_modules
+node_modules
 webpack.config.js
 #!node_modules/oracledb
 #!node_modules/gulp

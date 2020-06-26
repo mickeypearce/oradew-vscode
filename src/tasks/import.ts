@@ -77,7 +77,7 @@ const exportObjectFromDb = async ({
       throw Error("Object cannot be empty.");
     }
 
-    const objs = await resolveObjectInfo(env, object, user, file);
+    const objs = await resolveObjectInfo(env, object, user as string, file);
 
     // Create array of abs file paths
     let files = objs.map((obj) => {
@@ -96,9 +96,9 @@ const exportObjectFromDb = async ({
 export function importTask({
   env = argv.env || "DEV",
   file = argv.file,
-  changed = argv.changed || false,
+  changed = (argv.changed as boolean) || false,
   ease = argv.ease,
-  quiet = argv.quiet || false,
+  quiet = (argv.quiet as boolean) || false,
   object = argv.object,
 }) {
   // ease is a string 'true' or 'false' in parameter

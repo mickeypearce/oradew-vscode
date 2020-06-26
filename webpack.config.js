@@ -35,16 +35,16 @@ const config = {
     vscode: "commonjs vscode", // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
     oracledb: "commonjs oracledb",
     // "vscode-extension-telemetry": "commonjs vscode-extension-telemetry", // commonly used
-    yargs: "commonjs2 yargs",
-    gulp: "commonjs2 gulp",
-    "gulp-git": "commonjs2 gulp-git",
-    "gulp-todo": "commonjs2 gulp-todo",
-    // "gulp-template": "commonjs2 gulp-template",
-    "gulp-group-concat": "commonjs2 gulp-group-concat",
-    // "gulp-noop": "commonjs2 gulp-noop",
-    // "gulp-convert-encoding": "commonjs2 gulp-convert-encoding",
-    "vinyl-map2": "commonjs2 vinyl-map2",
-    "gulp-cli": "commonjs2 gulp-cli",
+    // yargs: "commonjs2 yargs",
+    // gulp: "commonjs2 gulp",
+    // "gulp-git": "commonjs2 gulp-git",
+    // "gulp-todo": "commonjs2 gulp-todo",
+    // // "gulp-template": "commonjs2 gulp-template",
+    // "gulp-group-concat": "commonjs2 gulp-group-concat",
+    // // "gulp-noop": "commonjs2 gulp-noop",
+    // // "gulp-convert-encoding": "commonjs2 gulp-convert-encoding",
+    // "vinyl-map2": "commonjs2 vinyl-map2",
+    // "gulp-cli": "commonjs2 gulp-cli",
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
@@ -82,6 +82,10 @@ const config = {
   },
   optimization: {
     minimize: false,
+  },
+  stats: {
+    // Ignore warnings due to yarg's dynamic module loading
+    warningsFilter: [/node_modules\/yargs/],
   },
 };
 

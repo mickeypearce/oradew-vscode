@@ -10,8 +10,8 @@ export const generateTask = async ({
   func = argv.func,
   file = argv.file,
   object = argv.object,
-  output = argv.output,
-  user = argv.user,
+  output = argv.output as string,
+  user = argv.user as string,
 }) => {
   try {
     if (!func) {

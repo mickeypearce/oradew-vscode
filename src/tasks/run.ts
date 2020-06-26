@@ -9,7 +9,11 @@ import { getLogFilename, printResults } from "../common/utility";
 import { workspaceConfig as config } from "../common/config";
 import { matchOutputFiles } from "../common/dbobject";
 
-export async function runTask({ file = argv.file, env = argv.env || "DEV", user = argv.user }) {
+export async function runTask({
+  file = argv.file,
+  env = argv.env || "DEV",
+  user = argv.user as string,
+}) {
   // Convert to array as parameters can be arrays (--file a --file b)
   let filesToRun = file && [].concat(file);
 

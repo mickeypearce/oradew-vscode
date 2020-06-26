@@ -18,7 +18,7 @@ const config = {
     extension: "./src/extension.ts",
     gulpfile: "./src/gulpfile.ts",
     cli: "./src/cli.ts",
-    // "gulp-cli": "./src/gulp-cli.ts",
+    "gulp-cli": "./src/gulp-cli.ts",
   },
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
@@ -27,9 +27,9 @@ const config = {
     libraryTarget: "commonjs2",
     devtoolModuleFilenameTemplate: "../[resource-path]",
   },
-  node: {
-    __dirname: false, // leave the __dirname behavior intact
-  },
+  // node: {
+  //   __dirname: true, // leave the __dirname behavior intact
+  // },
   devtool: "source-map",
   externals: {
     vscode: "commonjs vscode", // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
@@ -45,12 +45,15 @@ const config = {
     // // "gulp-convert-encoding": "commonjs2 gulp-convert-encoding",
     // "vinyl-map2": "commonjs2 vinyl-map2",
     // "gulp-cli": "commonjs2 gulp-cli",
+    "rechoir": "commonjs2 rechoir",
+    "interpret": "commonjs2 interpret",
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
-    extensions: [".ts", ".js"],
+    extensions: [".ts", ".js", ".json"],
     // alias: {
     //   Resources: path.resolve(__dirname, "src/resources/"),
+    // './': 'handlebars/dist/handlebars.js'
     // },
   },
   plugins: [
@@ -58,7 +61,12 @@ const config = {
       patterns: [
         { from: "src/resources", to: "resources" },
         { from: "src/oradew.js", to: "oradew.js" },
-        { from: "node_modules/gulp/bin/gulp.js", to: "gulp.js" },
+        { from: "src/gulp.js", to: "gulp.js" },
+        {
+          from: "lib/versioned/**",
+          to: "",
+          context: "node_modules/gulp-cli/",
+        },
       ],
     }),
   ],

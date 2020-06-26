@@ -1,8 +1,8 @@
-import * as git from "gulp-git";
+import { exec as gitExec } from "../../node_modules/gulp-git/lib/exec.js";
 
 export const exec = ({ args }) =>
   new Promise((res, rej) => {
-    git.exec({ args, quiet: process.env.ORADEW_SILENT }, (err, stdout) => {
+    gitExec({ args, quiet: process.env.ORADEW_SILENT }, (err, stdout) => {
       if (err) {
         rej(err);
       }

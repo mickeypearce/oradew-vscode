@@ -31,7 +31,7 @@ export class GulpTaskManager {
       envVariables,
     } = tmConfig;
 
-    this.gulpPathJs = path.resolve(contextPath, "dist/gulp.js");
+    this.gulpPathJs = path.resolve(contextPath, "node_modules/gulp/bin/gulp.js");
     this.gulpFile = path.resolve(contextPath, "dist/gulpfile.js");
 
     this.gulpParams = [

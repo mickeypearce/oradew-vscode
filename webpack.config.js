@@ -18,7 +18,7 @@ const config = {
     extension: "./src/extension.ts",
     gulpfile: "./src/gulpfile.ts",
     cli: "./src/cli.ts",
-    "gulp-cli": "./src/gulp-cli.ts",
+    // "gulp-cli": "./src/gulp-cli.ts",
   },
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
@@ -36,17 +36,17 @@ const config = {
     oracledb: "commonjs oracledb",
     // "vscode-extension-telemetry": "commonjs vscode-extension-telemetry", // commonly used
     // yargs: "commonjs2 yargs",
-    // gulp: "commonjs2 gulp",
-    // "gulp-git": "commonjs2 gulp-git",
-    // "gulp-todo": "commonjs2 gulp-todo",
+    gulp: "commonjs2 gulp",
+    "gulp-git": "commonjs2 gulp-git",
+    "gulp-todo": "commonjs2 gulp-todo",
     // // "gulp-template": "commonjs2 gulp-template",
     // "gulp-group-concat": "commonjs2 gulp-group-concat",
     // // "gulp-noop": "commonjs2 gulp-noop",
     // // "gulp-convert-encoding": "commonjs2 gulp-convert-encoding",
     // "vinyl-map2": "commonjs2 vinyl-map2",
     // "gulp-cli": "commonjs2 gulp-cli",
-    "rechoir": "commonjs2 rechoir",
-    "interpret": "commonjs2 interpret",
+    // "rechoir": "commonjs2 rechoir",
+    // "interpret": "commonjs2 interpret",
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
@@ -61,12 +61,12 @@ const config = {
       patterns: [
         { from: "src/resources", to: "resources" },
         { from: "src/oradew.js", to: "oradew.js" },
-        { from: "src/gulp.js", to: "gulp.js" },
-        {
-          from: "lib/versioned/**",
-          to: "",
-          context: "node_modules/gulp-cli/",
-        },
+        // { from: "src/gulp.js", to: "gulp.js" },
+        // {
+        //   from: "lib/versioned/**",
+        //   to: "",
+        //   context: "node_modules/gulp-cli/",
+        // },
       ],
     }),
   ],
@@ -91,10 +91,12 @@ const config = {
   optimization: {
     minimize: false,
   },
-  stats: {
-    // Ignore warnings due to yarg's dynamic module loading
-    warningsFilter: [/node_modules\/yargs/],
-  },
+  // stats: {
+  //   // Ignore warnings due to yarg's dynamic module loading
+  //   warningsFilter: [/node_modules\/yargs/],
+
+  // },
+  // stats: "errors-only",
 };
 
 module.exports = config;

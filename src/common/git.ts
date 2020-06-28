@@ -1,4 +1,6 @@
-import { exec as gitExec } from "../../node_modules/gulp-git/lib/exec.js";
+import { exec as gitExec } from "gulp-git";
+
+// refactor to simple-git, graceful-git
 
 export const exec = ({ args }) =>
   new Promise((res, rej) => {

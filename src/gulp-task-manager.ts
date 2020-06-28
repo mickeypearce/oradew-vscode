@@ -47,6 +47,7 @@ export class GulpTaskManager {
 
     this.processEnv = {
       env: {
+        NODE_OPTIONS: "--no-deprecation",
         ORADEW_STORAGE_DIR: storagePath,
         ORADEW_DB_CONFIG_PATH: dbConfigPath,
         ORADEW_WS_CONFIG_PATH: wsConfigPath,

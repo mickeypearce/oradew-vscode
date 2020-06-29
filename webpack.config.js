@@ -17,7 +17,7 @@ const config = {
   entry: {
     extension: "./src/extension.ts",
     gulpfile: "./src/gulpfile.ts",
-    cli: "./src/cli.ts",
+    cli: "./src/cli/cli.ts",
     // "gulp-cli": "./src/gulp-cli.ts",
   },
   output: {
@@ -62,7 +62,7 @@ const config = {
     new CopyPlugin({
       patterns: [
         { from: "src/resources", to: "resources" },
-        { from: "src/oradew.js", to: "oradew.js" },
+        { from: "src/cli/oradew.js", to: "oradew.js" },
         // { from: "src/gulp.js", to: "gulp.js" },
         // {
         //   from: "lib/versioned/**",

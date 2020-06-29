@@ -3,7 +3,7 @@ import { homedir } from "os";
 import { GulpTaskManager } from "./gulp-task-manager";
 import * as program from "commander";
 
-import { version } from "../package.json";
+import { version } from "../../package.json";
 
 // ENVironment variables:
 

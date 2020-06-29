@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { GulpTaskManager } from "./gulp-task-manager";
+import { GulpTaskManager } from "./cli/gulp-task-manager";
 
 let taskManager: GulpTaskManager;
 // let context: vscode.ExtensionContext;

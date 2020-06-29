@@ -3,7 +3,7 @@ import { homedir } from "os";
 import { GulpTaskManager } from "./gulp-task-manager";
 import * as program from "commander";
 
-import pkg from "../package.json";
+import { version } from "../package.json";
 
 // ENVironment variables:
 
@@ -50,7 +50,7 @@ const taskManager = new GulpTaskManager({
 });
 const execute = () => taskManager.executeOradewTask(process.argv);
 
-program.name("oradew").version(pkg.version).usage("<command> [options]");
+program.name("oradew").version(version).usage("<command> [options]");
 
 program.on("--help", function () {
   console.log("");

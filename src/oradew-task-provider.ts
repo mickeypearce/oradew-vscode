@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { GulpTaskManager } from "./gulp-task-manager";
 
 let taskManager: GulpTaskManager;
+// let context: vscode.ExtensionContext;
 
 export class OradewTaskProvider implements vscode.TaskProvider {
   static OradewType: string = "oradew";
@@ -9,6 +10,7 @@ export class OradewTaskProvider implements vscode.TaskProvider {
 
   constructor(ptaskManager: GulpTaskManager) {
     taskManager = ptaskManager;
+    // context = pcontext;
   }
 
   public provideTasks(): Thenable<vscode.Task[]> | undefined {
@@ -76,10 +78,10 @@ function createOradewTask(definition: OradewTaskDefinition): vscode.Task {
     definition,
     vscode.TaskScope.Workspace,
     definition.name,
-    "oradew",
+    OradewTaskProvider.OradewType,
     new vscode.ProcessExecution(
       "node",
-      [...taskManager.gulpParams, ...definition.params],
+      [taskManager.cliPath, ...definition.params],
       taskManager.processEnv
     ),
     "$oracle-plsql"

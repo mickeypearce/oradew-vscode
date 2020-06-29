@@ -1,5 +1,5 @@
 import child = require("child_process");
-import path = require("path");
+import { resolve } from "path";
 
 export class GulpTaskManager {
   wsConfigPath: string;
@@ -7,6 +7,7 @@ export class GulpTaskManager {
   gulpFile: string;
   gulpParams: Array<string>;
   processEnv: object;
+  cliPath: string;
 
   constructor(tmConfig: {
     workspacePath: string; // Workspace folder
@@ -31,8 +32,10 @@ export class GulpTaskManager {
       envVariables,
     } = tmConfig;
 
-    this.gulpPathJs = path.resolve(contextPath, "node_modules/gulp/bin/gulp.js");
-    this.gulpFile = path.resolve(contextPath, "dist/gulpfile.js");
+    this.gulpPathJs = resolve(contextPath, "node_modules/gulp/bin/gulp.js");
+    this.gulpFile = resolve(contextPath, "dist/gulpfile.js");
+
+    this.cliPath = resolve(contextPath, "dist/oradew.js");
 
     this.gulpParams = [
       `${this.gulpPathJs}`,
@@ -62,7 +65,7 @@ export class GulpTaskManager {
 
   executeOradewTask = (argv) => {
     const params = [...this.gulpParams, ...argv.slice(2)];
-    console.log("Executing oradew task: " + params.join(" "));
+    // console.log("Executing oradew task: " + params.join(" "));
 
     // Execute process
     return child.spawn(process.execPath, params, this.processEnv);

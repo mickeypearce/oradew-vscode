@@ -41,7 +41,9 @@ export function activate(context: vscode.ExtensionContext) {
     activate(context);
   });
 
-  const workspacePath = vscode.workspace.workspaceFolders![0].uri.fsPath || context.extensionPath;
+  const workspacePath = vscode.workspace.workspaceFolders
+    ? vscode.workspace.workspaceFolders[0].uri.fsPath
+    : context.extensionPath;
   const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
 

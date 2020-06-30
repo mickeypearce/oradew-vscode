@@ -1,3 +1,3 @@
 #!/usr/bin/env node
-const { program } = require("./cli");
+const { program } = require("./oradew-cli");
 program.parse(process.argv);

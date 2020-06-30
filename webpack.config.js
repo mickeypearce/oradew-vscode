@@ -16,8 +16,8 @@ const config = {
   // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   entry: {
     extension: "./src/extension.ts",
-    gulpfile: "./src/gulpfile.ts",
-    cli: "./src/cli/cli.ts",
+    gulpfile: "./src/cli/gulpfile.ts",
+    "oradew-cli": "./src/cli/oradew-cli.ts",
     // "gulp-cli": "./src/gulp-cli.ts",
   },
   output: {

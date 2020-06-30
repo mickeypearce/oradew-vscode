@@ -28,7 +28,7 @@
   "bugs": {
     "url": "https://github.com/mickeypearce/oradew-vscode/issues"
   },
-  "icon": "images/oradew_icon_128.png",
+  "icon": "dist/images/oradew_icon_128.png",
   "activationEvents": [
     "workspaceContains:dbconfig.json",
     "onCommand:oradew.*",
@@ -199,8 +199,8 @@
         "title": "Run Current File As Script",
         "category": "Oradew",
         "icon": {
-          "light": "images/run_icon.png",
-          "dark": "images/run_icon.png"
+          "light": "dist/images/run_icon.png",
+          "dark": "dist/images/run_icon.png"
         }
       },
       {
@@ -218,8 +218,8 @@
         "title": "Compile Current File",
         "category": "Oradew",
         "icon": {
-          "light": "images/compile_icon.png",
-          "dark": "images/compile_icon_alt.png"
+          "light": "dist/images/compile_icon.png",
+          "dark": "dist/images/compile_icon_alt.png"
         }
       },
       {
@@ -227,8 +227,8 @@
         "title": "Run Selected Statement",
         "category": "Oradew",
         "icon": {
-          "light": "images/compile_icon_alt.png",
-          "dark": "images/compile_icon.png"
+          "light": "dist/images/compile_icon_alt.png",
+          "dark": "dist/images/compile_icon.png"
         }
       },
       {
@@ -365,10 +365,10 @@
     "compile": "npm run precompile && tsc -p ./",
     "watch": "npm run precompile && tsc -watch -p ./",
     "test": "npm run compile && node out/test/runTest",
-    "utest": "npm run compile && node ./node_modules/mocha/bin/mocha out/test/*test.js",
+    "utest": "npm run compile && node ./node_modules/mocha/bin/mocha out/src/cli/test/*test.js",
     "build": "vsce package",
     "publish": "vsce publish",
-    "precompile": "node ./scripts/precompile.js",
+    "precompile": "node precompile.js",
     "install-cli": "npm install -g ./ --ignore-scripts --no-optional",
     "fix": "rd node_modules /S /Q & del package-lock.json & npm install --no-optional",
     "format": "prettier --check \"**/*.{js,ts}\"",
@@ -377,7 +377,6 @@
     "tslint:fix": "npm run tslint -- --fix"
   },
   "devDependencies": {
-    "@types/fs-extra": "^9.0.1",
     "@types/globby": "^9.1.0",
     "@types/gulp": "^4.0.6",
     "@types/lodash": "^4.14.157",

@@ -15,7 +15,7 @@ const config = {
   target: "node", // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
   // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   entry: {
-    extension: "./src/extension.ts",
+    extension: "./src/extension/extension.ts",
     gulpfile: "./src/cli/gulpfile.ts",
     "oradew-cli": "./src/cli/oradew-cli.ts",
     // "gulp-cli": "./src/gulp-cli.ts",
@@ -63,6 +63,7 @@ const config = {
       patterns: [
         { from: "src/cli/resources", to: "resources" },
         { from: "src/cli/oradew.js", to: "oradew.js" },
+        { from: "src/extension/images", to: "images" },
         // { from: "src/gulp.js", to: "gulp.js" },
         // {
         //   from: "lib/versioned/**",

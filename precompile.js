@@ -5,7 +5,7 @@ const del = require("del");
 del.sync("./out");
 
 // copy templates/*
-fs.copySync("./src/templates", "./out/templates");
+fs.copySync("./src/cli/templates", "./out/src/cli/templates");
 
 // copy test resources
-fs.copySync("./src/test/resources", "./out/test/resources");
+fs.copySync("./src/cli/test/resources", "./out/src/cli/test/resources");

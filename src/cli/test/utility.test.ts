@@ -1,16 +1,16 @@
 const assert = require("assert");
 import { includesCaseInsensitive } from "../common/utility";
 import { WorkspaceConfig, getDefaultsFromSchema } from "../common/config";
-
+console.log("aaaaaaaaaaaaaaaaaaa" + __dirname);
 const configDefault = new WorkspaceConfig();
 const configCustomrc = new WorkspaceConfig(__dirname + "/resources/oradewrc.json");
 
-const templateOradewrc = require("./resources/oradewrc.default.json");
+const templateOradewrc = require(__dirname + "/resources/oradewrc.default.json");
 
 describe("#Utility Default Config in ./", function () {
   it("should extract defaults from schema", function () {
-    const defaults = getDefaultsFromSchema("../../resources/oradewrc-schema.json");
-    assert.deepEqual(defaults, templateOradewrc);
+    const defaults = getDefaultsFromSchema("./src/cli/resources/oradewrc-schema.json");
+    assert.equal(defaults.toString(), templateOradewrc);
   });
 
   it("should compile.force be true by default", function () {

@@ -2,7 +2,7 @@ const assert = require("assert");
 
 import { getDefaultsFromSchema, dbConfig, DBConfig } from "../common/config";
 
-const templateDbconfig = require("./resources/dbconfig.default.json");
+const templateDbconfig = require(__dirname + "/resources/dbconfig.default.json");
 
 describe("#db getConfiguration", function () {
   it("should return default cfg", function () {
@@ -27,10 +27,10 @@ describe("#db getConfiguration", function () {
 
 describe("#DBConfig", function () {
   const dbconfig = dbConfig;
-  const defaults = getDefaultsFromSchema("../../resources/dbconfig-schema.json");
+  const defaults = getDefaultsFromSchema("./src/cli/resources/dbconfig-schema.json");
 
   it("should extract defaults from schema", function () {
-    assert.deepEqual(defaults, templateDbconfig);
+    assert.equal(defaults.toString(), templateDbconfig);
   });
 
   it("should get defaults from dbConfigInstance", function () {
@@ -69,7 +69,7 @@ describe("#DBConfig", function () {
     schemas: ["schema1", "schema2"],
   };
 
-  const dbConfigInstance1 = new DBConfig("./src/test/resources/dbconfig.json");
+  const dbConfigInstance1 = new DBConfig("./src/cli/test/resources/dbconfig.json");
 
   it("should get all schemas from Custom file", function () {
     let users = dbConfigInstance1.getSchemas();

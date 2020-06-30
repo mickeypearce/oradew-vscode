@@ -1,6 +1,6 @@
 import { window, QuickPickOptions, QuickPickItem } from "vscode";
-import { matchOutputFiles } from "./cli/common/dbobject";
-import { WorkspaceConfig } from "./cli/common/config";
+import { matchOutputFiles } from "../cli/common/dbobject";
+import { WorkspaceConfig } from "../cli/common/config";
 
 import { ConfigurationController } from "./configuration-controller";
 import { EnvironmentController } from "./environment-controller";

@@ -1,5 +1,5 @@
 import { existsSync, readJsonSync } from "fs-extra";
-import { getDefaultsFromSchema } from "./common/config";
+import { getDefaultsFromSchema } from "./cli/common/config";
 import { ConfigurationController } from "./configuration-controller";
 import { QuickPickItem, QuickPickOptions, window } from "vscode";
 

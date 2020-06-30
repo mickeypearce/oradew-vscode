@@ -61,7 +61,7 @@ const config = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: "src/resources", to: "resources" },
+        { from: "src/cli/resources", to: "resources" },
         { from: "src/cli/oradew.js", to: "oradew.js" },
         // { from: "src/gulp.js", to: "gulp.js" },
         // {

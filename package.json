@@ -364,7 +364,7 @@
     "webpack-dev": "webpack --mode development --watch",
     "compile": "npm run precompile && tsc -p ./",
     "watch": "npm run precompile && tsc -watch -p ./",
-    "test": "npm run compile && node out/test/runTest",
+    "test": "npm run compile && node out/src/extension/test/runTest",
     "utest": "npm run compile && node ./node_modules/mocha/bin/mocha out/src/cli/test/*test.js",
     "build": "vsce package",
     "publish": "vsce publish",

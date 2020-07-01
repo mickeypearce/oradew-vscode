@@ -385,6 +385,7 @@
     "@types/oracledb": "^4.2.2",
     "@types/vscode": "^1.46.0",
     "@types/yargs": "^15.0.5",
+    "clean-webpack-plugin": "^3.0.0",
     "cli-table": "^0.3.1",
     "command-exists": "^1.2.9",
     "commander": "^2.20.3",

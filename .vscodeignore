@@ -1,32 +1,22 @@
 .vscode/**
 .vscode-test/**
-out/test/**
-out/**/*.map
+#out/test/**
+#out/**/*.map
 src/**
 .gitignore
 .gitmodules
 tsconfig.json
-vsc-extension-quickstart.md
 tslint.json
 *.db
 *.tlog
 !dbconfig.json
 # webpack
-#node_modules
+#node_modules - packages in devDependencies are automatically ignored
 webpack.config.js
 #!node_modules/oracledb
-#!node_modules/gulp
-#!node_modules/gulp-git
-#!node_modules/require-dir
-#!node_modules/gulp-todo
-#!node_modules/gulp-cli
-#!node_modules/vscode-extension-telemetry
-#!node_modules/applicationinsights
-#!node_modules/through2
-
-#!node_modules/rechoir
-#!node_modules/interpret
 **/*.map
 .github
 test/**
 build.yml
+precompile.js
+out

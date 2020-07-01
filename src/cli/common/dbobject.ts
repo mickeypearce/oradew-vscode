@@ -7,7 +7,7 @@ import { fromGlobsToFilesArray } from "./globs";
 import { workspaceConfig as config } from "./config";
 
 // const config = new WorkspaceConfig(
-//   __dirname + "/resources/oradewrc.default.json"
+//   __dirname + "/schemas/oradewrc.default.json"
 // );
 
 //new WorkspaceConfig();

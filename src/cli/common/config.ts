@@ -26,7 +26,7 @@ export interface IConnectionConfig extends IUser {
   connectString: string;
 }
 
-import { properties as dbConfSchema } from "../resources/dbconfig-schema.json";
+import { properties as dbConfSchema } from "../schemas/dbconfig-schema.json";
 
 export class DBConfig {
   defaults: Object;
@@ -175,7 +175,7 @@ export const dbConfig = new DBConfig(process.env.ORADEW_DB_CONFIG_PATH);
  * ...
  * customEnv: ./oradewrc.customEnv.json (optional)
  */
-import { properties as wsConfSchema } from "../resources/oradewrc-schema.json";
+import { properties as wsConfSchema } from "../schemas/oradewrc-schema.json";
 
 export class WorkspaceConfig {
   defaults: Object;

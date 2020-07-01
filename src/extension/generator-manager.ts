@@ -19,7 +19,7 @@ export class GeneratorManager {
 
   constructor() {
     this.file = null;
-    this.defaults = getDefaultsFromSchema("../../resources/oradewrc-generate-schema.json");
+    this.defaults = getDefaultsFromSchema("../../schemas/oradewrc-generate-schema.json");
   }
 
   getConfigFile = (): string => {

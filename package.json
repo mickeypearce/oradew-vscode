@@ -280,19 +280,19 @@
     "jsonValidation": [
       {
         "fileMatch": "dbconfig.json",
-        "url": "./dist/resources/dbconfig-schema.json"
+        "url": "./dist/schemas/dbconfig-schema.json"
       },
       {
         "fileMatch": "oradewrc.json",
-        "url": "./dist/resources/oradewrc-schema.json"
+        "url": "./dist/schemas/oradewrc-schema.json"
       },
       {
         "fileMatch": "oradewrc.*.json",
-        "url": "./dist/resources/oradewrc-schema.json"
+        "url": "./dist/schemas/oradewrc-schema.json"
       },
       {
         "fileMatch": "oradewrc-generate.json",
-        "url": "./resources/oradewrc-generate-schema.json"
+        "url": "./schemas/oradewrc-generate-schema.json"
       }
     ],
     "taskDefinitions": [

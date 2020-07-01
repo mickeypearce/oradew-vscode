@@ -17,7 +17,7 @@ const config = {
   entry: {
     extension: "./src/extension/extension.ts",
     gulpfile: "./src/cli/gulpfile.ts",
-    "oradew-cli": "./src/cli/oradew-cli.ts",
+    cli: "./src/cli/cli.ts",
     // "gulp-cli": "./src/gulp-cli.ts",
   },
   output: {
@@ -54,14 +54,14 @@ const config = {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
     extensions: [".ts", ".js", ".json"],
     // alias: {
-    //   Resources: path.resolve(__dirname, "src/resources/"),
+    //   Resources: path.resolve(__dirname, "src/schemas/"),
     // './': 'handlebars/dist/handlebars.js'
     // },
   },
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: "src/cli/resources", to: "resources" },
+        { from: "src/cli/schemas", to: "schemas" },
         // { from: "src/cli/testWorkspace", to: "testWorkspace" },
         { from: "src/cli/oradew.js", to: "oradew.js" },
         { from: "src/extension/images", to: "images" },

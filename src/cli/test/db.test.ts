@@ -27,7 +27,7 @@ describe("#db getConfiguration", function () {
 
 describe("#DBConfig", function () {
   const dbconfig = dbConfig;
-  const defaults = getDefaultsFromSchema("./src/cli/resources/dbconfig-schema.json");
+  const defaults = getDefaultsFromSchema("./src/cli/schemas/dbconfig-schema.json");
 
   it("should extract defaults from schema", function () {
     assert.equal(defaults.toString(), templateDbconfig);

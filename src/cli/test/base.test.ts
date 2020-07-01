@@ -1,22 +1,25 @@
 const assert = require("assert");
 
 import { fromGlobsToFilesArray, getGlobMatches, isGlobMatch } from "../common/globs";
+// import { resolve } from "path";
+
+const dir = "./out/src/cli/test/testWorkspace"; //resolve(__dirname, "testWorkspace");
 
 describe("#base", function () {
   it("fromGlobsToFilesArray", function () {
     let matches = [
-      "./test/src/HR/FUNCTIONS/FUNC_TEST.sql",
-      "./test/src/HR/FUNCTIONS/FUNC_TEST1.sql",
+      dir + "/src/HR/FUNCTIONS/FUNC_TEST.sql",
+      dir + "/src/HR/FUNCTIONS/FUNC_TEST1.sql",
     ];
-    let match = fromGlobsToFilesArray(["./test/src/**/*.sql"]);
+    let match = fromGlobsToFilesArray([dir + "/src/**/*.sql"]);
     assert.deepEqual(match, matches);
   });
   it("getGlobMatches", function () {
     let matches = [
-      "./test/src/HR/FUNCTIONS/FUNC_TEST.sql",
-      "./test/src/HR/FUNCTIONS/FUNC_TEST1.sql",
+      dir + "/src/HR/FUNCTIONS/FUNC_TEST.sql",
+      dir + "/src/HR/FUNCTIONS/FUNC_TEST1.sql",
     ];
-    let match = getGlobMatches(["./test/src/**/*.sql"], matches);
+    let match = getGlobMatches([dir + "/src/**/*.sql"], matches);
     assert.deepEqual(match, matches);
 
     let matchesNot = ["./test/src/HR/FUNCTIONS/FUNC_TEST.sql"];

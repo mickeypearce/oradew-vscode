@@ -9,3 +9,4 @@ fs.copySync("./src/cli/templates", "./out/src/cli/templates");
 
 // copy test resources
 fs.copySync("./src/cli/test/resources", "./out/src/cli/test/resources");
+fs.copySync("./src/cli/test/testWorkspace", "./out/src/cli/test/testWorkspace");

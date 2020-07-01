@@ -62,6 +62,7 @@ const config = {
     new CopyPlugin({
       patterns: [
         { from: "src/cli/resources", to: "resources" },
+        // { from: "src/cli/testWorkspace", to: "testWorkspace" },
         { from: "src/cli/oradew.js", to: "oradew.js" },
         { from: "src/extension/images", to: "images" },
         // { from: "src/gulp.js", to: "gulp.js" },

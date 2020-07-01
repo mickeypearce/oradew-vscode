@@ -25,12 +25,14 @@ describe("#db getConfiguration", function () {
   });
 });
 
+import { properties as dbConfSchema } from "../schemas/dbconfig-schema.json";
+
 describe("#DBConfig", function () {
   const dbconfig = dbConfig;
-  const defaults = getDefaultsFromSchema("./src/cli/schemas/dbconfig-schema.json");
+  const defaults = getDefaultsFromSchema(dbConfSchema);
 
   it("should extract defaults from schema", function () {
-    assert.equal(defaults.toString(), templateDbconfig);
+    assert.deepEqual(defaults, templateDbconfig);
   });
 
   it("should get defaults from dbConfigInstance", function () {

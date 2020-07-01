@@ -10,7 +10,8 @@ import { setInitialized } from "./activation";
 import { OradewTaskProvider, createCompileOnSaveTask } from "./oradew-task-provider";
 import { Telemetry } from "./telemetry";
 import { PackageOutput } from "./package-output";
-import { GulpTaskManager } from "../cli/gulp-task-manager";
+// @ts-ignore
+import { GulpTaskManager } from "@Cli/gulp-task-manager";
 
 let oradewTaskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;

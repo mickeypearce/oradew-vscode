@@ -11,9 +11,9 @@ const config = {
   target: "node", // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
   // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   entry: {
-    extension: "./src/extension/extension.ts",
-    gulpfile: "./src/cli/gulpfile.ts",
     cli: "./src/cli/cli.ts",
+    gulpfile: "./src/cli/gulpfile.ts",
+    extension: "./src/extension/extension.ts",
   },
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
@@ -39,10 +39,9 @@ const config = {
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
     extensions: [".ts", ".js", ".json"],
-    // alias: {
-    //   Resources: path.resolve(__dirname, "src/schemas/"),
-    // './': 'handlebars/dist/handlebars.js'
-    // },
+    alias: {
+      "@Cli": path.resolve(__dirname, "src/cli/"),
+    },
   },
   plugins: [
     new CleanWebpackPlugin(),

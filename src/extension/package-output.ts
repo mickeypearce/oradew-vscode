@@ -1,11 +1,12 @@
+import { resolve } from "path";
 import { window, QuickPickOptions, QuickPickItem } from "vscode";
-import { matchOutputFiles } from "../cli/common/dbobject";
-import { WorkspaceConfig } from "../cli/common/config";
+// @ts-ignore
+import { matchOutputFiles } from "@Cli/common/dbobject";
+// @ts-ignore
+import { WorkspaceConfig } from "@Cli/common/config";
 
 import { ConfigurationController } from "./configuration-controller";
 import { EnvironmentController } from "./environment-controller";
-
-import { resolve } from "path";
 
 const { workspaceConfigFile } = ConfigurationController.getInstance();
 

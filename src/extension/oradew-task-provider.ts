@@ -1,8 +1,13 @@
 import * as vscode from "vscode";
-import { GulpTaskManager } from "../cli/gulp-task-manager";
+// @ts-ignore
+import { GulpTaskManager } from "@Cli/gulp-task-manager";
 
 let taskManager: GulpTaskManager;
-// let context: vscode.ExtensionContext;
+
+interface OradewTaskDefinition extends vscode.TaskDefinition {
+  name: string;
+  params: string[];
+}
 
 export class OradewTaskProvider implements vscode.TaskProvider {
   static OradewType: string = "oradew";
@@ -10,7 +15,6 @@ export class OradewTaskProvider implements vscode.TaskProvider {
 
   constructor(ptaskManager: GulpTaskManager) {
     taskManager = ptaskManager;
-    // context = pcontext;
   }
 
   public provideTasks(): Thenable<vscode.Task[]> | undefined {
@@ -58,11 +62,6 @@ function getOutputChannel(): vscode.OutputChannel {
     _channel = vscode.window.createOutputChannel("Oradew Auto Detection");
   }
   return _channel;
-}
-
-interface OradewTaskDefinition extends vscode.TaskDefinition {
-  name: string;
-  params: string[];
 }
 
 function createOradewTaskDefinition({ name, params }): OradewTaskDefinition {

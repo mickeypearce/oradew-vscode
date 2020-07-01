@@ -7,10 +7,12 @@ const configCustomrc = new WorkspaceConfig(__dirname + "/resources/oradewrc.json
 
 const templateOradewrc = require(__dirname + "/resources/oradewrc.default.json");
 
+import { properties as wsConfSchema } from "../schemas/oradewrc-schema.json";
+
 describe("#Utility Default Config in ./", function () {
   it("should extract defaults from schema", function () {
-    const defaults = getDefaultsFromSchema("./src/cli/schemas/oradewrc-schema.json");
-    assert.equal(defaults.toString(), templateOradewrc);
+    const defaults = getDefaultsFromSchema(wsConfSchema);
+    assert.deepEqual(defaults, templateOradewrc);
   });
 
   it("should compile.force be true by default", function () {

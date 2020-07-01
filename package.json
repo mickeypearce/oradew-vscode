@@ -371,7 +371,7 @@
     "precompile": "node precompile.js",
     "install-cli": "npm install -g ./ --ignore-scripts --no-optional",
     "fix": "rd node_modules /S /Q & del package-lock.json & npm install --no-optional",
-    "format": "prettier --check \"**/*.{js,ts}\"",
+    "format": "prettier --check \"src/**/*.{js,ts}\"",
     "format:fix": "npm run format -- --write",
     "tslint": "tslint --project tsconfig.json --config tslint.json",
     "tslint:fix": "npm run tslint -- --fix"

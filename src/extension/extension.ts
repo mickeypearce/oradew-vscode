@@ -51,6 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
   const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
 
+  // Task manager is used for getting processEnv variable which contains the same env variables that are passed to Oradew CLI
   taskManager = new GulpTaskManager({
     workspacePath,
     contextPath,

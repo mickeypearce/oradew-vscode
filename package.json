@@ -361,7 +361,7 @@
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
     "webpack": "webpack --mode development",
-    "webpack-dev": "webpack --mode development --watch",
+    "webpack-dev": "webpack --mode development --watch --info-verbosity verbose",
     "compile": "npm run precompile && tsc -p ./",
     "watch": "npm run precompile && tsc -watch -p ./",
     "test": "npm run compile && node out/src/extension/test/runTest",

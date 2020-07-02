@@ -20,6 +20,9 @@ let generatorManager: GeneratorManager;
 let packageOutput: PackageOutput;
 let taskManager: GulpTaskManager;
 
+// The extension deactivate method is asynchronous, so we handle the disposables ourselves instead of using extensonContext.subscriptions.
+const disposables: vscode.Disposable[] = [];
+
 export function activate(context: vscode.ExtensionContext) {
   let settings = ConfigurationController.getInstance();
   const { chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVariables } = settings;
@@ -191,37 +194,37 @@ export function activate(context: vscode.ExtensionContext) {
     Telemetry.sendEvent("compileOnSaveTask");
   });
 
-  context.subscriptions.push(cmdTaskGenerate);
-  context.subscriptions.push(cmdTaskInitProject);
-  context.subscriptions.push(cmdTaskCreateProject);
-  context.subscriptions.push(cmdTaskCompile);
-  context.subscriptions.push(cmdTaskCompileAll);
-  context.subscriptions.push(cmdTaskCompileFile);
-  context.subscriptions.push(cmdTaskCompileObject);
-  context.subscriptions.push(cmdTaskExport);
-  context.subscriptions.push(cmdTaskExportFile);
-  context.subscriptions.push(cmdTaskExportObject);
-  context.subscriptions.push(cmdTaskPackage);
-  context.subscriptions.push(cmdTaskPackageDelta);
-  context.subscriptions.push(cmdTaskDeploy);
-  context.subscriptions.push(cmdTaskRunFile);
-  context.subscriptions.push(cmdTaskTest);
-  context.subscriptions.push(cmdTaskCompileOnSave);
+  disposables.push(cmdTaskGenerate);
+  disposables.push(cmdTaskInitProject);
+  disposables.push(cmdTaskCreateProject);
+  disposables.push(cmdTaskCompile);
+  disposables.push(cmdTaskCompileAll);
+  disposables.push(cmdTaskCompileFile);
+  disposables.push(cmdTaskCompileObject);
+  disposables.push(cmdTaskExport);
+  disposables.push(cmdTaskExportFile);
+  disposables.push(cmdTaskExportObject);
+  disposables.push(cmdTaskPackage);
+  disposables.push(cmdTaskPackageDelta);
+  disposables.push(cmdTaskDeploy);
+  disposables.push(cmdTaskRunFile);
+  disposables.push(cmdTaskTest);
+  disposables.push(cmdTaskCompileOnSave);
 
   // Internal
-  context.subscriptions.push(cmdGetEnvironment);
-  context.subscriptions.push(cmdPickEnvironment);
-  context.subscriptions.push(cmdGetGeneratorFunction);
-  context.subscriptions.push(cmdGetUser);
-  context.subscriptions.push(cmdPickUser);
-  context.subscriptions.push(cmdSetDbUser);
-  context.subscriptions.push(cmdGetPackageOutput);
+  disposables.push(cmdGetEnvironment);
+  disposables.push(cmdPickEnvironment);
+  disposables.push(cmdGetGeneratorFunction);
+  disposables.push(cmdGetUser);
+  disposables.push(cmdPickUser);
+  disposables.push(cmdSetDbUser);
+  disposables.push(cmdGetPackageOutput);
 
-  context.subscriptions.push(cmdSetDbEnvironment);
-  context.subscriptions.push(cmdClearDbEnvironment);
+  disposables.push(cmdSetDbEnvironment);
+  disposables.push(cmdClearDbEnvironment);
 
   // Telemetry
-  context.subscriptions.push(Telemetry.reporter);
+  disposables.push(Telemetry.reporter);
 }
 
 // this method is called when your extension is deactivated
@@ -236,4 +239,5 @@ export function deactivate(): void {
     userController.dispose();
   }
   Telemetry.deactivate();
+  disposables.forEach((d) => d.dispose());
 }

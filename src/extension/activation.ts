@@ -19,7 +19,7 @@ export const existPrerequisites = (): boolean => {
   // Optional - SQL*Plus or SQLcl is required only for certain oradew commands
   if (!commandExists("sqlplus") && !commandExists("sql")) {
     window.showWarningMessage(
-      `Oradew: "sqlplus" (SQL*Plus) or "sql" (SQLcl) command is required in command-line.`
+      `Oradew: "sqlplus" (SQL*Plus) or "sql" (SQLcl) command is required in command-line for certain commands.`
     );
   }
   return bCheck;

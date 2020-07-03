@@ -1,9 +1,7 @@
 import { QuickPickItem, QuickPickOptions, window } from "vscode";
 import { existsSync, readJsonSync } from "fs-extra";
-import { ConfigurationController } from "./configuration-controller";
-// @ts-ignore
+import { ConfigurationManager } from "../common/configuration-manager";
 import { getDefaultsFromSchema } from "@Cli/common/config";
-// @ts-ignore
 import { properties as genSchema } from "@Cli/schemas/oradewrc-generate-schema.json";
 
 interface IGenerator {
@@ -13,7 +11,7 @@ interface IGenerator {
   output?: string;
 }
 
-export class GeneratorManager {
+export class GeneratorController {
   // Config file path
   file: string;
   defaults: any;
@@ -26,7 +24,7 @@ export class GeneratorManager {
   }
 
   getConfigFile = (): string => {
-    return ConfigurationController.getInstance().generatorConfigFile;
+    return ConfigurationManager.getInstance().generatorConfigFile;
   };
 
   read = (): void => {

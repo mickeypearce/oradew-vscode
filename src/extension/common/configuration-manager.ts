@@ -1,7 +1,7 @@
 import { workspace } from "vscode";
 import { resolve } from "path";
 
-export class ConfigurationController {
+export class ConfigurationManager {
   public databaseConfigFile: string;
   public workspaceConfigFile: string;
   public generatorConfigFile: string;
@@ -9,14 +9,14 @@ export class ConfigurationController {
   public cliExecutable: string;
   public envVariables?: { [id: string]: string };
 
-  private static _instance: ConfigurationController;
+  private static _instance: ConfigurationManager;
 
-  public static getInstance(): ConfigurationController {
-    if (!ConfigurationController._instance) {
-      ConfigurationController._instance = new ConfigurationController();
+  public static getInstance(): ConfigurationManager {
+    if (!ConfigurationManager._instance) {
+      ConfigurationManager._instance = new ConfigurationManager();
     }
 
-    return ConfigurationController._instance;
+    return ConfigurationManager._instance;
   }
 
   private constructor() {

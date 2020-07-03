@@ -1,6 +1,6 @@
 import TelemetryReporter from "vscode-extension-telemetry";
 
-const pkgJson = require("../../package.json");
+const pkgJson = require("../../../package.json");
 
 // all events will be prefixed with this event name
 const extensionId = pkgJson.name;

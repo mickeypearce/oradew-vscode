@@ -1,8 +1,8 @@
 import { resolve } from "path";
 import { homedir } from "os";
-import { GulpTaskManager } from "./gulp-task-manager";
 import * as program from "commander";
 
+import { OradewProcess } from "./process";
 import { version } from "../../package.json";
 
 // ENVironment variables:
@@ -38,17 +38,17 @@ const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
 
 const cliExecutable = process.env.ORADEW_CLI_EXECUTABLE || "sql";
 
-const taskManager = new GulpTaskManager({
-  workspacePath,
-  contextPath,
-  storagePath,
+const oradewProcess = new OradewProcess({
+  workspaceDir: workspacePath,
+  cliDir: contextPath,
+  storageDir: storagePath,
   dbConfigPath,
   wsConfigPath,
   isSilent,
   isColor,
   cliExecutable,
 });
-const execute = () => taskManager.executeOradewTask(process.argv);
+const execute = () => oradewProcess.execute(process.argv);
 
 program.name("oradew").version(version).usage("<command> [options]");
 

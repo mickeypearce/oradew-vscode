@@ -1,7 +1,7 @@
 import child = require("child_process");
 import { resolve } from "path";
 
-export class GulpTaskManager {
+export class OradewProcess {
   wsConfigPath: string;
   gulpPathJs: string;
   gulpFile: string;
@@ -10,20 +10,20 @@ export class GulpTaskManager {
   cliPath: string;
 
   constructor(tmConfig: {
-    workspacePath: string; // Workspace folder
-    contextPath: string; // Extension folder
-    storagePath: string; // Storage folder
+    workspaceDir: string; // Workspace folder
+    cliDir: string; // CLI folder
+    storageDir: string; // Storage folder
     dbConfigPath?: string; // ./dbconfig.json by default
     wsConfigPath?: string; // ./oradewrc.json by default
     isSilent?: boolean; //gulp option: --silent
     isColor?: boolean; //gulp option:--color
-    cliExecutable: string; //DB cli executable (ex. sqlplus)
+    cliExecutable: string; //DB CLI executable (ex. sqlplus)
     envVariables?: { [id: string]: string }; // ENV vars (ex: "NLS_LANG": "AMERICAN_AMERICA.cp1252" )
   }) {
     const {
-      workspacePath,
-      contextPath,
-      storagePath,
+      workspaceDir,
+      cliDir,
+      storageDir,
       wsConfigPath,
       dbConfigPath,
       isSilent,
@@ -32,15 +32,15 @@ export class GulpTaskManager {
       envVariables,
     } = tmConfig;
 
-    this.gulpPathJs = resolve(contextPath, "node_modules/gulp/bin/gulp.js");
-    this.gulpFile = resolve(contextPath, "dist/gulpfile.js");
+    this.gulpPathJs = resolve(cliDir, "node_modules/gulp/bin/gulp.js");
+    this.gulpFile = resolve(cliDir, "dist/gulpfile.js");
 
-    this.cliPath = resolve(contextPath, "dist/oradew.js");
+    this.cliPath = resolve(cliDir, "dist/oradew.js");
 
     this.gulpParams = [
       `${this.gulpPathJs}`,
       "--cwd",
-      `${workspacePath}`,
+      `${workspaceDir}`,
       "--gulpfile",
       `${this.gulpFile}`,
       // Set only when true, had some problems with false
@@ -51,7 +51,7 @@ export class GulpTaskManager {
     this.processEnv = {
       env: {
         NODE_OPTIONS: "--no-deprecation",
-        ORADEW_STORAGE_DIR: storagePath,
+        ORADEW_STORAGE_DIR: storageDir,
         ORADEW_DB_CONFIG_PATH: dbConfigPath,
         ORADEW_WS_CONFIG_PATH: wsConfigPath,
         ORADEW_CLI_EXECUTABLE: cliExecutable,
@@ -63,7 +63,7 @@ export class GulpTaskManager {
     };
   }
 
-  executeOradewTask = (argv) => {
+  execute = (argv) => {
     const params = [...this.gulpParams, ...argv.slice(2)];
     // console.log("Executing oradew task: " + params.join(" "));
 

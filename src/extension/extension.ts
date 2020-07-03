@@ -2,29 +2,28 @@
 
 import * as vscode from "vscode";
 
-import { GeneratorManager } from "./generator-manager";
-import { EnvironmentController } from "./environment-controller";
-import { UserController } from "./user-controller";
-import { ConfigurationController } from "./configuration-controller";
-import { setInitialized } from "./activation";
-import { OradewTaskProvider, createCompileOnSaveTask } from "./oradew-task-provider";
-import { Telemetry } from "./telemetry";
-import { PackageOutput } from "./package-output";
-// @ts-ignore
-import { GulpTaskManager } from "@Cli/gulp-task-manager";
+import { ConfigurationManager } from "./common/configuration-manager";
+import { setInitialized } from "./common/activation";
+import { Telemetry } from "./common/telemetry";
+import { GeneratorController } from "./controllers/generator-controller";
+import { EnvironmentController } from "./controllers/environment-controller";
+import { UserController } from "./controllers/user-controller";
+import { FileController } from "./controllers/file-controller";
+import { OradewTaskProvider, createCompileOnSaveTask } from "./task-provider";
+import { OradewProcess } from "@Cli/process";
 
 let oradewTaskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
 let userController: UserController;
-let generatorManager: GeneratorManager;
-let packageOutput: PackageOutput;
-let taskManager: GulpTaskManager;
+let generatorController: GeneratorController;
+let fileController: FileController;
+let oradewProcess: OradewProcess;
 
 // The extension deactivate method is asynchronous, so we handle the disposables ourselves instead of using extensonContext.subscriptions.
 const disposables: vscode.Disposable[] = [];
 
 export function activate(context: vscode.ExtensionContext) {
-  let settings = ConfigurationController.getInstance();
+  let settings = ConfigurationManager.getInstance();
   const { chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVariables } = settings;
 
   // Reload if dbconfig created...
@@ -51,11 +50,11 @@ export function activate(context: vscode.ExtensionContext) {
   const contextPath = context.extensionPath;
   const storagePath = context.storagePath || context.extensionPath;
 
-  // Task manager is used for getting processEnv variable which contains the same env variables that are passed to Oradew CLI
-  taskManager = new GulpTaskManager({
-    workspacePath,
-    contextPath,
-    storagePath,
+  // OradewProcess is used for getting processEnv variable which contains the same env variables that are passed to Oradew CLI
+  oradewProcess = new OradewProcess({
+    workspaceDir: workspacePath,
+    cliDir: contextPath,
+    storageDir: storagePath,
     dbConfigPath: databaseConfigFile,
     wsConfigPath: workspaceConfigFile,
     isSilent: !chatty,
@@ -64,16 +63,16 @@ export function activate(context: vscode.ExtensionContext) {
     envVariables,
   });
 
-  generatorManager = new GeneratorManager();
+  generatorController = new GeneratorController();
   environmentController = new EnvironmentController(context);
   userController = new UserController(context, environmentController);
 
   oradewTaskProvider = vscode.tasks.registerTaskProvider(
     OradewTaskProvider.OradewType,
-    new OradewTaskProvider(taskManager)
+    new OradewTaskProvider(oradewProcess)
   );
 
-  packageOutput = new PackageOutput(workspacePath, environmentController);
+  fileController = new FileController(workspacePath, environmentController);
 
   // Internal command: env paramater selection in commands
   let cmdGetEnvironment = vscode.commands.registerCommand(
@@ -99,7 +98,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Internal command: function paramater selection in generator task
   let cmdGetGeneratorFunction = vscode.commands.registerCommand(
     "oradew.getGeneratorFunction",
-    generatorManager.getGeneratorFunction
+    generatorController.getGeneratorFunction
   );
 
   // Internal command: user paramater selection in commands
@@ -109,10 +108,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   let cmdSetDbUser = vscode.commands.registerCommand("oradew.setDbUser", userController.setDbUser);
 
-  // Internal command: env paramater selection in commands
-  let cmdGetPackageOutput = vscode.commands.registerCommand(
-    "oradew.getPackageOutput",
-    packageOutput.getPackageOutput
+  // Internal command: file paramater selection in deploy command
+  let cmdPickPackageScript = vscode.commands.registerCommand(
+    "oradew.pickPackageScript",
+    fileController.pickPackageScript
   );
 
   /************** */
@@ -219,7 +218,7 @@ export function activate(context: vscode.ExtensionContext) {
   disposables.push(cmdGetUser);
   disposables.push(cmdPickUser);
   disposables.push(cmdSetDbUser);
-  disposables.push(cmdGetPackageOutput);
+  disposables.push(cmdPickPackageScript);
 
   disposables.push(cmdSetDbEnvironment);
   disposables.push(cmdClearDbEnvironment);

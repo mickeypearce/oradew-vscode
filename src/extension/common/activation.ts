@@ -1,9 +1,9 @@
 import { window, commands } from "vscode";
 import { sync as commandExists } from "command-exists";
 import { existsSync } from "fs-extra";
-import { ConfigurationController } from "./configuration-controller";
+import { ConfigurationManager } from "./configuration-manager";
 
-let settings = ConfigurationController.getInstance();
+let settings = ConfigurationManager.getInstance();
 
 // Git and NodeJS are mandatory prerequsites, SQl*Plus is a warning only
 export const existPrerequisites = (): boolean => {

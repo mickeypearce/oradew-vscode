@@ -6,12 +6,11 @@ import {
   QuickPickOptions,
   ExtensionContext,
 } from "vscode";
-import { ConfigurationController } from "./configuration-controller";
-import { Telemetry } from "./telemetry";
-
-import { EnvironmentController } from "./environment-controller";
-
 import { readJson, existsSync } from "fs-extra";
+
+import { ConfigurationManager } from "../common/configuration-manager";
+import { Telemetry } from "../common/telemetry";
+import { EnvironmentController } from "./environment-controller";
 
 export class UserController {
   private static readonly NONE: QuickPickItem = {
@@ -35,7 +34,7 @@ export class UserController {
 
   public constructor(context: ExtensionContext, environmentController: EnvironmentController) {
     this._context = context;
-    this._dbConfigPath = ConfigurationController.getInstance().databaseConfigFile;
+    this._dbConfigPath = ConfigurationManager.getInstance().databaseConfigFile;
     this._environmentController = environmentController;
     UserController._statusBar = window.createStatusBarItem(StatusBarAlignment.Left, 9);
     UserController._statusBar.tooltip = "Oradew: Set DB User";

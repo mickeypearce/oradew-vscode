@@ -1,16 +1,14 @@
 import { resolve } from "path";
 import { window, QuickPickOptions, QuickPickItem } from "vscode";
-// @ts-ignore
+
+import { ConfigurationManager } from "../common/configuration-manager";
+import { EnvironmentController } from "./environment-controller";
 import { matchOutputFiles } from "@Cli/common/dbobject";
-// @ts-ignore
 import { WorkspaceConfig } from "@Cli/common/config";
 
-import { ConfigurationController } from "./configuration-controller";
-import { EnvironmentController } from "./environment-controller";
+const { workspaceConfigFile } = ConfigurationManager.getInstance();
 
-const { workspaceConfigFile } = ConfigurationController.getInstance();
-
-export class PackageOutput {
+export class FileController {
   private _workspacePath: string;
   private _environmentController: EnvironmentController;
 
@@ -19,7 +17,7 @@ export class PackageOutput {
     this._environmentController = environmentController;
   }
 
-  public getPackageOutput = async (): Promise<string | null> => {
+  public pickPackageScript = async (): Promise<string | null> => {
     // It doesn't reload if a field changes, so here...
     const config = new WorkspaceConfig(workspaceConfigFile);
     const env = this._environmentController.currentPick;

@@ -1,8 +1,7 @@
 import * as vscode from "vscode";
-// @ts-ignore
-import { GulpTaskManager } from "@Cli/gulp-task-manager";
+import { OradewProcess } from "@Cli/process";
 
-let taskManager: GulpTaskManager;
+let oradewProcess: OradewProcess;
 
 interface OradewTaskDefinition extends vscode.TaskDefinition {
   name: string;
@@ -13,8 +12,8 @@ export class OradewTaskProvider implements vscode.TaskProvider {
   static OradewType: string = "oradew";
   private oradewPromise: Thenable<vscode.Task[]> | undefined = undefined;
 
-  constructor(ptaskManager: GulpTaskManager) {
-    taskManager = ptaskManager;
+  constructor(pod: OradewProcess) {
+    oradewProcess = pod;
   }
 
   public provideTasks(): Thenable<vscode.Task[]> | undefined {
@@ -80,8 +79,8 @@ function createOradewTask(definition: OradewTaskDefinition): vscode.Task {
     OradewTaskProvider.OradewType,
     new vscode.ProcessExecution(
       "node",
-      [taskManager.cliPath, ...definition.params],
-      taskManager.processEnv
+      [oradewProcess.cliPath, ...definition.params],
+      oradewProcess.processEnv
     ),
     "$oracle-plsql"
   );
@@ -276,7 +275,7 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
             "--user",
             "${command:oradew.getUser}",
             "--file",
-            "${command:oradew.getPackageOutput}",
+            "${command:oradew.pickPackageScript}",
           ],
         })
       )

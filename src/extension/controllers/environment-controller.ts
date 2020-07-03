@@ -6,8 +6,8 @@ import {
   QuickPickOptions,
   ExtensionContext,
 } from "vscode";
-import { ConfigurationController } from "./configuration-controller";
-import { Telemetry } from "./telemetry";
+import { ConfigurationManager } from "../common/configuration-manager";
+import { Telemetry } from "../common/telemetry";
 
 import { readJson, existsSync } from "fs-extra";
 
@@ -35,7 +35,7 @@ export class EnvironmentController {
 
   public constructor(context: ExtensionContext) {
     this._context = context;
-    this._dbConfigPath = ConfigurationController.getInstance().databaseConfigFile;
+    this._dbConfigPath = ConfigurationManager.getInstance().databaseConfigFile;
     EnvironmentController._statusBar = window.createStatusBarItem(StatusBarAlignment.Left, 10);
     EnvironmentController._statusBar.tooltip = "Oradew: Set DB Environment";
     EnvironmentController._statusBar.command = `oradew.setDbEnvironment`;

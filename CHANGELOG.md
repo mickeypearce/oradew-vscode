@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.3.23] - 2020-06-25
+## [0.3.23] - 2020-07-03
 
 - Added "askForPassword" to DB users (dbconfig.json) [#34](github.com/mickeypearce/oradew-vscode/issues/34)
 

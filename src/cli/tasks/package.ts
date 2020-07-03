@@ -241,7 +241,7 @@ const generateBOLContent = function (paths) {
 };
 
 const makeBillOfLading = ({ env = argv.env }) => {
-  const file = path.join(__dirname, "../templates/BOL*.md");
+  const file = path.join(__dirname, "/templates/BOL*.md");
 
   // Generate change log from deploy input array
   const input = config.get({ field: "package.input", env });

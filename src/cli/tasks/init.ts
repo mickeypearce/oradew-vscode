@@ -74,19 +74,19 @@ const createProjectFiles = () => {
   const scriptsDirs = schemas.map((v) => `./scripts/${v}`);
   gulp
     .src([
-      path.join(__dirname, "../templates/scripts/initial*.sql"),
-      path.join(__dirname, "../templates/scripts/final*.sql"),
+      path.join(__dirname, "/templates/scripts/initial*.sql"),
+      path.join(__dirname, "/templates/scripts/final*.sql"),
     ])
     .pipe(multiDest(scriptsDirs));
 
   // Array of test directoris with schema in path, if it don't already exists
   const testsDirs = schemas.filter((v) => !fs.existsSync(`./test/${v}`)).map((v) => `./test/${v}`);
 
-  gulp.src([path.join(__dirname, "../templates/test/*.test.sql")]).pipe(multiDest(testsDirs));
+  gulp.src([path.join(__dirname, "/templates/test/*.test.sql")]).pipe(multiDest(testsDirs));
 
   let src = [];
   if (!fs.existsSync("./.gitignore")) {
-    src.push(path.join(__dirname, "../templates/.gitignore"));
+    src.push(path.join(__dirname, "/templates/.gitignore"));
   }
 
   if (src.length === 0) {
@@ -95,7 +95,7 @@ const createProjectFiles = () => {
   return gulp
     .src(src, {
       allowEmpty: true,
-      base: path.join(__dirname, "../templates/"),
+      base: path.join(__dirname, "/templates/"),
     })
     .pipe(gulp.dest("."))
     .on("end", () => console.log(`workspace structure initialized for user(s): ${schemas}`));
@@ -176,6 +176,10 @@ export async function initTask() {
     createProjectFiles,
     createSrcEmpty,
     initConfigFile,
-    initGit
+    initGit,
+    (done) => {
+      console.log("done!");
+      done();
+    }
   )();
 }

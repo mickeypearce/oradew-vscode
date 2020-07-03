@@ -48,6 +48,7 @@ const config = {
     new CopyPlugin({
       patterns: [
         { from: "src/cli/schemas", to: "schemas" },
+        { from: "src/cli/templates", to: "templates" },
         { from: "src/cli/oradew.js", to: "oradew.js" },
         { from: "src/extension/images", to: "images" },
         // {

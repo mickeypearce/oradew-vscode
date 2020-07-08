@@ -34,6 +34,8 @@ describe("#base", function () {
     let match = isGlobMatch(["./test/src/**/*.sql"], matches);
     assert.ok(match);
 
+    let matchcase = isGlobMatch(["./test/src/**/*.SQL"], matches);
+    assert.ok(matchcase);
     // Exclude file from glob
     let matchIgnore = isGlobMatch(["./test/src/**/*.sql", `!./test/src/FUNCTIONS/*.sql`], matches);
     assert.ok(!matchIgnore);

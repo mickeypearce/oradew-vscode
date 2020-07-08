@@ -31,6 +31,7 @@ function getObjectTypeFromSrcPath(path) {
     // Globpattern have to be without ./, but We have it in config for unknown reason...
     return micromatch.isMatch(path, globPattern, {
       format: rootRemove,
+      nocase: true,
     });
   });
   return foundPattern[0];
@@ -42,6 +43,7 @@ function isDeployPath(path) {
   const globPattern = patternPckOutput.replace(/{schema-name}|{object-name}/gi, "*");
   return micromatch.isMatch(path, globPattern, {
     format: rootRemove,
+    nocase: true,
   });
 }
 
@@ -116,7 +118,9 @@ export function getObjectInfoFromPath(path) {
 
     // Convert to regex so we can find and replace
     // p1 = ["/.\/src\//", "/\/PACKAGES\/\w+-spec.sql/"]
-    const schemaRegex = schemaSplit.map((v) => new RegExp(v.replace("{object-name}", "\\w+")));
+    const schemaRegex = schemaSplit.map(
+      (v) => new RegExp(v.replace("{object-name}", "\\w+"), "gi")
+    );
 
     // Remove both from path
     // ex: path: "./src/HR/PACKAGES/pck1-spec.sql"
@@ -126,7 +130,9 @@ export function getObjectInfoFromPath(path) {
 
     /** extact object-name*/
     const objectSplit = patternSrc.split("{object-name}");
-    const objectRegex = objectSplit.map((v) => new RegExp(v.replace("{schema-name}", "\\w+")));
+    const objectRegex = objectSplit.map(
+      (v) => new RegExp(v.replace("{schema-name}", "\\w+"), "gi")
+    );
     objectName = objectRegex.reduce((acc, val) => acc.replace(val, ""), pathPosix);
 
     // Map to ora types
@@ -151,9 +157,11 @@ export function getObjectInfoFromPath(path) {
 
     /** extact schema*/
     // Get left and right of schema path
-    // p1 = ["./deploy/", "/Run.sql"]
+    // p1 = ["./deploy/", ".sql"]
     const schemaSplit = patternPck.split("{schema-name}");
-    schema = pathPosix.replace(schemaSplit[0], "").replace(schemaSplit[1], "");
+    schema = pathPosix
+      .replace(new RegExp(schemaSplit[0], "gi"), "")
+      .replace(new RegExp(schemaSplit[1], "gi"), "");
     objectName = parse(absPath).name;
     return {
       owner: schema,

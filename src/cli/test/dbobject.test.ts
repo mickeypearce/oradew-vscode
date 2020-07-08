@@ -55,6 +55,16 @@ describe("#getObjectInfo with default structure", function () {
       "isScript": true,
     });
   });
+  it("deploy: should get object type deployScript - SQL ext", function () {
+    assert.deepEqual(getObjectInfoFromPath("./deploy/HR.SQL"), {
+      "owner": "HR",
+      "objectType": "deployScript",
+      "objectType1": "deployScript",
+      "objectName": "HR",
+      "isSource": false,
+      "isScript": true,
+    });
+  });
   it("script: should get object type script - no dir", function () {
     assert.deepEqual(getObjectInfoFromPath("./file.sql"), {
       "owner": undefined,
@@ -100,6 +110,16 @@ describe("#getObjectInfo with custom config", function () {
 
   it("src: should get object type body", function () {
     assert.deepEqual(getObjectInfoFromPath("./src/HR/pck/my_pck1-body.sql"), {
+      "owner": "HR",
+      "objectType": "PACKAGE BODY",
+      "objectType1": "PACKAGE_BODY",
+      "objectName": "my_pck1",
+      "isSource": true,
+      "isScript": false,
+    });
+  });
+  it("src: should get object type body - SQL ext", function () {
+    assert.deepEqual(getObjectInfoFromPath("./src/HR/pck/my_pck1-body.SQL"), {
       "owner": "HR",
       "objectType": "PACKAGE BODY",
       "objectType1": "PACKAGE_BODY",

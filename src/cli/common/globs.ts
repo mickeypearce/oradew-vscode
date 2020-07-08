@@ -9,20 +9,20 @@ import { getChangesNotStaged } from "./git";
 
 // Get array of files matched by glob patterns array
 export function fromGlobsToFilesArray(globArray, options?) {
-  return sync(globArray, options).map(rootPrepend);
+  return sync(globArray, { ...options, caseSensitiveMatch: false }).map(rootPrepend);
 }
 
 // Get filepaths from matchArray (file paths) matched by globArray
 // matchArray is not necesarry actual files on disk
 // (Intersection between globArray matches and matchArray)
 export function getGlobMatches(globArray, matchArray) {
-  return multimatch(matchArray, globArray);
+  return multimatch(matchArray, globArray, { nocase: true });
 }
 
 // True if matchArray equals globArray matches
 // Matches against a list instead of the filesystem
 export function isGlobMatch(globArray, matchArray) {
-  const matches = multimatch(matchArray, globArray);
+  const matches = multimatch(matchArray, globArray, { nocase: true });
   return isEqual(matchArray, matches);
 }
 

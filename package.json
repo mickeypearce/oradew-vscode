@@ -40,40 +40,40 @@
       "editor/title": [
         {
           "command": "oradew.compileFileTask",
-          "when": "inOradewProject && resourceExtname == .sql",
+          "when": "inOradewProject && resourceExtname =~ /.sql|.SQL/",
           "group": "navigation@1",
           "alt": "oradew.compileObjectTask"
         },
         {
           "command": "oradew.runFileTask",
-          "when": "inOradewProject && resourceExtname == .sql",
+          "when": "inOradewProject && resourceExtname =~ /.sql|.SQL/",
           "group": "navigation@2"
         }
       ],
       "editor/context": [
         {
           "command": "oradew.compileFileTask",
-          "when": "inOradewProject && resourceExtname == .sql && !editorHasSelection",
+          "when": "inOradewProject && resourceExtname =~ /.sql|.SQL/ && !editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.importFileTask",
-          "when": "inOradewProject && resourceExtname == .sql && !editorHasSelection",
+          "when": "inOradewProject && resourceExtname =~ /.sql|.SQL/ && !editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.importObjectTask",
-          "when": "inOradewProject && resourceExtname == .sql && editorHasSelection",
+          "when": "inOradewProject && resourceExtname =~ /.sql|.SQL/ && editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.compileObjectTask",
-          "when": "inOradewProject && resourceExtname == .sql && editorHasSelection",
+          "when": "inOradewProject && resourceExtname =~ /.sql|.SQL/ && editorHasSelection",
           "group": "Oradew"
         },
         {
           "command": "oradew.generateTask",
-          "when": "inOradewProject && resourceExtname == .sql && editorHasSelection",
+          "when": "inOradewProject && resourceExtname =~ /.sql|.SQL/ && editorHasSelection",
           "group": "Oradew"
         }
       ],

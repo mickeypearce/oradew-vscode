@@ -12,11 +12,12 @@ const U_AUTO = "<Auto>";
  *Extract user info from path and match with DB conn configuration
  */
 function matchDbUser(file, env, user, changeOwner) {
-  let obj = user === U_AUTO ? getObjectInfoFromPath(file) : { owner: user };
-  // console.log('user='+user+ ' owner='+obj.owner);
+  const oinfo = getObjectInfoFromPath(file);
+  // If user is set (not auto), we change owner
+  let obj = user === U_AUTO ? oinfo : { ...oinfo, owner: user };
   const connCfg = dbConfig.getConfiguration(env, obj.owner);
   // When there is no user configuration for the owner
-  // we force change the object owner to default user
+  // we can force change the object owner to default user
   if (changeOwner) {
     obj.owner = connCfg.user.toUpperCase();
   }

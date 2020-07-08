@@ -106,11 +106,7 @@ const compileFilesToDbAsync = async ({ file, env, changed = false }) => {
   });
 };
 
-const mergeLocalAndDbChanges = async ({
-  file = argv.file,
-  env = argv.env,
-  changed = argv.changed,
-}) => {
+const mergeLocalAndDbChanges = async ({ file = argv.file, env = argv.env, changed = argv.changed }) => {
   const source = config.get({ field: "source.input", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
 
@@ -121,7 +117,7 @@ const mergeLocalAndDbChanges = async ({
       await git.unstash();
     } catch (error) {
       // Git throws error when changes need merging
-      // console.log(error);
+      console.log(error.message);
     }
   }
 };

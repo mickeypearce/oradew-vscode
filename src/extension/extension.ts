@@ -24,7 +24,7 @@ const disposables: vscode.Disposable[] = [];
 
 export function activate(context: vscode.ExtensionContext) {
   let settings = ConfigurationManager.getInstance();
-  const { chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVariables } = settings;
+  const { workspaceDir, chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVariables } = settings;
 
   // Reload if dbconfig created...
   let watcher = vscode.workspace.createFileSystemWatcher(databaseConfigFile);
@@ -44,17 +44,14 @@ export function activate(context: vscode.ExtensionContext) {
     activate(context);
   });
 
-  const workspacePath = vscode.workspace.workspaceFolders
-    ? vscode.workspace.workspaceFolders[0].uri.fsPath
-    : context.extensionPath;
-  const contextPath = context.extensionPath;
-  const storagePath = context.storagePath || context.extensionPath;
+  const cliDir = context.extensionPath;
+  const storageDir = context.storagePath || context.extensionPath;
 
   // OradewProcess is used for getting processEnv variable which contains the same env variables that are passed to Oradew CLI
   oradewProcess = new OradewProcess({
-    workspaceDir: workspacePath,
-    cliDir: contextPath,
-    storageDir: storagePath,
+    workspaceDir,
+    cliDir,
+    storageDir,
     dbConfigPath: databaseConfigFile,
     wsConfigPath: workspaceConfigFile,
     isSilent: !chatty,
@@ -72,7 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
     new OradewTaskProvider(oradewProcess)
   );
 
-  fileController = new FileController(workspacePath, environmentController);
+  fileController = new FileController(environmentController);
 
   // Internal command: env paramater selection in commands
   let cmdGetEnvironment = vscode.commands.registerCommand(

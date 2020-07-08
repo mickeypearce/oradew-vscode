@@ -6,14 +6,12 @@ import { EnvironmentController } from "./environment-controller";
 import { matchOutputFiles } from "@Cli/common/dbobject";
 import { WorkspaceConfig } from "@Cli/common/config";
 
-const { workspaceConfigFile } = ConfigurationManager.getInstance();
+const { workspaceConfigFile, workspaceDir } = ConfigurationManager.getInstance();
 
 export class FileController {
-  private _workspacePath: string;
   private _environmentController: EnvironmentController;
 
-  constructor(workspacePath: string, environmentController: EnvironmentController) {
-    this._workspacePath = workspacePath;
+  constructor(environmentController: EnvironmentController) {
     this._environmentController = environmentController;
   }
 
@@ -23,13 +21,11 @@ export class FileController {
     const env = this._environmentController.currentPick;
     const output = config.get({ field: "package.output", env });
 
-    const files = matchOutputFiles(output, {
-      cwd: this._workspacePath,
-    });
+    const files = matchOutputFiles(output, { cwd: workspaceDir });
 
     let items: QuickPickItem[] = files.map((file) => ({
       label: file,
-      description: resolve(this._workspacePath, file),
+      description: resolve(workspaceDir, file),
     }));
 
     if (items.length === 0) {

@@ -22,16 +22,16 @@ import { version } from "../../package.json";
 // export ORADEW_STORAGE_DIR=/root/.vscode-server/data/User/workspaceStorage/23e6f2d18f63fad4517cc3121396a6d9/mp.oradew-vscode/
 
 // WS is current dir by default
-const workspacePath = process.env.ORADEW_CWD || process.cwd();
+const workspaceDir = process.env.ORADEW_CWD || process.cwd();
 
 // Extension location path
-const contextPath = resolve(__dirname, "..");
+const cliDir = resolve(__dirname, "..");
 
-const storagePath = process.env.ORADEW_STORAGE_DIR || homedir();
+const storageDir = process.env.ORADEW_STORAGE_DIR || homedir();
 
 // Configs are in WS dir by default
-const dbConfigPath = process.env.ORADEW_DB_CONFIG_PATH || resolve(workspacePath, "dbconfig.json");
-const wsConfigPath = process.env.ORADEW_WS_CONFIG_PATH || resolve(workspacePath, "oradewrc.json");
+const dbConfigPath = process.env.ORADEW_DB_CONFIG_PATH || resolve(workspaceDir, "dbconfig.json");
+const wsConfigPath = process.env.ORADEW_WS_CONFIG_PATH || resolve(workspaceDir, "oradewrc.json");
 
 const isColor = (process.env.ORADEW_COLOR || "true") === "true";
 const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
@@ -39,9 +39,9 @@ const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
 const cliExecutable = process.env.ORADEW_CLI_EXECUTABLE || "sql";
 
 const oradewProcess = new OradewProcess({
-  workspaceDir: workspacePath,
-  cliDir: contextPath,
-  storageDir: storagePath,
+  workspaceDir,
+  cliDir,
+  storageDir,
   dbConfigPath,
   wsConfigPath,
   isSilent,

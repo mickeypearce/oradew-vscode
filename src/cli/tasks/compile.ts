@@ -16,14 +16,14 @@ import * as data from "gulp-data";
 const compileFilesToDb = async ({
   file = argv.file,
   env = argv.env || "DEV",
-  changed = argv.changed || false,
+  changed = argv.changed,
+  force = argv.force,
   user = argv.user,
 }) => {
   const source = config.get({ field: "source.input", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
   const warnings = config.get({ field: "compile.warnings", env });
   const stageFile = config.get({ field: "compile.stageFile", env });
-  const force = config.get({ field: "compile.force", env });
   const encoding = config.get({ field: "source.encoding", env });
 
   const processFile = async (file, done) => {
@@ -94,10 +94,10 @@ export const compileOnSaveTask = ({ env = argv.env || "DEV" }) => {
   });
 };
 
-const compileFilesToDbAsync = async ({ file, env, changed = false }) => {
+const compileFilesToDbAsync = async ({ file, env, changed = false, force = true }) => {
   let results = [];
   return new Promise(async (res, rej) => {
-    const p = await compileFilesToDb({ file, env, changed });
+    const p = await compileFilesToDb({ file, env, changed, force });
     // Collect results
     p.on("data", (resp) => results.push(resp.data));
     // Return results
@@ -106,7 +106,7 @@ const compileFilesToDbAsync = async ({ file, env, changed = false }) => {
   });
 };
 
-const mergeLocalAndDbChanges = async ({ file = argv.file, env = argv.env, changed = argv.changed }) => {
+const mergeLocalAndDbChanges = async ({ file, env, changed }) => {
   const source = config.get({ field: "source.input", env });
   const src = file || (changed ? await getOnlyChangedFiles(source) : source);
 
@@ -122,14 +122,10 @@ const mergeLocalAndDbChanges = async ({ file = argv.file, env = argv.env, change
   }
 };
 
-const compileAndMergeFilesToDb = async ({
-  file = argv.file,
-  env = argv.env || "DEV",
-  changed = (argv.changed as boolean) || false,
-}) => {
+const compileAndMergeFilesToDb = async ({ file, env, changed, force }) => {
   try {
     // Compile and get error results
-    const results: any = await compileFilesToDbAsync({ file, env, changed });
+    const results: any = await compileFilesToDbAsync({ file, env, changed, force });
     // Merge unstaged (if any dirty file)
     if (results.some((file) => file.errors && file.errors.hasDirt())) {
       mergeLocalAndDbChanges({ file, env, changed });
@@ -153,13 +149,13 @@ const compileObjectToDb = async ({
   env = argv.env || "DEV",
   object = argv.object,
   line = argv.line,
-  user = argv.user as string,
+  user = argv.user,
 }) => {
   try {
     if (!object) {
       throw Error("Object cannot be empty.");
     }
-    let resp = await compileSelection(object, file, env, line, user);
+    let resp = await compileSelection(object, file, env, line, <string>user);
     printResults(resp);
   } catch (err) {
     console.error(err.message);
@@ -172,10 +168,14 @@ export function compileTask({
   changed = (argv.changed as boolean) || false,
   object = argv.object,
   line = argv.line,
+  force = argv.force,
 }) {
+  // force is a string 'true' or 'false' in parameter
+  let s_force = force || config.get({ field: "compile.force", env });
+  let b_force = s_force.toString() === "true";
   if (object) {
     return compileObjectToDb({ file, env, object, line });
   } else {
-    return compileAndMergeFilesToDb({ file, env, changed });
+    return compileAndMergeFilesToDb({ file, env, changed, force: b_force });
   }
 }

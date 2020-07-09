@@ -60,7 +60,7 @@
     },
     "compile.force": {
       "default": true,
-      "description": "Ignore the conflict detection and merge of local file changes with object stored on DB.",
+      "description": "Ignore conflict detection of local file changes and overwrite object on DB.",
       "type": "boolean"
     },
     "compile.stageFile": {

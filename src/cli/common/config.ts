@@ -30,7 +30,7 @@ import { properties as dbConfSchema } from "../schemas/dbconfig-schema.json";
 
 export class DBConfig {
   defaults: Object;
-  fileBase: String;
+  fileBase: string;
   object: Object;
   constructor(fileBase) {
     // Defaults DB configuration object
@@ -43,12 +43,12 @@ export class DBConfig {
 
   // Create config file with default values
   createFile() {
-    return outputJsonSync(<string>this.fileBase, this.defaults);
+    return outputJsonSync(this.fileBase, this.defaults);
   }
 
   load() {
     try {
-      this.object = readJsonSync(<string>this.fileBase);
+      this.object = readJsonSync(this.fileBase);
     } catch (e) {
       // Defaults
       console.log(`Cannot find ${this.fileBase} file...`);
@@ -61,7 +61,7 @@ export class DBConfig {
   }
   set(field, value) {
     this.object = set(field)(value)(this.object);
-    return outputJsonSync(<string>this.fileBase, this.object);
+    return outputJsonSync(this.fileBase, this.object);
   }
 
   // _getConnectString = (env = "DEV") => this.object[env].connectString;
@@ -178,9 +178,9 @@ export const dbConfig = new DBConfig(process.env.ORADEW_DB_CONFIG_PATH);
 import { properties as wsConfSchema } from "../schemas/oradewrc-schema.json";
 
 export class WorkspaceConfig {
-  defaults: Object;
+  defaults: object;
   filePathBase: string;
-  object: Object;
+  object: object;
   constructor(fileBase?: string) {
     // Defaults configuration object
     this.defaults = getDefaultsFromSchema(wsConfSchema);

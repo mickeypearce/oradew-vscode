@@ -12,13 +12,7 @@ import { getOnlyChangedFiles } from "../common/globs";
 import { exportFile, resolveObjectInfo } from "../common/base";
 import { getPathFromObjectInfo } from "../common/dbobject";
 
-export const exportFilesFromDbAsync = async ({
-  file,
-  env,
-  changed = false,
-  ease = false,
-  quiet = false,
-}) =>
+export const exportFilesFromDbAsync = async ({ file, env, changed = false, ease = false, quiet = false }) =>
   new Promise(async (res, rej) => {
     const p = await exportFilesFromDb({ file, env, changed, ease, quiet });
     p.on("end", res);
@@ -102,8 +96,8 @@ export function importTask({
   object = argv.object,
 }) {
   // ease is a string 'true' or 'false' in parameter
-  let s_ease = ease || config.get({ field: "import.ease", env }).toString();
-  let b_ease = s_ease === "true";
+  let s_ease = ease || config.get({ field: "import.ease", env });
+  let b_ease = s_ease.toString() === "true";
   if (object) {
     return exportObjectFromDb({ env, object });
   } else {

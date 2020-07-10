@@ -1,8 +1,12 @@
 # Change Log
 
+## [0.3.24] - 2020-07-10
+
+- Enabled ".SQL" filename extension [#35](https://github.com/mickeypearce/oradew-vscode/issues/35)
+
 ## [0.3.23] - 2020-07-03
 
-- Added "askForPassword" to DB users (dbconfig.json) [#34](github.com/mickeypearce/oradew-vscode/issues/34)
+- Added "askForPassword" to DB users (dbconfig.json) [#34](https://github.com/mickeypearce/oradew-vscode/issues/34)
 
 ## [0.3.22] - 2020-06-05
 

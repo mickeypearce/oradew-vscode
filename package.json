@@ -401,7 +401,7 @@
     "gulp-noop": "^1.0.0",
     "gulp-template": "^5.0.0",
     "inquirer": "^6.5.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mocha": "^7.2.0",
     "multimatch": "^4.0.0",
     "nedb": "^1.8.0",

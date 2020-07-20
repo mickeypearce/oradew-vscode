@@ -207,7 +207,7 @@ If you are installing from the repository you must first compile the source code
 
 ```bash
 > git clone https://github.com/mickeypearce/oradew-vscode
-> npm install && npm run compile && npm run install-cli
+> npm start && npm run install-cli
 ```
 
 ### Usage

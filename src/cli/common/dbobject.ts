@@ -65,6 +65,7 @@ const mapToOraObjectType = {
   typeBody: "TYPE BODY",
   table: "TABLE",
   synonym: "SYNONYM",
+  apex: "APEX",
 };
 
 const mapToOraObjectTypeAlt = {

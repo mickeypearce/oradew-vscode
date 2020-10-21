@@ -59,7 +59,7 @@
       ]
     },
     "compile.force": {
-      "default": false,
+      "default": true,
       "description": "Ignore conflict detection of local file changes and overwrite object on DB.",
       "type": "boolean"
     },
@@ -171,7 +171,7 @@
       }
     },
     "import.ease": {
-      "default": true,
+      "default": false,
       "description": "When set to 'true' it will import only DB objects that changed on DB in comparision to project Source files",
       "type": "boolean"
     }

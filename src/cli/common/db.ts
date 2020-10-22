@@ -90,16 +90,62 @@ const compile = async (connection, code, warningScope = "NONE") => {
 
 const getObjectDdl = (connection, getFunctionName, { owner, objectName, objectType1 }) => {
   oracledb.outFormat = oracledb.OUT_FORMAT_ARRAY;
-  return connection
-    .execute(
-      `select ${getFunctionName}(upper(:objectType1), upper(:objectName), upper(:owner)) from dual`,
-      {
-        owner,
-        objectName,
-        objectType1,
-      }
-    )
-    .then((result) => result.rows[0][0]);
+  if (objectType1 == 'APEX') {
+    return connection
+      .execute(
+        `
+        declare
+          l_files apex_t_export_files;
+          l_file_content clob := empty_clob;
+          l_app_id number;
+        begin
+            select application_id
+            into l_app_id
+            from apex_applications
+            where upper(application_id || '-' || alias) = upper(:objectName);
+
+            l_files := apex_export.get_application(
+                p_application_id          => l_app_id,
+                p_split                   => false,
+                p_with_date               => true,
+                p_with_ir_public_reports  => true,
+                p_with_ir_private_reports => true,
+                p_with_ir_notifications   => true,
+                p_with_translations       => true,
+                p_with_pkg_app_mapping    => true,
+                p_with_original_ids       => true,
+                p_with_no_subscriptions   => true,
+                p_with_comments           => true,
+                p_with_supporting_objects => 'Y',
+                p_with_acl_assignments    => true);
+
+            dbms_lob.createtemporary(
+              lob_loc => l_file_content
+              , cache => false
+              , dur => dbms_lob.call
+            );
+
+            l_file_content := l_files(1).contents;
+            :apexsql := l_file_content;
+        end;
+        `
+        , {
+          objectName,
+          apexsql: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 524288000 },
+        })
+      .then((result) => result.outBinds.apexsql);
+  } else {
+    return connection
+      .execute(
+        `select ${getFunctionName}(upper(:objectType1), upper(:objectName), upper(:owner)) from dual`,
+        {
+          owner,
+          objectName,
+          objectType1,
+        }
+      )
+      .then((result) => result.rows[0][0]);
+  }
 };
 
 const getErrorsInfo = (connection, { owner, objectName, objectType }) => {
@@ -126,23 +172,73 @@ const getErrorsInfo = (connection, { owner, objectName, objectType }) => {
 
 const getObjectsInfo = (connection, { owner, objectType, objectName }: IObjectParameter) => {
   // Exclude types that are silently created when defined in packages (SYS_PLSQL)
+  // Only allow APEX exporting if APEX is installed and version >= 5.1.4
   oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
-  return connection
-    .execute(
-      `select owner, object_id, object_name, object_type, cast(last_ddl_time as timestamp) as last_ddl_time, status
-    from all_objects
+
+  let allObjectsQuery =
+    `
+    SELECT
+      owner,
+      object_id,
+      object_name,
+      object_type,
+      CAST(last_ddl_time AS TIMESTAMP) AS last_ddl_time,
+      status
+    FROM
+      all_objects
+    WHERE
+      upper(owner) = upper(:owner)
+      AND upper(object_type) = upper(nvl(:objecttype, object_type))
+      AND upper(object_name) = upper(nvl(:objectname, object_name))
+      AND object_name NOT LIKE 'SYS_PLSQL%'
+    `;
+
+  let allObjectsApexQuery = allObjectsQuery +
+    `
+    union all
+
+    select owner
+        , to_number(workspace_id || application_id) object_id
+        , application_id || '-' || alias object_name
+        , 'APEX' object_type
+        , cast(last_updated_on as timestamp) as last_ddl_time
+        , 'VALID' status
+    from apex_applications
     where upper(owner) = upper(:owner)
-    and upper(object_type) = upper(nvl(:objectType, object_type))
-    and upper(object_name) = upper(nvl(:objectName, object_name))
-    and object_name not like 'SYS_PLSQL%'
-    order by object_id`,
+    AND 'APEX' = upper(nvl(:objecttype, 'APEX'))
+    AND upper(application_id || '-' || alias) = upper(nvl(:objectname, application_id || '-' || alias))
+    order by object_type, object_id
+    `;
+
+  let hasApexQuery =
+    `
+    begin
+    SELECT count(*) into :hasApex FROM apex_release where replace(version_no, '.', '') > 5140000;
+  exception
+    when others then
+      :hasApex := 0;
+  end;
+  `;
+
+  return connection.execute(
+    hasApexQuery, {
+    hasApex: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+  }).then((result) => {
+    let finalObjectsQuery = allObjectsQuery;
+    if (result.outBinds.hasApex > 0) {
+      finalObjectsQuery = allObjectsApexQuery;
+    }
+    return connection.execute(
+      finalObjectsQuery,
       {
         owner,
         objectName,
         objectType,
       }
-    )
-    .then((result) => result.rows);
+    ).then((result) => result.rows);
+  }
+  );
+
 };
 
 const getGeneratorFunction = (

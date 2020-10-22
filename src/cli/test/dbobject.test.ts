@@ -221,6 +221,7 @@ describe("#getStructure", function () {
       "./src/{schema-name}/PROCEDURES",
       "./src/{schema-name}/TABLES",
       "./src/{schema-name}/SYNONYMS",
+      "./src/{schema-name}/APEX",
     ]);
   });
 });

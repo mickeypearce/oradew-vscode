@@ -109,7 +109,8 @@
         "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
         "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
         "table": "./src/{schema-name}/TABLES/{object-name}.sql",
-        "synonym": "./src/{schema-name}/SYNONYMS/{object-name}.sql"
+        "synonym": "./src/{schema-name}/SYNONYMS/{object-name}.sql",
+        "apex": "./src/{schema-name}/APEX/{object-name}.sql"
       },
       "properties": {
         "packageSpec": {
@@ -160,6 +161,11 @@
         "synonym": {
           "default": "./src/{schema-name}/SYNONYMS/{object-name}.sql",
           "description": "Pattern for synonyms",
+          "type": "string"
+        },
+        "apex": {
+          "default": "./src/{schema-name}/APEX/{object-name}.sql",
+          "description": "Pattern for apex applications",
           "type": "string"
         }
       }

@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.25] - 2020-10-23
+
+- Added compatibility for APEX applications [#39](https://github.com/mickeypearce/oradew-vscode/issues/39) (thanks, @yevon)
+
 ## [0.3.24] - 2020-07-10
 
 - Enabled ".SQL" filename extension [#35](https://github.com/mickeypearce/oradew-vscode/issues/35)

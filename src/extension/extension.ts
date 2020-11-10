@@ -24,7 +24,14 @@ const disposables: vscode.Disposable[] = [];
 
 export function activate(context: vscode.ExtensionContext) {
   let settings = ConfigurationManager.getInstance();
-  const { workspaceDir, chatty, workspaceConfigFile, databaseConfigFile, cliExecutable, envVariables } = settings;
+  const {
+    workspaceDir,
+    chatty,
+    workspaceConfigFile,
+    databaseConfigFile,
+    cliExecutable,
+    envVariables,
+  } = settings;
 
   // Reload if dbconfig created...
   let watcher = vscode.workspace.createFileSystemWatcher(databaseConfigFile);

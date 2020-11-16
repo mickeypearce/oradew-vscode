@@ -216,8 +216,9 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }: IObjectPa
     `;
 
   let hasApexQuery = `
-    begin
-    SELECT count(*) into :hasApex FROM apex_release where replace(version_no, '.', '') > 5140000;
+  begin
+    execute immediate 'SELECT count(*) FROM apex_release where replace(version_no, ''.'', '''') > 5140000'
+    into :hasApex;
   exception
     when others then
       :hasApex := 0;

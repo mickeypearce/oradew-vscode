@@ -11,11 +11,8 @@
     },
     {
       "type": "npm",
-      "script": "webpack-dev",
-      "problemMatcher": [
-        "$ts-webpack-watch",
-        "$tslint-webpack-watch"
-      ],
+      "script": "start:watch",
+      "problemMatcher": ["$ts-webpack-watch", "$tslint-webpack-watch"],
       "isBackground": true
     },
     {

@@ -119,7 +119,8 @@ Default values will be used in the case workspace configuration file is not pres
     "function": "./src/{schema-name}/FUNCTIONS/{object-name}.sql",
     "procedure": "./src/{schema-name}/PROCEDURES/{object-name}.sql",
     "table": "./src/{schema-name}/TABLES/{object-name}.sql",
-    "synonym": "./src/{schema-name}/SYNONYMS/{object-name}.sql"
+    "synonym": "./src/{schema-name}/SYNONYMS/{object-name}.sql",
+    "apex": "./src/{schema-name}/APEX/{object-name}.sql"
   },
   "import.ease": false,
   "import.getDdlFunction": "dbms_metadata.get_ddl",
@@ -152,6 +153,10 @@ Default values will be used in the case workspace configuration file is not pres
 - `version.number` - Version number
 - `version.description` - Version description
 - `version.releaseDate` - Version release date
+
+### APEX applications compatibility
+
+Minimum required APEX version is 5.1.4, otherwise APEX applications are not imported.
 
 ### Code Generator
 

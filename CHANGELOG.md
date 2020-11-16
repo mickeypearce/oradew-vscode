@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.26] - 2020-11-16
+
+- Fixed bug [#43](https://github.com/mickeypearce/oradew-vscode/issues/43)
+
 ## [0.3.25] - 2020-10-23
 
 - Added compatibility for APEX applications [#39](https://github.com/mickeypearce/oradew-vscode/issues/39) (thanks, @yevon)

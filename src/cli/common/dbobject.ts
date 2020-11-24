@@ -2,7 +2,7 @@ const micromatch = require("micromatch");
 
 import { rootRemove, rootPrepend } from "./utility";
 import { parse, resolve, relative, dirname } from "path";
-import { invert } from "lodash/fp";
+import { invert, uniq } from "lodash/fp";
 import { fromGlobsToFilesArray } from "./globs";
 import { workspaceConfig as config } from "./config";
 
@@ -224,7 +224,7 @@ export function getPackageOutputPath({ owner }) {
 /**
  * Return patters array without file (dir structure)
  *
- * @returns {Array} dir structure
+ * @returns {Array} source dir structure
  * example:
  * from
  * {"packageSpec": "./src/{schema-name}/PACKAGES/{object-name}.sql",
@@ -234,10 +234,28 @@ export function getPackageOutputPath({ owner }) {
  * "./src/{schema-name}/PACKAGE_BODIES"]
  */
 
-export function getStructure() {
+export function getSourceStructure() {
   return Object.keys(patternSrcObject).map((el) => dirname(patternSrcObject[el]));
 }
 
 export function getObjectTypes() {
   return Object.values(mapToOraObjectType);
+}
+
+/**
+ * Return Source root folders array
+ *
+ * @returns {Array} Root folders
+ */
+export function getSourceRoot() {
+  const roots = Object.keys(patternSrcObject).map((el) => {
+    return rootRemove(patternSrcObject[el]).split("/")[0];
+  });
+  return uniq(roots);
+}
+
+// Get src root dir
+// ./src by default
+export function srcDir() {
+  return getSourceRoot().map(el => rootPrepend(el)).join(" ") || "./src";
 }

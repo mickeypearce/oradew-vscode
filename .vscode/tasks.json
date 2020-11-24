@@ -12,8 +12,9 @@
     {
       "type": "npm",
       "script": "start:watch",
-      "problemMatcher": ["$ts-webpack-watch", "$tslint-webpack-watch"],
-      "isBackground": true
+      "problemMatcher": [],
+      "isBackground": true,
+      "detail": "start development (webpack)"
     },
     {
       "type": "npm",
@@ -21,6 +22,13 @@
       "problemMatcher": [],
       "label": "npm: install",
       "detail": "install dependencies from package"
+    },
+    {
+      "type": "npm",
+      "script": "utest",
+      "problemMatcher": [],
+      "label": "npm: utest",
+      "detail": "run unit tests"
     }
   ]
 }

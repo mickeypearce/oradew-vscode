@@ -1,6 +1,7 @@
 import { exec as gitExec } from "gulp-git";
+import { srcDir } from "./dbobject";
 
-// refactor to simple-git, graceful-git
+// @todo refactor to simple-git, graceful-git
 
 export const exec = ({ args }) =>
   new Promise((res, rej) => {
@@ -12,23 +13,24 @@ export const exec = ({ args }) =>
     });
   });
 
-export const getChanges = () => exec({ args: `diff --name-only HEAD ./src` });
-export const getChangesStaged = () => exec({ args: `diff --name-only --staged ./src` });
+
+export const getChanges = () => exec({ args: `diff --name-only HEAD ${srcDir()}` });
+export const getChangesStaged = () => exec({ args: `diff --name-only --staged ${srcDir()}` });
 
 // Get tracked and untracked files
 export const getChangesNotStaged = () =>
-  exec({ args: `diff --name-only ./src & git ls-files --others ./src` });
+  exec({ args: `diff --name-only ${srcDir()} & git ls-files --others ${srcDir()}` });
 
 // Files from commit or branch to the head (only from src and scripts dir)
 export const getCommitedFilesSincePoint = (from) =>
   exec({
-    args: `log --diff-filter=ACMR --name-only --pretty="" ${from}..head ./src ./scripts`,
+    args: `log --diff-filter=ACMR --name-only --pretty="" ${from}..head ${srcDir()} ./scripts`,
   });
 
 // Files from specific commits (only from src and scripts dir)
 export const getCommitedFilesByCommits = (commits: string[]) =>
   exec({
-    args: `show --diff-filter=ACMR --name-only --pretty="" ${commits.join(" ")} ./src ./scripts`,
+    args: `show --diff-filter=ACMR --name-only --pretty="" ${commits.join(" ")} ${srcDir()} ./scripts`,
   });
 
 // Get first commit on the current branch

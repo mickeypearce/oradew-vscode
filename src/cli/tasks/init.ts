@@ -7,13 +7,13 @@ import * as path from "path";
 
 import * as git from "../common/git";
 import { workspaceConfig as config } from "../common/config";
-import { getStructure, replaceVarsInPattern } from "../common/dbobject";
+import { getSourceStructure, replaceVarsInPattern } from "../common/dbobject";
 import { dbConfig } from "../common/config";
 
 const createSrcEmpty = (done) => {
   try {
     const schemas = dbConfig.getSchemas();
-    const dirs = getStructure();
+    const dirs = getSourceStructure();
     for (const owner of schemas) {
       dirs.forEach((pattern) => {
         const dirPath = replaceVarsInPattern(pattern, owner);
@@ -28,7 +28,7 @@ const createSrcEmpty = (done) => {
   }
 };
 
-const createDbConfigFile = async ({}) => {
+const createDbConfigFile = async ({ }) => {
   // Create db config file if it doesn't exists already...
   if (!fs.existsSync(dbConfig.fileBase as string)) {
     dbConfig.createFile();
@@ -110,7 +110,7 @@ const cleanProject = () => {
   });
 };
 
-const initGit = async ({}) => {
+const initGit = async ({ }) => {
   let isInitialized;
   try {
     isInitialized = await git.exec({
@@ -135,7 +135,7 @@ const initGit = async ({}) => {
   }
 };
 
-const initConfigFile = async ({}) => {
+const initConfigFile = async ({ }) => {
   let answer = await inquirer.prompt({
     type: "confirm",
     name: "ws",

@@ -242,14 +242,16 @@ export function getObjectTypes() {
   return Object.values(mapToOraObjectType);
 }
 
+const sourceInput = config.get("source.input");
+
 /**
  * Return Source root folders array
  *
  * @returns {Array} Root folders
  */
 export function getSourceRoot() {
-  const roots = Object.keys(patternSrcObject).map((el) => {
-    return rootRemove(patternSrcObject[el]).split("/")[0];
+  const roots = sourceInput.map((el) => {
+    return rootRemove(el).split("/")[0];
   });
   return uniq(roots);
 }
@@ -257,5 +259,9 @@ export function getSourceRoot() {
 // Get src root dir
 // ./src by default
 export function srcDir() {
-  return getSourceRoot().map(el => rootPrepend(el)).join(" ") || "./src";
+  return (
+    getSourceRoot()
+      .map((el) => rootPrepend(el))
+      .join(" ") || "./src"
+  );
 }

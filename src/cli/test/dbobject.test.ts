@@ -2,7 +2,12 @@ const assert = require("assert");
 
 import { resolve } from "path";
 
-import { getObjectInfoFromPath, getPathFromObjectInfo, getSourceStructure, srcDir } from "../common/dbobject";
+import {
+  getObjectInfoFromPath,
+  getPathFromObjectInfo,
+  getSourceStructure,
+  srcDir,
+} from "../common/dbobject";
 
 describe("#getObjectInfo with default structure", function () {
   it("src: should get object type body", function () {

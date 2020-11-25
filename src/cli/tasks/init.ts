@@ -28,7 +28,7 @@ const createSrcEmpty = (done) => {
   }
 };
 
-const createDbConfigFile = async ({ }) => {
+const createDbConfigFile = async ({}) => {
   // Create db config file if it doesn't exists already...
   if (!fs.existsSync(dbConfig.fileBase as string)) {
     dbConfig.createFile();
@@ -110,7 +110,7 @@ const cleanProject = () => {
   });
 };
 
-const initGit = async ({ }) => {
+const initGit = async ({}) => {
   let isInitialized;
   try {
     isInitialized = await git.exec({
@@ -135,7 +135,7 @@ const initGit = async ({ }) => {
   }
 };
 
-const initConfigFile = async ({ }) => {
+const initConfigFile = async ({}) => {
   let answer = await inquirer.prompt({
     type: "confirm",
     name: "ws",

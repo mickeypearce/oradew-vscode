@@ -5,14 +5,14 @@ import { srcDir } from "./dbobject";
 
 export const exec = ({ args }) =>
   new Promise((res, rej) => {
-    gitExec({ args, quiet: process.env.ORADEW_SILENT }, (err, stdout) => {
+    const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
+    gitExec({ args, quiet: isSilent }, (err, stdout) => {
       if (err) {
         rej(err);
       }
       res(stdout);
     });
   });
-
 
 export const getChanges = () => exec({ args: `diff --name-only HEAD ${srcDir()}` });
 export const getChangesStaged = () => exec({ args: `diff --name-only --staged ${srcDir()}` });
@@ -30,7 +30,9 @@ export const getCommitedFilesSincePoint = (from) =>
 // Files from specific commits (only from src and scripts dir)
 export const getCommitedFilesByCommits = (commits: string[]) =>
   exec({
-    args: `show --diff-filter=ACMR --name-only --pretty="" ${commits.join(" ")} ${srcDir()} ./scripts`,
+    args: `show --diff-filter=ACMR --name-only --pretty="" ${commits.join(
+      " "
+    )} ${srcDir()} ./scripts`,
   });
 
 // Get first commit on the current branch

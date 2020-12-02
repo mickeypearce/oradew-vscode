@@ -184,7 +184,7 @@ export const runFileAsScript = async (file, env, user = U_AUTO) => {
   // We execute from file directory (change cwd)
   // mainly because of spooling to dir of the file (packaged script)
   // buffer: 5MB
-  let stdout = await execPromise(cmd, { maxBuffer: 1024 * 5000, cwd });
+  let stdout = await execPromise(cmd, { encoding: "buffer", maxBuffer: 1024 * 5000, cwd });
   return { stdout, obj };
 };
 

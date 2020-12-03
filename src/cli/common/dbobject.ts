@@ -2,7 +2,7 @@ const micromatch = require("micromatch");
 
 import { rootRemove, rootPrepend } from "./utility";
 import { parse, resolve, relative, dirname } from "path";
-import { invert, uniq } from "lodash/fp";
+import { invert } from "lodash/fp";
 import { fromGlobsToFilesArray } from "./globs";
 import { workspaceConfig as config } from "./config";
 
@@ -242,13 +242,14 @@ export function getObjectTypes() {
   return Object.values(mapToOraObjectType);
 }
 
-const sourceInput = config.get("source.input");
+// const sourceInput = config.get("source.input");
 
 /**
  * Return Source root folders array
  *
  * @returns {Array} Root folders
  */
+/*
 export function getSourceRoot() {
   const roots = sourceInput.map((el) => {
     return rootRemove(el).split("/")[0];
@@ -265,3 +266,4 @@ export function srcDir() {
       .join(" ") || "./src"
   );
 }
+*/

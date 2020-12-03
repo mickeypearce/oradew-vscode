@@ -6,7 +6,6 @@ import {
   getObjectInfoFromPath,
   getPathFromObjectInfo,
   getSourceStructure,
-  srcDir,
 } from "../common/dbobject";
 
 describe("#getObjectInfo with default structure", function () {
@@ -240,9 +239,10 @@ describe("#getSourceStructure", function () {
     ]);
   });
 });
-
+/*
 describe("#srcDir", function () {
   it("should get default source root directory", function () {
     assert.deepEqual(srcDir(), "./src");
   });
 });
+*/

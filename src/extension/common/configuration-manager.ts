@@ -7,6 +7,7 @@ export class ConfigurationManager {
   public generatorConfigFile: string;
   public chatty: boolean;
   public cliExecutable: string;
+  public cliCommand: string;
   public envVariables?: { [id: string]: string };
   public workspaceDir: string;
 
@@ -45,6 +46,7 @@ export class ConfigurationManager {
 
     this.chatty = oradewConfiguration.get("chatty");
     this.cliExecutable = oradewConfiguration.get("cliExecutable");
+    this.cliCommand = oradewConfiguration.get("cliCommand");
     this.envVariables = oradewConfiguration.get("envVariables");
   }
 }

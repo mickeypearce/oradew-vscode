@@ -37,6 +37,7 @@ const isColor = (process.env.ORADEW_COLOR || "true") === "true";
 const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
 
 const cliExecutable = process.env.ORADEW_CLI_EXECUTABLE || "sql";
+const cliCommand = process.env.ORADEW_CLI_COMMAND;
 
 const oradewProcess = new OradewProcess({
   workspaceDir,
@@ -47,6 +48,7 @@ const oradewProcess = new OradewProcess({
   isSilent,
   isColor,
   cliExecutable,
+  cliCommand,
 });
 const execute = () => oradewProcess.execute(process.argv);
 

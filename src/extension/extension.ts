@@ -30,6 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
     workspaceConfigFile,
     databaseConfigFile,
     cliExecutable,
+    cliCommand,
     envVariables,
   } = settings;
 
@@ -64,6 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
     isSilent: !chatty,
     isColor: true,
     cliExecutable,
+    cliCommand,
     envVariables,
   });
 

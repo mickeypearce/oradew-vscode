@@ -349,6 +349,12 @@
             "required": false,
             "description": "The path to CLI executable for Database (SQL*Plus or SQLcl)"
           },
+          "oradew.cliCommand": {
+            "type": "string",
+            "default": "null",
+            "required": false,
+            "description": "CLI command literal. Eg: exit | sql -S ${connString} @\"${filename}\""
+          },
           "oradew.envVariables": {
             "type": "object",
             "default": {},

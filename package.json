@@ -2,7 +2,7 @@
   "name": "oradew-vscode",
   "displayName": "Oradew",
   "description": "Develop Oracle (PL/SQL) project in VS Code.",
-  "version": "0.3.26",
+  "version": "0.3.27",
   "publisher": "mp",
   "engines": {
     "vscode": "^1.46.0"
@@ -353,7 +353,7 @@
             "type": "string",
             "default": "null",
             "required": false,
-            "description": "CLI command literal. Eg: exit | sql -S ${connString} @\"${filename}\""
+            "description": "CLI command literal. Eg: \"exit | sql -S ${connString} @${filename}\""
           },
           "oradew.envVariables": {
             "type": "object",

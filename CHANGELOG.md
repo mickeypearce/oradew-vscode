@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.27] - 2020-12-06
+
+- Added setting "oradew.cliCommand" [#50](https://github.com/mickeypearce/oradew-vscode/issues/50)
+
 ## [0.3.26] - 2020-11-16
 
 - Fixed bug [#43](https://github.com/mickeypearce/oradew-vscode/issues/43)

@@ -175,7 +175,7 @@ export const runFileAsScript = async (file, env, user = U_AUTO) => {
   const cliCommand = process.env.ORADEW_CLI_COMMAND;
 
   let cmd;
-  if (!cliCommand) {
+  if (cliCommand === "null") {
     const isSqlPlus = parse(cliExec).name.toLowerCase() === "sqlplus";
     if (isSqlPlus) {
       cmd = `(echo connect ${connString} && echo start ${filename} && echo show errors) | "${cliExec}" -S /nolog`;

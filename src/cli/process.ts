@@ -6,7 +6,7 @@ export class OradewProcess {
   gulpPathJs: string;
   gulpFile: string;
   gulpParams: Array<string>;
-  processEnv: object;
+  processEnv: child.SpawnOptions;
   cliPath: string;
 
   constructor(tmConfig: {
@@ -52,13 +52,14 @@ export class OradewProcess {
 
     this.processEnv = {
       env: {
+        ...process.env,
         NODE_OPTIONS: "--no-deprecation",
         ORADEW_STORAGE_DIR: storageDir,
         ORADEW_DB_CONFIG_PATH: dbConfigPath,
         ORADEW_WS_CONFIG_PATH: wsConfigPath,
         ORADEW_CLI_EXECUTABLE: cliExecutable,
         ORADEW_CLI_COMMAND: cliCommand,
-        ORADEW_SILENT: isSilent,
+        ORADEW_SILENT: isSilent.toString(),
         ...(envVariables || {}),
       },
       // inherit stdio

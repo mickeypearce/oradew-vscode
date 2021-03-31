@@ -9,7 +9,7 @@ This extension enables you to develop your Oracle (PL/SQL) project in Visual Stu
 - Package files into a single SQL deployment script
 - Deploy to multiple environments in one click
 
-![Compile Demo](dist/images/demo.gif)
+![Compile Demo](demo.gif)
 
 ## Installation
 

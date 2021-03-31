@@ -2,14 +2,14 @@
 
 [![Build Status](https://dev.azure.com/mickeypearce0384/Oradew/_apis/build/status/mickeypearce.oradew-vscode)](https://dev.azure.com/mickeypearce0384/Oradew/_build/latest?definitionId=1)
 
-This extension allows you to develop your Oracle (PL/SQL) project in Visual Studio Code. It enables you to:
+This extension enables you to develop your Oracle (PL/SQL) project in Visual Studio Code. It enables you to:
 
 - Manage PL/SQL source code with version control (Git)
 - Compile files and Run statements with ORA errors problem matching
 - Package files into a single SQL deployment script
 - Deploy to multiple environments in one click
 
-![Compile Demo](images/demo.gif)
+![Compile Demo](dist/images/demo.gif)
 
 ## Installation
 

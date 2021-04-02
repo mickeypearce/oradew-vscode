@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.3.28] - 2021-04-02
+
+- Minor fixes
+
 ## [0.3.27] - 2020-12-06
 
 - Added setting "oradew.cliCommand" [#50](https://github.com/mickeypearce/oradew-vscode/issues/50)

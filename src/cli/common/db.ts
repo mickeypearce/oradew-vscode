@@ -17,7 +17,7 @@ interface IObjectParameter {
 let _pool = {};
 
 async function getPassword(connCfg: IConnectionConfig) {
-  if (connCfg.askForPassword || !connCfg.password) {
+  if ((!connCfg.password && !connCfg.walletConnectString) || connCfg.askForPassword) {
     const res = await inquirer.prompt([
       {
         type: "password",
@@ -26,9 +26,9 @@ async function getPassword(connCfg: IConnectionConfig) {
         mask: "*",
       },
     ]);
-    return res.password;
+    return res.password ?? "";
   } else {
-    return connCfg.password;
+    return connCfg.password ?? "";
   }
 }
 
@@ -37,7 +37,7 @@ async function getPassword(connCfg: IConnectionConfig) {
  * @param {IConnectionConfig} connCfg
  */
 const getConnection = async (connCfg: IConnectionConfig) => {
-  let { env, user, connectString } = connCfg;
+  let { env, user, connectString, walletConnectString } = connCfg;
   if (!_pool[env]) {
     _pool[env] = {};
   }
@@ -45,16 +45,28 @@ const getConnection = async (connCfg: IConnectionConfig) => {
     return _pool[env][user].getConnection();
   }
   const password = await getPassword(connCfg);
-  return oracledb
-    .createPool({
-      user,
-      password,
-      connectString,
-    })
-    .then((newPool) => {
-      _pool[env][user] = newPool;
-      return _pool[env][user].getConnection();
-    });
+  if (walletConnectString) {
+    return oracledb
+      .createPool({
+        externalAuth: true,
+        connectionString: walletConnectString
+      })
+      .then((newPool) => {
+        _pool[env][user] = newPool;
+        return _pool[env][user].getConnection();
+      });
+  } else {
+    return oracledb
+      .createPool({
+        user,
+        password,
+        connectString
+      })
+      .then((newPool) => {
+        _pool[env][user] = newPool;
+        return _pool[env][user].getConnection();
+      });
+  }
 };
 
 const closeConnection = async (conn) => {
@@ -73,7 +85,11 @@ const closeConnection = async (conn) => {
  */
 const getConnectionString = async (connCfg: IConnectionConfig) => {
   const password = await getPassword(connCfg);
-  return `${connCfg.user}/${password}@${connCfg.connectString}`;
+  if (!connCfg.walletConnectString) {
+    return `${connCfg.user}/${password}@${connCfg.connectString}`;
+  } else {
+    return `/${password}@${connCfg.walletConnectString}`;
+  }
 };
 
 const compile = async (connection, code, warningScope = "NONE") => {

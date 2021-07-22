@@ -1,4 +1,8 @@
 # Change Log
+## [0.3.29] - 2021-22-07
+
+- Added compatibility with connections having credentials stored in autologin Oracle wallets. [#58](https://github.com/mickeypearce/oradew-vscode/issues/58)
+- Added additional warnings and verifications while executing workspace initialization
 
 ## [0.3.28] - 2021-04-02
 

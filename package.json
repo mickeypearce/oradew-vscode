@@ -275,6 +275,11 @@
         "command": "oradew.generateTask",
         "title": "Generate...",
         "category": "Oradew"
+      },
+      {
+        "command": "oradew.selectCurrentStatement",
+        "title": "Select current statement",
+        "category": "Oradew"
       }
     ],
     "jsonValidation": [

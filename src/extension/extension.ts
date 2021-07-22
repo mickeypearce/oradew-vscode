@@ -191,6 +191,52 @@ export function activate(context: vscode.ExtensionContext) {
     Telemetry.sendEvent("compileOnSaveTask");
   });
 
+  let offsetToPosition = (text, offset) => {
+    let res = text.substr(0, offset);
+    let lines = res.split(/\r\n|\r|\n/);
+    let lineNumber = lines.length - 1;
+    let charNumber = offset - res.lastIndexOf("\n") - 1;
+    return new vscode.Position(lineNumber, charNumber);
+  }
+
+  let cmdSelectCurrentStatement = vscode.commands.registerCommand('oradew.selectCurrentStatement', function () {
+    // Get the active text editor
+    const editor = vscode.window.activeTextEditor;
+
+    if (editor) {
+      console.log('Cursor position ' + editor.selection.active.line);
+      //const currentPosition = editor.selection.active;
+
+      const allText = editor.document.getText();
+
+      let patt = /(?=select|with)(.*?);/gis;
+      let match;
+      let selectionTest;
+      while (match = patt.exec(allText)) {
+        let startPoint = offsetToPosition(allText, match.index);
+        let endPoint = offsetToPosition(allText, patt.lastIndex);
+        console.log('Normal: ' + match.index + ' ' + patt.lastIndex);
+        console.log('Traducido: ' + startPoint.character + ' ' + startPoint.line + ' ' + endPoint.character + ' ' + endPoint.line);
+        selectionTest = new vscode.Selection(startPoint, endPoint);
+        editor.selection = selectionTest;
+      }
+
+      /*
+      const range = editor.document.getWordRangeAtPosition(currentPosition, new RegExp('(?=select|with)(.*)(?=;)', 'gis'));
+      const allText = editor.document.getText();
+
+      if (range) {
+        const selectionTest = new vscode.Selection(range.start, range.end);
+        editor.selection = selectionTest;
+      } else {
+        console.log("No matches found");
+      }*/
+
+    }
+  });
+
+  disposables.push(cmdSelectCurrentStatement);
+
   disposables.push(cmdTaskGenerate);
   disposables.push(cmdTaskInitProject);
   disposables.push(cmdTaskCreateProject);

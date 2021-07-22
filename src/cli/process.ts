@@ -6,7 +6,7 @@ export class OradewProcess {
   gulpPathJs: string;
   gulpFile: string;
   gulpParams: Array<string>;
-  processEnv: object;
+  processEnv: child.SpawnOptions;
   cliPath: string;
 
   constructor(tmConfig: {
@@ -18,6 +18,7 @@ export class OradewProcess {
     isSilent?: boolean; //gulp option: --silent
     isColor?: boolean; //gulp option:--color
     cliExecutable: string; //DB CLI executable (ex. sqlplus)
+    cliCommand: string; //DB CLI command literal
     envVariables?: { [id: string]: string }; // ENV vars (ex: "NLS_LANG": "AMERICAN_AMERICA.cp1252" )
   }) {
     const {
@@ -29,6 +30,7 @@ export class OradewProcess {
       isSilent,
       isColor,
       cliExecutable,
+      cliCommand,
       envVariables,
     } = tmConfig;
 
@@ -50,12 +52,14 @@ export class OradewProcess {
 
     this.processEnv = {
       env: {
+        ...process.env,
         NODE_OPTIONS: "--no-deprecation",
         ORADEW_STORAGE_DIR: storageDir,
         ORADEW_DB_CONFIG_PATH: dbConfigPath,
         ORADEW_WS_CONFIG_PATH: wsConfigPath,
         ORADEW_CLI_EXECUTABLE: cliExecutable,
-        ORADEW_SILENT: isSilent,
+        ORADEW_CLI_COMMAND: cliCommand,
+        ORADEW_SILENT: isSilent.toString(),
         ...(envVariables || {}),
       },
       // inherit stdio

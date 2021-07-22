@@ -1,10 +1,14 @@
 import { exec as gitExec } from "gulp-git";
+import { workspaceConfig as config } from "./config";
 
-// refactor to simple-git, graceful-git
+const src = config.get("source.input").join(" ");
+
+// @todo refactor to simple-git, graceful-git a
 
 export const exec = ({ args }) =>
   new Promise((res, rej) => {
-    gitExec({ args, quiet: process.env.ORADEW_SILENT }, (err, stdout) => {
+    const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
+    gitExec({ args, quiet: isSilent }, (err, stdout) => {
       if (err) {
         rej(err);
       }
@@ -12,23 +16,23 @@ export const exec = ({ args }) =>
     });
   });
 
-export const getChanges = () => exec({ args: `diff --name-only HEAD ./src` });
-export const getChangesStaged = () => exec({ args: `diff --name-only --staged ./src` });
+export const getChanges = () => exec({ args: `diff --name-only HEAD ${src}` });
+export const getChangesStaged = () => exec({ args: `diff --name-only --staged ${src}` });
 
 // Get tracked and untracked files
 export const getChangesNotStaged = () =>
-  exec({ args: `diff --name-only ./src & git ls-files --others ./src` });
+  exec({ args: `diff --name-only ${src} & git ls-files --others ${src}` });
 
 // Files from commit or branch to the head (only from src and scripts dir)
 export const getCommitedFilesSincePoint = (from) =>
   exec({
-    args: `log --diff-filter=ACMR --name-only --pretty="" ${from}..head ./src ./scripts`,
+    args: `log --diff-filter=ACMR --name-only --pretty="" ${from}..head ${src} ./scripts`,
   });
 
 // Files from specific commits (only from src and scripts dir)
 export const getCommitedFilesByCommits = (commits: string[]) =>
   exec({
-    args: `show --diff-filter=ACMR --name-only --pretty="" ${commits.join(" ")} ./src ./scripts`,
+    args: `show --diff-filter=ACMR --name-only --pretty="" ${commits.join(" ")} ${src} ./scripts`,
   });
 
 // Get first commit on the current branch

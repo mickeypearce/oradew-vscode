@@ -37,6 +37,7 @@ const isColor = (process.env.ORADEW_COLOR || "true") === "true";
 const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
 
 const cliExecutable = process.env.ORADEW_CLI_EXECUTABLE || "sql";
+const cliCommand = process.env.ORADEW_CLI_COMMAND;
 
 const oradewProcess = new OradewProcess({
   workspaceDir,
@@ -47,6 +48,7 @@ const oradewProcess = new OradewProcess({
   isSilent,
   isColor,
   cliExecutable,
+  cliCommand,
 });
 const execute = () => oradewProcess.execute(process.argv);
 
@@ -60,7 +62,7 @@ program.on("--help", function () {
   console.log("ORADEW_CWD             Workspace directory (current working dir by default)");
   console.log("ORADEW_DB_CONFIG_PATH  DB config file path (./dbconfig.json by default)");
   console.log("ORADEW_WS_CONFIG_PATH  Workspace config file path (./oradewrc.json by default)");
-  console.log("ORADEW_STORAGE_DIR     Storage directory (current user's home directory by default)");
+  console.log("ORADEW_STORAGE_DIR     Storage directory (user's home directory by default)");
   console.log("ORADEW_CLI_EXECUTABLE  OracleDB executable CLI (sql or sqlplus, 'sql' by default)");
   console.log("ORADEW_COLOR           Debug: Gulp outputs in colors (true by default)");
   console.log("ORADEW_SILENT          Debug: Gulp outputs silent (true by default)");
@@ -133,7 +135,7 @@ program
   .description("Code generator")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .option("--func <func>", "Generator function name on DB (required)")
-  .option("--file <file>", "File path. (func. param mapping: ./src/${schema}/${object_type}/${name}.sql)")
+  .option("--file <file>", "File path. (func. params: ./src/${schema}/${object_type}/${name}.sql)")
   .option("--object <object>", "Object name. (func. param mapping: selected_object)")
   .option("--output <output>", "Output file path. Generated file name if not specified.")
   .option("--user <user>", "DB User. <Auto> (extracted from file path) if not specified.")

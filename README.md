@@ -2,14 +2,14 @@
 
 [![Build Status](https://dev.azure.com/mickeypearce0384/Oradew/_apis/build/status/mickeypearce.oradew-vscode)](https://dev.azure.com/mickeypearce0384/Oradew/_build/latest?definitionId=1)
 
-This extension allows you to develop your Oracle (PL/SQL) project in Visual Studio Code. It enables you to:
+This extension enables you to develop your Oracle (PL/SQL) project in Visual Studio Code. It enables you to:
 
 - Manage PL/SQL source code with version control (Git)
 - Compile files and Run statements with ORA errors problem matching
 - Package files into a single SQL deployment script
 - Deploy to multiple environments in one click
 
-![Compile Demo](images/demo.gif)
+![Compile Demo](demo.gif)
 
 ## Installation
 
@@ -83,18 +83,84 @@ oradewrc.json           Workspace configuration
 
 ### DB environment
 
-Only `dbconfig.json` file is required for the workspace activation and successful connection with your database. Multiple DB environments with multi-users per environment are supported. A minimal example with `DEV` environment and a single schema user follows:
+Only `dbconfig.json` file is required for the workspace activation and successful connection with your database. Multiple DB environments with multi-users per environment are supported. `DEV` environment will always be used for importing existing sources from DB, other environment names are not allowed. A minimal example with `DEV` environment and a single schema user follows:
 
 ```json
 {
-  "DEV": {
-    "connectString": "localhost/orclpdb",
-    "users": [{ "user": "hr", "password": "welcome" }]
-  }
+   "DEV":{
+      "connectString":"localhost/orclpdb",
+      "users":[
+         {
+            "user":"hr",
+            "password":"welcome"
+         }
+      ]
+   }
 }
 ```
 
+For credentials stored in oracle wallets, or auto-login oracle wallets:
+
+```json
+{
+    "DEV":{
+       "users":[
+          {
+             "user":"hr",
+             "walletConnectString":"HR_TNSNAMES"
+          },
+          {
+            "user":"dept",
+            "walletConnectString":"DEPT_TNSNAMES"
+         }
+       ]
+    }
+ }
+```
+
 Create `dbconfig.json` manually in the root folder of your workspace or execute `Init Workspace` command.
+
+### TNSNAMES and Oracle Wallet
+
+An autologin oracle wallet tied to the local machine can be created as follows:
+
+```
+wallet create -wallet "C:\#PATH_ORACLE#\oracle_home\network\admin" -pwd "PASSWORD" -auto_login_local
+```
+
+Create your tnsnames.ora as normal:
+
+```
+TNS_CONNECTION_NAME=
+(description=
+(address_list=
+(address = (protocol = TCP)(host = yourhost)(port = yourport))
+)
+(connect_data =
+(service_name=yourservicename)
+)
+)
+```
+
+Add an auto login credential to the wallet:
+
+```
+mkstore -wrl "C:\#PATH_ORACLE#\oracle_home\network\admin" -createCredential TNS_CONNECTION_NAME USER_NAME PASSWORD
+```
+
+Connection with sqlplus:
+
+```
+sqlplus /@TNS_CONNECTION_NAME
+```
+Remember to have proper environment variables in order to use sqlcl or sqlplus:
+
+```
+ORACLE_HOME=C:\#PATH_ORACLE#\oracle_home
+TNS_ADMIN=C:\#PATH_ORACLE#\oracle_home\network\admin
+SQLCL_HOME=C:\#PATH_ORACLE#\sqlcl
+PATH=C:\#PATH_ORACLE#\sqlcl\bin;C:\Oracle\instantclient;C:\Oracle\wallet_manager
+```
 
 ### Workspace
 
@@ -212,7 +278,7 @@ If you are installing from the repository you must first compile the source code
 
 ```bash
 > git clone https://github.com/mickeypearce/oradew-vscode
-> npm install && npm run compile && npm run install-cli
+> npm start && npm run install-cli
 ```
 
 ### Usage

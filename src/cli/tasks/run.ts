@@ -2,6 +2,7 @@ import { argv } from "yargs";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { pipe, replace, trim } from "lodash/fp";
+import { decode } from "iconv-lite";
 
 import { parseForErrors } from "../common/db";
 import { runFileAsScript } from "../common/base";
@@ -63,7 +64,10 @@ export async function runTask({
   try {
     const { stdout, obj } = await runFileAsScript(filePath, env, user);
 
-    const out = sanitize(stdout);
+    const srcEncoding = config.get({ field: "source.encoding", env });
+    const decoded = decode(stdout as Buffer, srcEncoding);
+    const out = sanitize(decoded);
+
     const errors = parseForErrors(out);
 
     // Prints errors in problem matcher format (one error per line)

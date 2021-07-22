@@ -2,7 +2,11 @@ const assert = require("assert");
 
 import { resolve } from "path";
 
-import { getObjectInfoFromPath, getPathFromObjectInfo, getStructure } from "../common/dbobject";
+import {
+  getObjectInfoFromPath,
+  getPathFromObjectInfo,
+  getSourceStructure,
+} from "../common/dbobject";
 
 describe("#getObjectInfo with default structure", function () {
   it("src: should get object type body", function () {
@@ -188,6 +192,16 @@ describe("#getObjectInfo with custom config", function () {
       "isScript": false,
     });
   });
+  it("src: should get object info from dir not starting with src with space", function () {
+    assert.deepEqual(getObjectInfoFromPath(resolve("Data -base/SIURETE/TABS/T1/tabela_TAB.sql")), {
+      "owner": "SIURETE",
+      "objectType": "TABLE",
+      "objectType1": "TABLE",
+      "objectName": "tabela",
+      "isSource": true,
+      "isScript": false,
+    });
+  });
 });
 
 describe("#getPath from custom structure", function () {
@@ -208,9 +222,9 @@ describe("#getPath from custom structure", function () {
   });
 });
 
-describe("#getStructure", function () {
+describe("#getSourceStructure", function () {
   it("should get default structure", function () {
-    assert.deepEqual(getStructure(), [
+    assert.deepEqual(getSourceStructure(), [
       "./src/{schema-name}/PACKAGES",
       "./src/{schema-name}/PACKAGE_BODIES",
       "./src/{schema-name}/TRIGGERS",
@@ -225,3 +239,10 @@ describe("#getStructure", function () {
     ]);
   });
 });
+/*
+describe("#srcDir", function () {
+  it("should get default source root directory", function () {
+    assert.deepEqual(srcDir(), "./src");
+  });
+});
+*/

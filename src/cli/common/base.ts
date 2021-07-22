@@ -1,4 +1,4 @@
-import { pipe, replace, trim, trimCharsEnd } from "lodash/fp";
+import { pipe, replace, trim, trimCharsEnd, template } from "lodash/fp";
 import { parse } from "path";
 
 import * as db from "./db";
@@ -171,20 +171,25 @@ export const runFileAsScript = async (file, env, user = U_AUTO) => {
 
   const cwd = parse(file).dir;
   const filename = parse(file).base;
-  const cli = process.env.ORADEW_CLI_EXECUTABLE;
+  const cliExec = process.env.ORADEW_CLI_EXECUTABLE;
+  const cliCommand = process.env.ORADEW_CLI_COMMAND;
 
-  const isSqlPlus = parse(cli).name.toLowerCase() === "sqlplus";
   let cmd;
-  if (isSqlPlus) {
-    cmd = `(echo connect ${connString} && echo start ${filename} && echo show errors) | "${cli}" -S /nolog`;
+  if (cliCommand === "null") {
+    const isSqlPlus = parse(cliExec).name.toLowerCase() === "sqlplus";
+    if (isSqlPlus) {
+      cmd = `(echo connect ${connString} && echo start ${filename} && echo show errors) | "${cliExec}" -S /nolog`;
+    } else {
+      cmd = `exit | "${cliExec}" -S ${connString} @"${filename}"`;
+    }
   } else {
-    cmd = `exit | "${cli}" -S ${connString} @"${filename}"`;
+    cmd = template(cliCommand)({ cliExec, connString, filename });
   }
 
   // We execute from file directory (change cwd)
   // mainly because of spooling to dir of the file (packaged script)
   // buffer: 5MB
-  let stdout = await execPromise(cmd, { maxBuffer: 1024 * 5000, cwd });
+  let stdout = await execPromise(cmd, { encoding: "buffer", maxBuffer: 1024 * 5000, cwd });
   return { stdout, obj };
 };
 

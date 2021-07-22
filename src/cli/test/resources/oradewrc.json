@@ -7,6 +7,7 @@
     "trigger": "./src/{schema-name}/trigger-{object-name}.sql",
     "view": "./src/{schema-name}/view-{object-name}.sql",
     "function": "./test/src/{schema-name}/FUNCTIONS/{object-name}.sql",
-    "procedure": "./src/PROCEDURES/{object-name}.sql"
+    "procedure": "./src/PROCEDURES/{object-name}.sql",
+    "table": "./Data -base/{schema-name}/TABS/T1/{object-name}_tab.sql"
   }
 }

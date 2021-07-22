@@ -1,4 +1,24 @@
 # Change Log
+## [0.3.29] - 2021-22-07
+
+- Added compatibility with connections having credentials stored in autologin Oracle wallets. [#58](https://github.com/mickeypearce/oradew-vscode/issues/58)
+- Added additional warnings and verifications while executing workspace initialization
+
+## [0.3.28] - 2021-04-02
+
+- Minor fixes
+
+## [0.3.27] - 2020-12-06
+
+- Added setting "oradew.cliCommand" [#50](https://github.com/mickeypearce/oradew-vscode/issues/50)
+
+## [0.3.26] - 2020-11-16
+
+- Fixed bug [#43](https://github.com/mickeypearce/oradew-vscode/issues/43)
+
+## [0.3.25] - 2020-10-23
+
+- Added compatibility for APEX applications [#39](https://github.com/mickeypearce/oradew-vscode/issues/39) (thanks, @yevon)
 
 ## [0.3.24] - 2020-07-10
 

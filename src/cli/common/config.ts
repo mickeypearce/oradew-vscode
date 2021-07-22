@@ -16,6 +16,7 @@ interface IUser {
   user: string;
   password: string;
   askForPassword?: boolean;
+  walletConnectString: string;
   default?: boolean;
   disabled?: boolean;
   schemas?: string[];
@@ -129,11 +130,11 @@ export class DBConfig {
     // If user param exists, filter by v.user or v.schema
     let byUser = user
       ? filter(
-          (v: IUser) =>
-            v.user.toUpperCase() === user.toUpperCase() ||
-            // includesCaseInsensitive([v.user], user) ||
-            (v.schemas && includesCaseInsensitive(v.schemas, user))
-        )(byEnv)
+        (v: IUser) =>
+          v.user.toUpperCase() === user.toUpperCase() ||
+          // includesCaseInsensitive([v.user], user) ||
+          (v.schemas && includesCaseInsensitive(v.schemas, user))
+      )(byEnv)
       : byEnv;
 
     if (byUser.length === 1) {

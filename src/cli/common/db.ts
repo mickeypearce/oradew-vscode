@@ -17,7 +17,7 @@ interface IObjectParameter {
 let _pool = {};
 
 async function getPassword(connCfg: IConnectionConfig) {
-  if (connCfg.askForPassword || !connCfg.password) {
+  if ((!connCfg.password && !connCfg.walletConnectString) || connCfg.askForPassword) {
     const res = await inquirer.prompt([
       {
         type: "password",
@@ -26,9 +26,9 @@ async function getPassword(connCfg: IConnectionConfig) {
         mask: "*",
       },
     ]);
-    return res.password;
+    return res.password ?? "";
   } else {
-    return connCfg.password;
+    return connCfg.password ?? "";
   }
 }
 
@@ -37,7 +37,7 @@ async function getPassword(connCfg: IConnectionConfig) {
  * @param {IConnectionConfig} connCfg
  */
 const getConnection = async (connCfg: IConnectionConfig) => {
-  let { env, user, connectString } = connCfg;
+  let { env, user, connectString, walletConnectString } = connCfg;
   if (!_pool[env]) {
     _pool[env] = {};
   }
@@ -45,16 +45,28 @@ const getConnection = async (connCfg: IConnectionConfig) => {
     return _pool[env][user].getConnection();
   }
   const password = await getPassword(connCfg);
-  return oracledb
-    .createPool({
-      user,
-      password,
-      connectString,
-    })
-    .then((newPool) => {
-      _pool[env][user] = newPool;
-      return _pool[env][user].getConnection();
-    });
+  if (walletConnectString) {
+    return oracledb
+      .createPool({
+        externalAuth: true,
+        connectionString: walletConnectString
+      })
+      .then((newPool) => {
+        _pool[env][user] = newPool;
+        return _pool[env][user].getConnection();
+      });
+  } else {
+    return oracledb
+      .createPool({
+        user,
+        password,
+        connectString
+      })
+      .then((newPool) => {
+        _pool[env][user] = newPool;
+        return _pool[env][user].getConnection();
+      });
+  }
 };
 
 const closeConnection = async (conn) => {
@@ -73,7 +85,11 @@ const closeConnection = async (conn) => {
  */
 const getConnectionString = async (connCfg: IConnectionConfig) => {
   const password = await getPassword(connCfg);
-  return `${connCfg.user}/${password}@${connCfg.connectString}`;
+  if (!connCfg.walletConnectString) {
+    return `${connCfg.user}/${password}@${connCfg.connectString}`;
+  } else {
+    return `/${password}@${connCfg.walletConnectString}`;
+  }
 };
 
 const compile = async (connection, code, warningScope = "NONE") => {
@@ -90,7 +106,7 @@ const compile = async (connection, code, warningScope = "NONE") => {
 
 const getObjectDdl = (connection, getFunctionName, { owner, objectName, objectType1 }) => {
   oracledb.outFormat = oracledb.OUT_FORMAT_ARRAY;
-  if (objectType1 == 'APEX') {
+  if (objectType1 === "APEX") {
     return connection
       .execute(
         `
@@ -128,11 +144,16 @@ const getObjectDdl = (connection, getFunctionName, { owner, objectName, objectTy
             l_file_content := l_files(1).contents;
             :apexsql := l_file_content;
         end;
-        `
-        , {
+        `,
+        {
           objectName,
-          apexsql: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 524288000 },
-        })
+          apexsql: {
+            dir: oracledb.BIND_OUT,
+            type: oracledb.STRING,
+            maxSize: 524288000,
+          },
+        }
+      )
       .then((result) => result.outBinds.apexsql);
   } else {
     return connection
@@ -175,8 +196,7 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }: IObjectPa
   // Only allow APEX exporting if APEX is installed and version >= 5.1.4
   oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 
-  let allObjectsQuery =
-    `
+  let allObjectsQuery = `
     SELECT
       owner,
       object_id,
@@ -193,7 +213,8 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }: IObjectPa
       AND object_name NOT LIKE 'SYS_PLSQL%'
     `;
 
-  let allObjectsApexQuery = allObjectsQuery +
+  let allObjectsApexQuery =
+    allObjectsQuery +
     `
     union all
 
@@ -210,35 +231,33 @@ const getObjectsInfo = (connection, { owner, objectType, objectName }: IObjectPa
     order by object_type, object_id
     `;
 
-  let hasApexQuery =
-    `
-    begin
-    SELECT count(*) into :hasApex FROM apex_release where replace(version_no, '.', '') > 5140000;
+  let hasApexQuery = `
+  begin
+    execute immediate 'SELECT count(*) FROM apex_release where replace(version_no, ''.'', '''') > 5140000'
+    into :hasApex;
   exception
     when others then
       :hasApex := 0;
   end;
   `;
 
-  return connection.execute(
-    hasApexQuery, {
-    hasApex: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-  }).then((result) => {
-    let finalObjectsQuery = allObjectsQuery;
-    if (result.outBinds.hasApex > 0) {
-      finalObjectsQuery = allObjectsApexQuery;
-    }
-    return connection.execute(
-      finalObjectsQuery,
-      {
-        owner,
-        objectName,
-        objectType,
+  return connection
+    .execute(hasApexQuery, {
+      hasApex: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    })
+    .then((result) => {
+      let finalObjectsQuery = allObjectsQuery;
+      if (result.outBinds.hasApex > 0) {
+        finalObjectsQuery = allObjectsApexQuery;
       }
-    ).then((result) => result.rows);
-  }
-  );
-
+      return connection
+        .execute(finalObjectsQuery, {
+          owner,
+          objectName,
+          objectType,
+        })
+        .then((result) => result.rows);
+    });
 };
 
 const getGeneratorFunction = (

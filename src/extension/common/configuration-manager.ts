@@ -7,6 +7,7 @@ export class ConfigurationManager {
   public generatorConfigFile: string;
   public chatty: boolean;
   public cliExecutable: string;
+  public cliCommand: string;
   public envVariables?: { [id: string]: string };
   public workspaceDir: string;
 
@@ -29,16 +30,23 @@ export class ConfigurationManager {
     this.workspaceDir = workspace.workspaceFolders ? workspace.workspaceFolders![0].uri.fsPath : "";
 
     const configParamWsConfigPath: string = oradewConfiguration.get("workspaceConfigFile");
-    this.workspaceConfigFile = resolve(configParamWsConfigPath.replace("${workspaceFolder}", this.workspaceDir));
+    this.workspaceConfigFile = resolve(
+      configParamWsConfigPath.replace("${workspaceFolder}", this.workspaceDir)
+    );
 
     const configParamDbConfigPath: string = oradewConfiguration.get("databaseConfigFile");
-    this.databaseConfigFile = resolve(configParamDbConfigPath.replace("${workspaceFolder}", this.workspaceDir));
+    this.databaseConfigFile = resolve(
+      configParamDbConfigPath.replace("${workspaceFolder}", this.workspaceDir)
+    );
 
     const configParamGeneratorPath: string = oradewConfiguration.get("generatorConfigFile");
-    this.generatorConfigFile = resolve(configParamGeneratorPath.replace("${workspaceFolder}", this.workspaceDir));
+    this.generatorConfigFile = resolve(
+      configParamGeneratorPath.replace("${workspaceFolder}", this.workspaceDir)
+    );
 
     this.chatty = oradewConfiguration.get("chatty");
     this.cliExecutable = oradewConfiguration.get("cliExecutable");
+    this.cliCommand = oradewConfiguration.get("cliCommand");
     this.envVariables = oradewConfiguration.get("envVariables");
   }
 }

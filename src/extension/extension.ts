@@ -148,6 +148,7 @@ export function activate(context: vscode.ExtensionContext) {
     Telemetry.sendEvent("compileFileTask");
   });
   let cmdTaskCompileObject = vscode.commands.registerCommand("oradew.compileObjectTask", () => {
+    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: select--sentence");
     vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: compile--object");
     Telemetry.sendEvent("compileObjectTask");
   });
@@ -206,42 +207,41 @@ export function activate(context: vscode.ExtensionContext) {
     let lineNumber = lines.length - 1;
     let charNumber = offset - res.lastIndexOf("\n") - 1;
     return new vscode.Position(lineNumber, charNumber);
-  }
+  };
 
-  let cmdSelectCurrentStatement = vscode.commands.registerCommand('oradew.selectCurrentStatement', function () {
-    // Get the active text editor
-    const editor = vscode.window.activeTextEditor;
-
+  let selectPattern = (editor, allText, pattern) => {
     if (editor) {
-      console.log('Cursor position ' + editor.selection.active.line);
-      //const currentPosition = editor.selection.active;
-
-      const allText = editor.document.getText();
-
-      let patt = /(?=select|with)(.*?);/gis;
       let match;
       let selectionTest;
-      while (match = patt.exec(allText)) {
+      let cursorLine = editor.selection.active.line;
+      while (match = pattern.exec(allText)) {
         let startPoint = offsetToPosition(allText, match.index);
-        let endPoint = offsetToPosition(allText, patt.lastIndex);
-        console.log('Normal: ' + match.index + ' ' + patt.lastIndex);
-        console.log('Traducido: ' + startPoint.character + ' ' + startPoint.line + ' ' + endPoint.character + ' ' + endPoint.line);
-        selectionTest = new vscode.Selection(startPoint, endPoint);
-        editor.selection = selectionTest;
+        let endPoint = offsetToPosition(allText, pattern.lastIndex);
+        if (startPoint.line <= cursorLine && cursorLine <= endPoint.line) {
+          selectionTest = new vscode.Selection(startPoint, endPoint);
+          editor.selection = selectionTest;
+          return true;
+        }
       }
-
-      /*
-      const range = editor.document.getWordRangeAtPosition(currentPosition, new RegExp('(?=select|with)(.*)(?=;)', 'gis'));
-      const allText = editor.document.getText();
-
-      if (range) {
-        const selectionTest = new vscode.Selection(range.start, range.end);
-        editor.selection = selectionTest;
-      } else {
-        console.log("No matches found");
-      }*/
-
     }
+    return false;
+  };
+
+  let selectAll = (editor, allText) => {
+    editor.selection = new vscode.Selection(editor.document.positionAt(0), editor.document.positionAt(allText.length));
+  };
+
+  let cmdSelectCurrentStatement = vscode.commands.registerCommand("oradew.selectCurrentStatement", function () {
+    const editor = vscode.window.activeTextEditor;
+    const allText = editor.document.getText();
+    if (editor) {
+      if (!selectPattern(editor, allText, /(?<!\()(select|with|update|insert|delete|alter|grant|drop|truncate|revoke|explain)(.*?)(;|\n[\/]\s*?(\n|\z))/gis)) { //Try to select DML statements ended with ; or /
+        if (!selectPattern(editor, allText, /(?=begin|declare|create|replace)(.*?)end\s*?;\s*?\n[\/]\s*?(\n|\z)/sig)) { //Try to select scripts ended with /
+          selectAll(editor, allText); //Select all text in any other case
+        }
+      }
+    }
+    Telemetry.sendEvent("sentenceSelectedTask");
   });
 
   disposables.push(cmdSelectCurrentStatement);

@@ -278,7 +278,7 @@
       },
       {
         "command": "oradew.selectCurrentStatement",
-        "title": "Select current statement",
+        "title": "Select Current Statement",
         "category": "Oradew"
       }
     ],

@@ -313,6 +313,27 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
       )
     );
 
+    result.push(
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "select--sentence",
+          params: [
+            "select",
+            "--env",
+            "${command:oradew.selectCurrentStatement}",
+            "--file",
+            "${file}",
+            "--object",
+            "${selectedText}",
+            "--line",
+            "${lineNumber}",
+            "--user",
+            "${command:oradew.getUser}",
+          ],
+        })
+      )
+    );
+
     return result;
   } catch (err) {
     let channel = getOutputChannel();

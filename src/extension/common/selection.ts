@@ -34,7 +34,7 @@ export let selectAll = (editor: vscode.TextEditor): string => {
 
 export let selectCurrentStatement = (editor: vscode.TextEditor): string => {
   const allText = editor.document.getText();
-  let selectedText = (editor.document.getText(editor.selection))
+  let selectedText = (editor.document.getText(editor.selection));
   if (!selectedText || selectedText.length === 0) {
     selectedText =
       (selectPattern(editor, allText, /(?<!\()(select|with|update|insert|delete|alter|grant|drop|truncate|revoke|explain)(.*?)(;|\n[\/]\s*?(\n|\z))/gis))

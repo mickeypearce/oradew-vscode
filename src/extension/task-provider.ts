@@ -191,7 +191,7 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
             "--file",
             "${file}",
             "--object",
-            "${selectedText}",
+            "${command:oradew.selectCurrentStatement}",
             "--line",
             "${lineNumber}",
             "--user",
@@ -306,27 +306,6 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
             "test",
             "--env",
             "${command:oradew.getEnvironment}",
-            "--user",
-            "${command:oradew.getUser}",
-          ],
-        })
-      )
-    );
-
-    result.push(
-      createOradewTask(
-        createOradewTaskDefinition({
-          name: "select--sentence",
-          params: [
-            "select",
-            "--env",
-            "${command:oradew.selectCurrentStatement}",
-            "--file",
-            "${file}",
-            "--object",
-            "${selectedText}",
-            "--line",
-            "${lineNumber}",
             "--user",
             "${command:oradew.getUser}",
           ],

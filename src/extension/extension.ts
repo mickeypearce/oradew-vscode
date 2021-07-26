@@ -11,6 +11,7 @@ import { UserController } from "./controllers/user-controller";
 import { FileController } from "./controllers/file-controller";
 import { OradewTaskProvider, createCompileOnSaveTask } from "./task-provider";
 import { OradewProcess } from "@Cli/process";
+import { selectCurrentStatement } from "../extension/common/selection";
 
 let oradewTaskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
@@ -148,7 +149,6 @@ export function activate(context: vscode.ExtensionContext) {
     Telemetry.sendEvent("compileFileTask");
   });
   let cmdTaskCompileObject = vscode.commands.registerCommand("oradew.compileObjectTask", () => {
-    vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: select--sentence");
     vscode.commands.executeCommand("workbench.action.tasks.runTask", "oradew: compile--object");
     Telemetry.sendEvent("compileObjectTask");
   });
@@ -201,47 +201,9 @@ export function activate(context: vscode.ExtensionContext) {
     Telemetry.sendEvent("compileOnSaveTask");
   });
 
-  let offsetToPosition = (text, offset) => {
-    let res = text.substr(0, offset);
-    let lines = res.split(/\r\n|\r|\n/);
-    let lineNumber = lines.length - 1;
-    let charNumber = offset - res.lastIndexOf("\n") - 1;
-    return new vscode.Position(lineNumber, charNumber);
-  };
-
-  let selectPattern = (editor, allText, pattern) => {
-    if (editor) {
-      let match;
-      let selectionTest;
-      let cursorLine = editor.selection.active.line;
-      while (match = pattern.exec(allText)) {
-        let startPoint = offsetToPosition(allText, match.index);
-        let endPoint = offsetToPosition(allText, pattern.lastIndex);
-        if (startPoint.line <= cursorLine && cursorLine <= endPoint.line) {
-          selectionTest = new vscode.Selection(startPoint, endPoint);
-          editor.selection = selectionTest;
-          return true;
-        }
-      }
-    }
-    return false;
-  };
-
-  let selectAll = (editor, allText) => {
-    editor.selection = new vscode.Selection(editor.document.positionAt(0), editor.document.positionAt(allText.length));
-  };
-
   let cmdSelectCurrentStatement = vscode.commands.registerCommand("oradew.selectCurrentStatement", function () {
-    const editor = vscode.window.activeTextEditor;
-    const allText = editor.document.getText();
-    if (editor) {
-      if (!selectPattern(editor, allText, /(?<!\()(select|with|update|insert|delete|alter|grant|drop|truncate|revoke|explain)(.*?)(;|\n[\/]\s*?(\n|\z))/gis)) { //Try to select DML statements ended with ; or /
-        if (!selectPattern(editor, allText, /(?=begin|declare|create|replace)(.*?)end\s*?;\s*?\n[\/]\s*?(\n|\z)/sig)) { //Try to select scripts ended with /
-          selectAll(editor, allText); //Select all text in any other case
-        }
-      }
-    }
-    Telemetry.sendEvent("sentenceSelectedTask");
+    Telemetry.sendEvent("selectCurrentStatement");
+    return selectCurrentStatement(vscode.window.activeTextEditor);
   });
 
   disposables.push(cmdSelectCurrentStatement);

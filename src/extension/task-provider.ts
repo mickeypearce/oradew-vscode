@@ -191,7 +191,7 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
             "--file",
             "${file}",
             "--object",
-            "${selectedText}",
+            "${command:oradew.selectCurrentStatement}",
             "--line",
             "${lineNumber}",
             "--user",

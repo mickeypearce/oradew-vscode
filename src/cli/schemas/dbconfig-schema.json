@@ -65,6 +65,10 @@
                 "type": "string",
                 "description": "Password to be used for connecting"
               },
+              "walletConnectString": {
+                "type": "string",
+                "description": "The Oracle database instance. \nThe string can be an Easy Connect string, a Net Service Name from a tnsnames.ora file, or the name of a local Oracle Database instance. Please specify connectString at user level if you have connection credentials stored in an oracle wallet. The password will be optional if you have an auto-login wallet. Specify schema name as user."
+              },
               "askForPassword": {
                 "description": "Specify if password should be typed when executing command instead of stored in this file",
                 "type": "boolean",
@@ -96,7 +100,6 @@
         }
       },
       "required": [
-        "connectString",
         "users"
       ]
     }

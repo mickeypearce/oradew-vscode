@@ -28,7 +28,7 @@ const createSrcEmpty = (done) => {
   }
 };
 
-const createDbConfigFile = async ({}) => {
+const createDbConfigFile = async ({ }) => {
   // Create db config file if it doesn't exists already...
   if (!fs.existsSync(dbConfig.fileBase as string)) {
     dbConfig.createFile();
@@ -98,19 +98,27 @@ const createProjectFiles = () => {
       base: path.join(__dirname, "/templates/"),
     })
     .pipe(gulp.dest("."))
-    .on("end", () => console.log(`workspace structure initialized for user(s): ${schemas}`));
+    .on("end", () => {
+      if (schemas === null || schemas === undefined || schemas.length === 0) {
+        console.log("ERROR, Workspace could not be initialized, please check that your development enviroment is named DEV in dbconfig.json");
+        throw new Error("ERROR, Workspace could not be initialized, please check that your development enviroment is named DEV in dbconfig.json");
+      } else {
+        console.log(`Workspace structure initialized for user(s): ${schemas}`);
+      }
+    }
+    );
 };
 
 const cleanProject = () => {
   // Delete temp directories
   return del(["./scripts/*", "./deploy/*", "./**/*.log"]).then((rDel) => {
     if (rDel.length !== 0) {
-      console.log("workspace cleaned.");
+      console.log("Workspace cleaned.");
     }
   });
 };
 
-const initGit = async ({}) => {
+const initGit = async ({ }) => {
   let isInitialized;
   try {
     isInitialized = await git.exec({
@@ -135,7 +143,7 @@ const initGit = async ({}) => {
   }
 };
 
-const initConfigFile = async ({}) => {
+const initConfigFile = async ({ }) => {
   let answer = await inquirer.prompt({
     type: "confirm",
     name: "ws",

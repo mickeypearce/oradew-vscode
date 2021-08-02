@@ -11,6 +11,7 @@ import { UserController } from "./controllers/user-controller";
 import { FileController } from "./controllers/file-controller";
 import { OradewTaskProvider, createCompileOnSaveTask } from "./task-provider";
 import { OradewProcess } from "@Cli/process";
+import { selectCurrentStatement } from "../extension/common/selection";
 
 let oradewTaskProvider: vscode.Disposable | undefined;
 let environmentController: EnvironmentController;
@@ -199,6 +200,13 @@ export function activate(context: vscode.ExtensionContext) {
     }
     Telemetry.sendEvent("compileOnSaveTask");
   });
+
+  let cmdSelectCurrentStatement = vscode.commands.registerCommand("oradew.selectCurrentStatement", function () {
+    Telemetry.sendEvent("selectCurrentStatement");
+    return selectCurrentStatement(vscode.window.activeTextEditor);
+  });
+
+  disposables.push(cmdSelectCurrentStatement);
 
   disposables.push(cmdTaskGenerate);
   disposables.push(cmdTaskInitProject);

@@ -83,11 +83,11 @@ oradewrc.json           Workspace configuration
 
 ### DB environment
 
-Only `dbconfig.json` file is required for the workspace activation and successful connection with your database. Multiple DB environments with multi-users per environment are supported. `DEV` environment will always be used for importing existing sources from DB, other environment names are not allowed.
+Only `dbconfig.json` file is required for the workspace activation and successful connection with your database. Multiple DB environments with multi-users per environment are supported.
 
-Create `dbconfig.json` manually in the root folder of your workspace or execute `Init Workspace` command.
+You can create `dbconfig.json` manually in the root folder of your workspace or execute `Init Workspace` command.
 
-A minimal example with `DEV` environment and a single schema user follows:
+A minimal example with `DEV` environment and a single schema-user follows:
 
 ```json
 {

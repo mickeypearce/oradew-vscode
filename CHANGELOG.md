@@ -4,6 +4,7 @@
 
 - Added compatibility with connections having credentials stored in autologin Oracle wallets [#58](https://github.com/mickeypearce/oradew-vscode/issues/58)
 - Added auto-selection of query in "Run Current Statement" command [#24](https://github.com/mickeypearce/oradew-vscode/issues/24)
+- Added "env" parameter to "Init" command
 
 ## [0.3.28] - 2021-04-02
 

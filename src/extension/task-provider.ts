@@ -115,11 +115,12 @@ async function getOradewTasks(): Promise<vscode.Task[]> {
     );
 
     result.push(
-      createOradewTask({
-        type: OradewTaskProvider.OradewType,
-        name: "init",
-        params: ["init"],
-      })
+      createOradewTask(
+        createOradewTaskDefinition({
+          name: "init",
+          params: ["init", "--env", "${command:oradew.getEnvironment}"],
+        })
+      )
     );
 
     result.push(

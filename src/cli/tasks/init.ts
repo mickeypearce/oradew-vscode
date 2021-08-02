@@ -1,4 +1,5 @@
 const gulp = require("gulp");
+import { argv } from "yargs";
 import * as inquirer from "inquirer";
 import * as multiDest from "gulp-multi-dest";
 import del from "del";
@@ -28,7 +29,7 @@ const createSrcEmpty = (done) => {
   }
 };
 
-const createDbConfigFile = async ({ }) => {
+const createDbConfigFile = async ({}) => {
   // Create db config file if it doesn't exists already...
   if (!fs.existsSync(dbConfig.fileBase as string)) {
     dbConfig.createFile();
@@ -66,11 +67,11 @@ Press ^C at any time to quit or enter to skip.`
   }
 };
 
-const createProjectFiles = () => {
+const createProjectFiles = ({ env = argv.env || "DEV" }) => {
   // Create scripts dir for every user
   // and copy scripts templates
   dbConfig.load();
-  const schemas = dbConfig.getSchemas();
+  const schemas = dbConfig.getSchemas(env as string);
   const scriptsDirs = schemas.map((v) => `./scripts/${v}`);
   gulp
     .src([
@@ -100,13 +101,12 @@ const createProjectFiles = () => {
     .pipe(gulp.dest("."))
     .on("end", () => {
       if (schemas === null || schemas === undefined || schemas.length === 0) {
-        console.log("ERROR, Workspace could not be initialized, please check that your development enviroment is named DEV in dbconfig.json");
-        throw new Error("ERROR, Workspace could not be initialized, please check that your development enviroment is named DEV in dbconfig.json");
+        console.error("Workspace could not be initialized, please check dbconfig.json file.");
+        throw new Error("Workspace could not be initialized, please check dbconfig.json file.");
       } else {
         console.log(`Workspace structure initialized for user(s): ${schemas}`);
       }
-    }
-    );
+    });
 };
 
 const cleanProject = () => {
@@ -118,7 +118,7 @@ const cleanProject = () => {
   });
 };
 
-const initGit = async ({ }) => {
+const initGit = async ({}) => {
   let isInitialized;
   try {
     isInitialized = await git.exec({
@@ -143,7 +143,7 @@ const initGit = async ({ }) => {
   }
 };
 
-const initConfigFile = async ({ }) => {
+const initConfigFile = async ({}) => {
   let answer = await inquirer.prompt({
     type: "confirm",
     name: "ws",

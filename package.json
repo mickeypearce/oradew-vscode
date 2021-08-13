@@ -385,11 +385,11 @@
   "devDependencies": {
     "@types/globby": "^9.1.0",
     "@types/gulp": "^4.0.9",
-    "@types/lodash": "^4.14.171",
+    "@types/lodash": "^4.14.172",
     "@types/mocha": "^7.0.2",
     "@types/node": "^10.17.60",
     "@types/oracledb": "^4.2.3",
-    "@types/vscode": "^1.58.0",
+    "@types/vscode": "^1.59.0",
     "@types/webpack": "^4.41.30",
     "@types/yargs": "^15.0.14",
     "clean-webpack-plugin": "^3.0.0",
@@ -430,5 +430,8 @@
     "gulp-git": "^2.10.1",
     "gulp-todo": "^5.5.0",
     "oracledb": "4.1.0"
+  },
+  "resolutions": {
+    "underscore": "^1.12.1"
   }
 }

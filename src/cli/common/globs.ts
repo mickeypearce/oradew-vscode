@@ -1,5 +1,5 @@
 // const glob = require("fast-glob"); not preserving order
-import { sync } from "globby";
+import { sync } from "fast-glob";
 import * as multimatch from "multimatch";
 
 import { pipe, compact, uniq, sortBy, identity, map, isEqual } from "lodash/fp";

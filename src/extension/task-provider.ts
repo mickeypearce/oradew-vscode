@@ -79,8 +79,7 @@ function createOradewTask(definition: OradewTaskDefinition): vscode.Task {
     OradewTaskProvider.OradewType,
     new vscode.ProcessExecution(
       "node",
-      [oradewProcess.cliPath, ...definition.params],
-      oradewProcess.processEnv
+      [oradewProcess.cliPath, ...definition.params]
     ),
     "$oracle-plsql"
   );

@@ -52,7 +52,7 @@ oradewrc.json           Workspace configuration
 - `Compile Changed Files` (F6) - Compile changed Source files in working tree to DB
 - `Compile Current File` - Compile Source object (or any file with a single SQL or PL/SQL statement)
 - `Run Current File as Script` (F5) - Execute a SQL script (with SQL\*Plus or SQLcl)
-- `Run Selected Statement` (Ctrl+Enter) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
+- `Run Current Statement` (Ctrl+Enter) - Execute a SQL query or PL/SQL statement with autoCommit and dbms_output enabled
 
 **Install**
 
@@ -83,84 +83,22 @@ oradewrc.json           Workspace configuration
 
 ### DB environment
 
-Only `dbconfig.json` file is required for the workspace activation and successful connection with your database. Multiple DB environments with multi-users per environment are supported. `DEV` environment will always be used for importing existing sources from DB, other environment names are not allowed. A minimal example with `DEV` environment and a single schema user follows:
+Only `dbconfig.json` file is required for the workspace activation and successful connection with your database. Multiple DB environments with multi-users per environment are supported.
+
+You can create `dbconfig.json` manually in the root folder of your workspace or execute `Init Workspace` command.
+
+A minimal example with `DEV` environment and a single schema-user follows:
 
 ```json
 {
-   "DEV":{
-      "connectString":"localhost/orclpdb",
-      "users":[
-         {
-            "user":"hr",
-            "password":"welcome"
-         }
-      ]
-   }
+  "DEV": {
+    "connectString": "localhost/orclpdb",
+    "users": [{ "user": "hr", "password": "welcome" }]
+  }
 }
 ```
 
-For credentials stored in oracle wallets, or auto-login oracle wallets:
-
-```json
-{
-    "DEV":{
-       "users":[
-          {
-             "user":"hr",
-             "walletConnectString":"HR_TNSNAMES"
-          },
-          {
-            "user":"dept",
-            "walletConnectString":"DEPT_TNSNAMES"
-         }
-       ]
-    }
- }
-```
-
-Create `dbconfig.json` manually in the root folder of your workspace or execute `Init Workspace` command.
-
-### TNSNAMES and Oracle Wallet
-
-An autologin oracle wallet tied to the local machine can be created as follows:
-
-```
-wallet create -wallet "C:\#PATH_ORACLE#\oracle_home\network\admin" -pwd "PASSWORD" -auto_login_local
-```
-
-Create your tnsnames.ora as normal:
-
-```
-TNS_CONNECTION_NAME=
-(description=
-(address_list=
-(address = (protocol = TCP)(host = yourhost)(port = yourport))
-)
-(connect_data =
-(service_name=yourservicename)
-)
-)
-```
-
-Add an auto login credential to the wallet:
-
-```
-mkstore -wrl "C:\#PATH_ORACLE#\oracle_home\network\admin" -createCredential TNS_CONNECTION_NAME USER_NAME PASSWORD
-```
-
-Connection with sqlplus:
-
-```
-sqlplus /@TNS_CONNECTION_NAME
-```
-Remember to have proper environment variables in order to use sqlcl or sqlplus:
-
-```
-ORACLE_HOME=C:\#PATH_ORACLE#\oracle_home
-TNS_ADMIN=C:\#PATH_ORACLE#\oracle_home\network\admin
-SQLCL_HOME=C:\#PATH_ORACLE#\sqlcl
-PATH=C:\#PATH_ORACLE#\sqlcl\bin;C:\Oracle\instantclient;C:\Oracle\wallet_manager
-```
+For credentials stored in oracle wallets, or auto-login oracle wallets use `"walletConnectString"` instead of `"password"` property. [(more info)](https://github.com/mickeypearce/oradew-vscode/wiki/wallets)
 
 ### Workspace
 
@@ -315,4 +253,4 @@ Commands:
 
 ## Aditional information
 
-[How-tos](https://github.com/mickeypearce/oradew-vscode/wiki)
+[How-tos](https://github.com/mickeypearce/oradew-vscode/wiki/howtos)

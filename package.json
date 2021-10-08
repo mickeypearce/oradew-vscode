@@ -5,7 +5,7 @@
   "version": "0.3.29",
   "publisher": "mp",
   "engines": {
-    "vscode": "^1.61.0"
+  "vscode": "^1.61.0"
   },
   "license": "MIT",
   "categories": [
@@ -68,7 +68,7 @@
         },
         {
           "command": "oradew.compileObjectTask",
-          "when": "inOradewProject && resourceExtname =~ /.sql|.SQL/ && editorHasSelection",
+          "when": "inOradewProject && resourceExtname =~ /.sql|.SQL/",
           "group": "Oradew"
         },
         {
@@ -224,7 +224,7 @@
       },
       {
         "command": "oradew.compileObjectTask",
-        "title": "Run Selected Statement",
+        "title": "Run Current Statement",
         "category": "Oradew",
         "icon": {
           "light": "dist/images/compile_icon_alt.png",
@@ -274,11 +274,6 @@
       {
         "command": "oradew.generateTask",
         "title": "Generate...",
-        "category": "Oradew"
-      },
-      {
-        "command": "oradew.selectCurrentStatement",
-        "title": "Select Current Statement",
         "category": "Oradew"
       }
     ],

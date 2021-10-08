@@ -72,6 +72,7 @@ program.on("--help", function () {
 program
   .createCommand("init")
   .description("Initialize a new workspace")
+  .option("--env <env>", "DB Environment. DEV if not specified.")
   .action(() => execute());
 
 program

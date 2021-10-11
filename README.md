@@ -17,7 +17,7 @@ Install the extension and start with `Oradew: Initialize Workspace` command.
 
 ### Prerequisites (local)
 
-- Node.js 16.11.0 or later
+- Node.js 10.16, Node.js 12, Node.js 14, or later
 - Git
 - SQL\*Plus or SQLcl
 

@@ -1,5 +1,6 @@
 import { resolve } from "path";
 import { homedir } from "os";
+import * as program from "commander";
 
 import { OradewProcess } from "./process";
 import { version } from "../../package.json";
@@ -38,8 +39,6 @@ const isSilent = (process.env.ORADEW_SILENT || "true") === "true";
 const cliExecutable = process.env.ORADEW_CLI_EXECUTABLE || "sql";
 const cliCommand = process.env.ORADEW_CLI_COMMAND;
 
-const { program } = require('commander');
-
 const oradewProcess = new OradewProcess({
   workspaceDir,
   cliDir,
@@ -70,7 +69,7 @@ program.on("--help", function () {
 });
 
 program
-  .createCommand("init")
+  .command("init")
   .description("Initialize a new workspace")
   .option("--env <env>", "DB Environment. DEV if not specified.")
   .action(() => execute());

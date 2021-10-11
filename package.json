@@ -366,7 +366,7 @@
   },
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
-    "start": "npm install && webpack --mode development",
+    "start": "npm ci && webpack --mode development",
     "start:watch": "npm start -- --watch --info-verbosity verbose",
     "compile": "npm run precompile && tsc -p ./",
     "watch": "npm run precompile && tsc -watch -p ./",

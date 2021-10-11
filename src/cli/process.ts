@@ -1,4 +1,6 @@
-import child = require("child_process");
+import child = require("promisify-child-process");
+import { SpawnOptions } from "child_process";
+
 import { resolve } from "path";
 
 export class OradewProcess {
@@ -6,7 +8,7 @@ export class OradewProcess {
   gulpPathJs: string;
   gulpFile: string;
   gulpParams: Array<string>;
-  processEnv: child.SpawnOptions;
+  processEnv: SpawnOptions;
   cliPath: string;
 
   constructor(tmConfig: {
@@ -67,12 +69,12 @@ export class OradewProcess {
     };
   }
 
-  execute = (argv) => {
+  execute = async (argv) => {
     const params = [...this.gulpParams, ...argv.slice(2)];
     // console.log("Executing oradew task: " + params.join(" "));
 
     // Execute process
-    return child.spawn(process.execPath, params, this.processEnv);
+    await child.spawn(process.execPath, params, this.processEnv);
     // ls.stdout.on("data", (data) => {
     //   console.log(`stdout: ${data}`);
     // });

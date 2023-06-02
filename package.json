@@ -416,7 +416,7 @@
     "nedb": "^1.8.0",
     "prettier": "2.0.5",
     "promisify-child-process": "^4.1.1",
-    "ts-loader": "^7.0.5",
+    "ts-loader": "^9.4.2",
     "tslint": "6.1.2",
     "typescript": "^3.9.10",
     "typescript-tslint-plugin": "^0.5.5",

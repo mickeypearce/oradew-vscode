@@ -115,7 +115,8 @@ export function getObjectInfoFromPath(path) {
     /** extact schema*/
     // Get left and right of schema path
     // p1 = ["./src/", "/PACKAGES/{object-name}-spec.sql"]
-    const schemaSplit = patternSrc.split("{schema-name}");
+    // escape '.' (.sql) as its a regex's special char
+    const schemaSplit = patternSrc.split("{schema-name}").map((v) => v.replace(".", "\\."));
 
     // Convert to regex so we can find and replace
     // p1 = ["/.\/src\//", "/\/PACKAGES\/\w+-spec.sql/"]
@@ -126,11 +127,11 @@ export function getObjectInfoFromPath(path) {
     // Remove both from path
     // ex: path: "./src/HR/PACKAGES/pck1-spec.sql"
     // replace ["./src/", "/PACKAGES/\w+-spec.sql"] with "", leaving "HR"
-    // actually: pathPosix.replace(schemaRegex[0]).replace(schemaRegex[1])
+    // actually: schema = pathPosix.replace(schemaRegex[0], "").replace(schemaRegex[1], "");
     schema = schemaRegex.reduce((acc, val) => acc.replace(val, ""), pathPosix);
 
     /** extact object-name*/
-    const objectSplit = patternSrc.split("{object-name}");
+    const objectSplit = patternSrc.split("{object-name}").map((v) => v.replace(".", "\\."));
     const objectRegex = objectSplit.map(
       (v) => new RegExp(v.replace("{schema-name}", "\\w+"), "gi")
     );

@@ -90,6 +90,17 @@ describe("#getObjectInfo with default structure", function () {
       "isScript": false,
     });
   });
+
+  it("src: should get object with 'sql' in its name", function () {
+    assert.deepEqual(getObjectInfoFromPath("./src/HR/PACKAGE_BODIES/UpdateMysqlFromOracle.sql"), {
+      "owner": "HR",
+      "objectType": "PACKAGE BODY",
+      "objectType1": "PACKAGE_BODY",
+      "objectName": "UpdateMysqlFromOracle",
+      "isSource": true,
+      "isScript": false,
+    });
+  });
 });
 
 describe("#getPath from default structure", function () {

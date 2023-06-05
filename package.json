@@ -387,8 +387,8 @@
     "@types/gulp": "^4.0.9",
     "@types/lodash": "^4.14.171",
     "@types/mocha": "^7.0.2",
-    "@types/node": "^14.17.00",
-    "@types/oracledb": "^5.1.0",
+    "@types/node": "^18.16.00",
+    "@types/oracledb": "^5.2.5",
     "@types/vscode": "^1.61.0",
     "@types/yargs": "^15.0.14",
     "@vscode/test-electron": "^2.3.2",
@@ -429,6 +429,6 @@
     "gulp": "^4.0.2",
     "gulp-git": "^2.10.1",
     "gulp-todo": "^5.5.0",
-    "oracledb": "5.1.0"
+    "oracledb": "6.0.0"
   }
 }

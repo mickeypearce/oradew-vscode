@@ -25,7 +25,7 @@ import { dbConfig } from "../common/config";
 
 const createSrcFromDbObjects = async ({ env = argv.env || "DEV", file = argv.file }) => {
   const source = file || config.get({ field: "source.input", env });
-  const schemas = dbConfig.getSchemas();
+  const schemas = dbConfig.getSchemas(env as string);
   const objectTypes = getObjectTypes();
   try {
     for (const owner of schemas) {
